@@ -1,0 +1,12 @@
+# Going Deeper {.appendix #app-going-deeper}
+
+::: {.callout-note}
+## Skeleton
+
+The exit map from learning lab to production: official SDKs and
+LiteLLM, LlamaIndex and real vector stores, Pydantic AI and agent
+frameworks, Pipecat and the voice stack, and Karpathy's Zero to Hero
+for the reader who wants to build the model itself. Framed as a map,
+not a manual: the ecosystem moves fast, the ideas you now have do
+not.
+:::

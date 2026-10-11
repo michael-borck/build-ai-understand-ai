@@ -1,0 +1,13 @@
+# The Judge {#sec-the-judge}
+
+::: {.callout-note}
+## Skeleton
+
+Kills: "I can eyeball quality" — at scale you cannot, and the demo is
+not a test.
+
+Installs: the LLM judge, criteria, thresholds, calibrated distrust;
+judging as the baseline literacy of the AI era. Working build:
+`judge-your-bot` — score a chatbot's answers against stated criteria
+and read where the judge itself disagrees with you.
+:::

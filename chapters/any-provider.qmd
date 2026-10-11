@@ -1,0 +1,13 @@
+# Any Provider Will Do {#sec-any-provider}
+
+::: {.callout-note}
+## Skeleton
+
+Kills: "I'm locked into one vendor" — OpenAI-compatible endpoints are
+a common language.
+
+Installs: the three environment variables, local Ollama for free and
+private runs, `HANDS_ON_AI_CACHE` for reproducible classroom reruns.
+Working build: the same script run against two providers with no code
+change.
+:::

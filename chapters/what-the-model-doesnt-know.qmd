@@ -1,0 +1,13 @@
+# What the Model Doesn't Know {#sec-what-the-model-doesnt-know}
+
+::: {.callout-note}
+## Skeleton
+
+Kills: "it knows everything" — training data has a cutoff and a
+domain, and confidence is not knowledge.
+
+Installs: hallucination as a property, not a bug; the cost of asking
+for facts the model cannot have. Working build: a question the model
+gets confidently wrong, then the same question with the answer pasted
+into the prompt.
+:::

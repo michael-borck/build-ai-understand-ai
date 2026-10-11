@@ -1,0 +1,13 @@
+# Who the Model Is Being {#sec-who-the-model-is}
+
+::: {.callout-note}
+## Skeleton
+
+Kills: "the AI has a personality" — a system prompt is just text in
+the request.
+
+Installs: system prompts, personality bots, the pirate in a box.
+Working build: two personalities from the same model, switched by one
+string; the reader reuses a bot with `return_usage=True` to watch what
+the instruction costs in tokens.
+:::

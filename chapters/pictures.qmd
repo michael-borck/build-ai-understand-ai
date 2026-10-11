@@ -1,0 +1,13 @@
+# Pictures {#sec-pictures}
+
+::: {.callout-note}
+## Skeleton
+
+Kills: "vision is a different kind of AI" — images go into the same
+kind of call, descriptions come out.
+
+Installs: `hands_on_ai.vision`, what a vision-language model can and
+cannot see, where grounded answers still need retrieval. Working
+build: `talking-picture` — a photograph that answers questions about
+itself.
+:::

@@ -1,0 +1,12 @@
+# Loops with a Goal {#sec-loops-with-a-goal}
+
+::: {.callout-note}
+## Skeleton
+
+Kills: "more steps means better" — repetition needs a stopping
+condition, and progress needs a memory of the best so far.
+
+Installs: `run_loop` with a goal, `judged()` thresholds, the ratchet
+that keeps only wins. Working build: a paragraph improved until a
+stated goal is met, with the iteration count visible.
+:::

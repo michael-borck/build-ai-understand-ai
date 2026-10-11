@@ -1,0 +1,12 @@
+# One Call to the Model {#sec-one-call}
+
+::: {.callout-note}
+## Skeleton
+
+Kills: "AI is magic" — it is one function call over HTTP.
+
+Installs: `get_response`; the reading habit of asking what a tool adds
+to the plain call. Working build: a five-line script that answers a
+question, then the same call with the curtain pulled back (the request
+payload, printed).
+:::

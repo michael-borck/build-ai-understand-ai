@@ -1,0 +1,14 @@
+# The Shape Underneath {#sec-conclusion}
+
+::: {.callout-note}
+## Skeleton
+
+Kills: "I need to learn a framework" — everything in the package was
+one call plus plain Python, and now the reader can see which parts of
+any AI product are the model and which are the harness.
+
+Closes: the five-part shape (call, ground, act, control, sense);
+the exit map to production tools; the argument that understanding the
+machine is what makes supervising AI possible. Points to Appendix D
+and to *Ship Python, Orchestrate AI* for the professional road.
+:::

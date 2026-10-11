@@ -1,0 +1,12 @@
+# The ReAct Loop {#sec-the-react-loop}
+
+::: {.callout-note}
+## Skeleton
+
+Kills: "the agent thinks" — it reasons in text, acts through your
+functions, observes the results, and repeats; a loop you can read.
+
+Installs: reason → act → observe, the `hands_on_ai.agent` trace,
+stopping conditions. Working build: a small agent with two or three
+tools whose full thought process prints as it works.
+:::

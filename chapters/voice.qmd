@@ -1,0 +1,12 @@
+# Voice {#sec-voice}
+
+::: {.callout-note}
+## Skeleton
+
+Kills: "voice AI is a different technology" — it is transcribe,
+think, speak: a loop around the chat loop you already understand.
+
+Installs: `hands_on_ai.voice`, transcription and synthesis as plain
+calls, latency as the real engineering problem. Working build: a
+talk-out-loud chatbot, three calls stitched together.
+:::

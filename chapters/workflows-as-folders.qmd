@@ -1,0 +1,12 @@
+# Workflows as Folders {#sec-workflows-as-folders}
+
+::: {.callout-note}
+## Skeleton
+
+Kills: "orchestration needs a framework" — numbered folders of
+reviewable stages are enough.
+
+Installs: `init_workspace`, `CONTEXT.md`, `run_next()`; the review
+gate between stages as the point. Working build: a three-stage
+pipeline (research, outline, draft) run one reviewed stage at a time.
+:::

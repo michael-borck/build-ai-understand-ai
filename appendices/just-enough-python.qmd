@@ -1,0 +1,11 @@
+# Just Enough Python {.appendix #app-just-enough-python}
+
+::: {.callout-note}
+## Skeleton
+
+Every construct the book uses, taught in about ten pages: variables,
+strings and f-strings, functions, lists, dictionaries, loops, imports,
+`pip install`, running a script. Written for the reader who has never
+programmed; each construct links back to the first chapter that uses
+it.
+:::

@@ -1,0 +1,13 @@
+# No Memory Between Calls {#sec-no-memory}
+
+::: {.callout-note}
+## Skeleton
+
+Kills: "it remembers me" — every call is stateless; memory is a
+transcript you resend.
+
+Installs: `Conversation`, the context window, token budgets, why long
+chats get expensive and forgetful. Working build: a chat that
+remembers your name, then `save()`/`load()` to show the memory is a
+JSON file.
+:::

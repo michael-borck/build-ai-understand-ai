@@ -1,0 +1,102 @@
+project:
+  type: book
+  output-dir: _book
+  resources:
+    - LICENSE
+    - LICENSE-CONTENT.md
+    - LICENSE-CODE.md
+
+book:
+  title: "Build AI, Understand AI"
+  subtitle: "How Modern AI Systems Actually Work, in Small Readable Pieces"
+  author: "Michael Borck"
+  date: "last-modified"
+  license: "CC BY 4.0 International"
+  description: "Build tiny versions of chat, retrieval, agents, workflows and judges, and learn what the AI systems you use every day actually are: one model call wrapped in plain Python."
+  site-url: https://michael-borck.github.io/build-ai-understand-ai
+  repo-url: https://github.com/michael-borck/build-ai-understand-ai
+  repo-branch: main
+  repo-actions: [edit, issue]
+  chapters:
+    - index.qmd
+    - copyright.qmd
+    - part: "The Model"
+      chapters:
+        - chapters/one-call.qmd
+        - chapters/who-the-model-is.qmd
+        - chapters/no-memory.qmd
+        - chapters/any-provider.qmd
+    - part: "Grounding"
+      chapters:
+        - chapters/what-the-model-doesnt-know.qmd
+        - chapters/chunk-fetch-answer.qmd
+    - part: "Action"
+      chapters:
+        - chapters/giving-the-model-hands.qmd
+        - chapters/the-react-loop.qmd
+    - part: "Control"
+      chapters:
+        - chapters/workflows-as-folders.qmd
+        - chapters/loops-with-a-goal.qmd
+        - chapters/the-judge.qmd
+    - part: "The Senses"
+      chapters:
+        - chapters/pictures.qmd
+        - chapters/voice.qmd
+    - part: "Looking Underneath"
+      chapters:
+        - chapters/conclusion.qmd
+  appendices:
+    - appendices/just-enough-python.qmd
+    - appendices/model-access.qmd
+    - appendices/project-gallery.qmd
+    - appendices/going-deeper.qmd
+  page-navigation: true
+  sidebar:
+    style: docked
+    search: true
+    collapse-level: 2
+  other-links:
+    - text: The Package (companion)
+      icon: package
+      href: https://michael-borck.github.io/hands-on-ai/
+    - text: All Books
+      icon: collection
+      href: https://books.borck.education
+
+bibliography: references.bib
+
+format:
+  html:
+    theme:
+      light: cosmo
+      dark: darkly
+    css: book-design.css
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    highlight-style: github
+  pdf:
+    pdf-engine: lualatex
+    fontsize: 11pt
+    linestretch: 1.08
+    include-in-header: book-design.tex
+    documentclass: book
+    toc: true
+    toc-depth: 1
+    number-sections: true
+    geometry:
+      - paperwidth=6in
+      - paperheight=9in
+      - inner=1in
+      - outer=0.625in
+      - top=0.75in
+      - bottom=0.75in
+  epub:
+    toc: true
+    toc-depth: 1
+
+execute:
+  echo: true
+  warning: false
+  error: false

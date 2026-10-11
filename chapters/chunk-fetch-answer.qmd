@@ -1,0 +1,13 @@
+# Chunk, Fetch, Answer {#sec-chunk-fetch-answer}
+
+::: {.callout-note}
+## Skeleton
+
+Kills: "RAG is a framework" — it is search, then a prompt with the
+search results in it.
+
+Installs: chunking, matching, assembling context with citations;
+`hands_on_ai.rag` as a readable version of the same. Working build:
+`first-rag-bot` — ask questions of your own documents and get answers
+that point at their sources.
+:::

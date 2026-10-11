@@ -1,0 +1,12 @@
+# The Project Gallery {.appendix #app-project-gallery}
+
+::: {.callout-note}
+## Skeleton
+
+The companion package's project guides mapped by module and
+difficulty: personality bots and quiz bots after Part I, document
+Q&A after Part II, tool-using agents after Part III, judge-and-loop
+projects after Part IV, multimodal builds after Part V. Three
+suggested capstones, one per reader goal (personal tool, classroom
+demo, portfolio piece).
+:::

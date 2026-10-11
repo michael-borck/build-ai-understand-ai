@@ -1,0 +1,11 @@
+# Model Access {.appendix #app-model-access}
+
+::: {.callout-note}
+## Skeleton
+
+Providers and keys: the three environment variables, OpenAI, Gemini,
+Groq, OpenRouter, and free local models with Ollama. Cost notes per
+chapter, the response cache for reproducible classroom reruns, and
+troubleshooting the common failures (wrong URL, missing key, model
+name not found).
+:::

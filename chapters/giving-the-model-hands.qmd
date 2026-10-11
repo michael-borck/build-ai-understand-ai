@@ -1,0 +1,13 @@
+# Giving the Model Hands {#sec-giving-the-model-hands}
+
+::: {.callout-note}
+## Skeleton
+
+Kills: "agents are products you buy" — a tool is a function the model
+may ask you to run.
+
+Installs: tool descriptions as the real interface; what the model
+sends back; why the caller, not the model, executes anything. Working
+build: one function (a calculator or date lookup) the model learns to
+request.
+:::
