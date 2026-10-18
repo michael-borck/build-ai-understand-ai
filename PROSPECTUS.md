@@ -1,6 +1,6 @@
 # Build AI, Understand AI: Prospectus
 
-Date: 2026-10-11. Status: Parts I and II and Appendix A drafted (2026-10-18); Parts III to V and Appendices B to D unwritten.
+Date: 2026-10-11. Status: Parts I to III and Appendix A drafted (2026-10-18); Parts IV and V and Appendices B to D unwritten.
 
 The doing lives in the companion package `michael-borck/hands-on-ai`
 (`pip install hands-on-ai`): eight modules, roughly forty documentation
@@ -142,9 +142,19 @@ output; index save/load and `get_top_k` ranking verified offline
 with test embeddings; live embedding calls still need an author
 run against a reachable server).
 
+Done 2026-10-18 (Part III pass): Chapters 7 and 8 drafted against
+`hands_on_ai.agent`. Tool execution, the calculator description
+mismatch (its dictionary-style example errors when fed to its own
+function), ReAct parsing, and all three loop exits verified offline
+with a scripted model. Live agent runs still need an author pass;
+note that `format="react"` on small local models is expected to
+wobble, and the richer `agent/agents/` tools with multi-argument
+signatures do not fit the registry's one-string calling convention,
+so the chapters build only on one-argument tools.
+
 Next, in order:
-1. Author review of Parts I and II, including one live run of the
+1. Author review of Parts I to III, including one live run of the
    model-dependent listings.
-2. Parts III–IV; Part V last (vision and voice demos age fastest).
+2. Part IV; Part V last (vision and voice demos age fastest).
 4. Project gallery appendix once capstones are chosen.
 5. Fresh-reader pass, print build, cover.

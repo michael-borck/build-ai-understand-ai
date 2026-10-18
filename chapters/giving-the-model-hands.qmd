@@ -1,13 +1,154 @@
 # Giving the Model Hands {#sec-giving-the-model-hands}
 
-::: {.callout-note}
-## Skeleton
+> A tool is an ordinary Python function. The model's new power is being allowed to ask for it by name.
 
-Kills: "agents are products you buy" — a tool is a function the model
-may ask you to run.
+**Package companion:** `hands_on_ai.agent`, its tool registry, and the built-in calculator. Listings checked against `hands-on-ai` 0.6.0.
 
-Installs: tool descriptions as the real interface; what the model
-sends back; why the caller, not the model, executes anything. Working
-build: one function (a calculator or date lookup) the model learns to
-request.
+**Misconception this chapter kills:** "Agents are products you buy." An agent begins the moment a model may request a function and your code decides whether to run it.
+
+**The build:** one registered calculator the model can ask for, called directly so you can watch it work without the model, then a tool of your own.
+
+**Python you need:** functions and function arguments from @sec-just-enough-python. One system in this chapter passes a function itself as an argument, and that move is explained where it happens.
+
+## The Concept First
+
+Everything your model has done so far ends in text. It answers, it adopts a voice, it rereads a transcript, it summarises fetched chunks. It cannot add two numbers reliably, read today's date, look inside a file, or check anything outside the payload. Tool use changes the shape of the exchange. Alongside your question, the payload now carries descriptions of functions your code is willing to run. The model may reply not with an answer but with a request: run this named function, with this input. Your code runs it, or refuses to, and sends the result back as another message. The model then answers with the result in hand.
+
+Hold on to who does what in that exchange, because most confusion about agents dissolves there. The model never executes anything. It cannot. It produces text, and one shape of that text is a request for a named function. Your program parses the request, checks the name against a registry you control, calls the function with the requested input, and returns the output as text. Every security question in this chapter, and most of Part IV, grows from that division of labour: the model proposes, your code disposes.
+
+Three pieces make the arrangement work. The registry is a table of allowed functions, each with a name and a description. The description is what the model reads, so the description is the real interface: a tool whose description is vague or wrong will be called wrongly, however good the function is. And the result comes back as a message in the transcript, an observation, where the model can read it on the next turn. Chapter 3's list, doing yet another job.
+
+## Understanding Through Real Life
+
+Think of advising a colleague by phone while they stand in a workshop you cannot enter. You cannot touch anything. What you can do is say: use the torque wrench on the second bolt, and tell me what the gauge reads. Your colleague, who has the hands, decides whether that instruction makes sense, carries it out, and reports the reading. You reason again from the report.
+
+That is the model's position, and the analogy keeps the authority in the right place. The voice on the phone can be brilliant and can also ask for the wrong tool, the right tool with a nonsense setting, or a tool that does not exist on the bench. The person holding the tools stays responsible for what gets picked up. When a product advertises an agent that "takes action", translate it into this scene and ask who built the bench, who stocked it, and what the hands refuse to do.
+
+## The Build: One Tool the Model Can Request
+
+The package ships a calculator tool, and registering it takes one call. Registration adds an entry to the registry table: a name, a description for the model to read, and the function itself.
+
+```python
+# Listing 7.1 of 3: a model that may ask for a calculator (first_tool.py)
+from hands_on_ai.agent import list_tools, register_calculator_tool, run_agent
+
+register_calculator_tool()
+print(list_tools())
+
+answer = run_agent("What is 25 * 3?")
+print(answer)
+```
+
+The `list_tools()` line prints the registry as the model will effectively meet it: a list of names with descriptions. Run the script and read that output before the answer arrives. Then watch what the run returns. Somewhere between your question and the printed answer, the model asked for the calculator with the input `25 * 3`, your side of the program evaluated it, and the result rode back into the conversation. Chapter 8 slows that exchange down until every hop is visible. This chapter is about the three parties to it.
+
+A word about formats, because you will not see the request itself in this run. By default, `run_agent` chooses how the model should phrase its requests based on the model you configured. Capable models get a readable text format, the subject of Chapter 8. Small local models, including the default from Part I, get routed to a stricter JSON format, where the request arrives as structured data naming a thought, a tool, and an input, validated before anything runs. Either way, what reaches your registry is a name and a string. The hands do not care which dialect the voice used.
+
+## Call the Tool Yourself First
+
+The fastest way to understand a tool is to take the model out of the loop entirely. The calculator is a Python function, and you can call it the way you called every function in Appendix A:
+
+```python
+# Listing 7.2 of 3: the tool, no model involved (tool_directly.py)
+from hands_on_ai.agent.tools.calculator import calculator
+
+print(calculator("2 + 2 * 10"))
+print(calculator("{'expression': '2 + 2 * 10'}"))
+```
+
+```text
+Result: 22
+Error: Could not evaluate expression. Dict is not allowed
+```
+
+The first line is the tool working as intended. The second line is the chapter's most useful accident. Look back at the description `list_tools()` printed in Listing 7.1: its example input is written as `{'expression': '2 + 2 * 10'}`, dictionary-style. The function, however, receives one string and evaluates the expression inside it, so a model that follows the description's example literally will send the dictionary text and get an error in return. The function is fine. The model may be fine. The interface between them, one sentence of description, is where the failure was authored.
+
+That error string is worth reading once more. When a tool fails inside an agent run, the failure does not stop the program. The error text becomes the observation sent back to the model, which gets a chance to read it and try again with a corrected input. The same happens when the model invents a tool name: the reply from your side reads `Error: Tool 'nonexistent' not found.` Errors are conversation here, not crashes. It is a forgiving design for learning, and a design whose risks the safety section below takes seriously, because a model that can retry can also be steered by whatever text a tool returns.
+
+While you have the tool open in front of you, look at how it evaluates. Your first instinct for a calculator might be Python's built-in `eval`, which runs a string as code. The package refuses that route on purpose. Its calculator parses the expression into a tree and walks only the arithmetic nodes it allows: numbers, the basic operators, a short list of named functions. A request to open a file or reach the operating system is not a slower path through the same door. There is no door. That is why the dictionary input failed with "Dict is not allowed" instead of being politely evaluated. The allowlist rejected a whole category of input without caring whether this particular instance was harmless.
+
+## Register a Tool of Your Own
+
+A tool of yours needs three things the calculator already showed you: a function that takes one string and returns text, a name, and a description written for its reader, who is a model deciding from that sentence alone whether and how to call it.
+
+```python
+# Listing 7.3 of 3: your own tool on the bench (my_tool.py)
+from hands_on_ai.agent import list_tools, register_calculator_tool, register_tool, run_agent
+
+
+def count_words(text: str) -> str:
+    count = len(text.split())
+    return f"The text has {count} words."
+
+
+register_calculator_tool()
+register_tool(
+    "count_words",
+    "Count the words in a piece of text. Input: the text itself, "
+    "with no quotes or labels around it.",
+    count_words,
+)
+
+print(list_tools())
+print(run_agent("How many words are in this sentence: the model proposes and the code disposes"))
+```
+
+One line in that listing does something new. The third argument to `register_tool` is `count_words` with no parentheses after it. You are not calling the function there. You are handing the function itself to the registry, the way you would hand a physical tool to the person at the bench, so the registry can call it later when a request arrives. Parentheses would run it immediately, with no input, and register the resulting text instead, which fails in ways worth seeing once in the exercises.
+
+The description earns its keep by preventing the failure you just studied. It names the input's exact shape, including what not to add around it. When you write descriptions of your own, write the example input as the literal string the function should receive, then test the description the way Listing 7.2 tested the calculator's: feed the tool exactly what its description tells the model to send. If that string errors, the description is wrong, whatever the function does with well-formed input.
+
+## The Bench Rules: Safety Lives on Your Side
+
+Everything in this section follows from one fact: text produced by a model, influenced by whoever wrote the prompt and whatever the retrieved documents say, is about to select functions in your process. Treat tool design as designing what that text can reach.
+
+Stock the bench narrowly. A calculator that accepts arithmetic only, a word counter, a lookup that reads one file: each tool should do one small thing, take one plainly shaped input, and have no side effects you would mind explaining. The dangerous tool is the general one, a `run_command` or `evaluate_code` that turns model text into machine instructions. The package's own calculator shows the alternative pattern: parse the input, walk an allowlist, reject everything else wholesale.
+
+Check what each tool actually returns before you trust it in a chain. The package is honest about its teaching tools, and reading two of them is a useful exercise in professional suspicion. Its weather tool is labelled simulated and returns random conditions. Its search tool is also simulated, answering from a small set of canned passages. An agent using them will produce fluent answers grounded in theatre, and nothing in the final answer warns the reader. Tools are evidence sources like the chunks in Chapter 6, and they deserve the same question: where does this text actually come from?
+
+Finally, remember who executes. The model can ask, repeatedly and creatively, and the error-as-observation design means it gets feedback and retries. Your registry is the complete list of what asking can achieve. A function that is not registered cannot be called, whatever the prompt says, and a registered function should be safe when called with the worst string a model can produce, as well as the strings you imagined. Chapter 10 adds stopping rules and budgets around the asking. This chapter's rule is prior to all of those: never register a hand you would not lend to a stranger's sentence.
+
+::: {.callout-note title="Descriptions are prompts too"}
+The tool descriptions ride inside the system prompt the agent sends on every call, so they cost prompt tokens on every iteration, exactly as Chapter 2's standing instructions do. They also compete with each other: two tools with overlapping descriptions will be confused with each other, and the fix is usually in the wording, not the model. When an agent picks the wrong tool, read the bench card before blaming the voice on the phone.
 :::
+
+## Where a Demo Can Mislead You
+
+Agent demos love the moment the system "does something" in the real world: sends the email, updates the record, books the thing. You can now see the seam the demo glides over. The model requested an action in text. Somebody's code decided the request was acceptable and carried it out. The questions that matter live on the code side. What is the full registry this product exposes, and which entries change the world rather than read it? What inputs are validated against an allowlist, and what happens on the worst string, not the demo string? Which tools are real integrations and which are simulations wearing the same costume? And when a tool errors or returns hostile text, does the loop retry blindly, because a system that treats tool output as trusted instruction has handed the phone to whoever wrote the tool's data.
+
+## Practice Exercises
+
+**Exercise 7.1 (Level 1).** Run `first_tool.py`. Then change the question to one needing no tool at all, and one the calculator cannot help with. Record what the agent does in each case.
+
+**Exercise 7.2 (Level 2).** Using Listing 7.2, test the calculator with five inputs: a valid expression, the dictionary-style example, a word, an empty string, and an attempt to reach beyond arithmetic. Tabulate which returned results and which returned errors.
+
+**Exercise 7.3 (Level 3).** Write and register a tool of your own that does one verifiable thing: count sentences, look up a word in a small dictionary you define, or convert a temperature. Test it directly first, including with the exact example string from your own description.
+
+**Exercise 7.4 (Level 4).** Deliberately register your Exercise 7.3 tool with a misleading description, then ask the agent a question that needs it. Record the failure. Rewrite only the description and ask again. What does the comparison teach you about where agent bugs live?
+
+**Exercise 7.5 (Level 5).** Audit a bench. List every tool the package's `agent ask` command registers (read its command source), classify each as reads-the-world or changes-something and as real or simulated, and write the one-sentence bench rule you would impose before connecting it to a system that mattered.
+
+## Chapter Summary
+
+- A tool is a Python function taking one string and returning text, registered under a name with a description the model reads.
+- The model proposes by emitting a request in text or JSON. Your code checks the name against the registry, executes, and returns the result as an observation message.
+- The description is the interface. The package calculator's dictionary-style example contradicts its function, and feeding the tool its own example proves it without any model.
+- Tool failures return error strings as observations, so the model can read them and retry. Unknown tools fail the same way.
+- Safety lives in the registry and in allowlist parsing. The built-in calculator walks an arithmetic tree and rejects whole categories of input; simulated tools return theatre in the same shape as evidence.
+
+## Reflection
+
+Before moving on, ensure you:
+
+- [ ] Registered a tool and read the registry as the model meets it
+- [ ] Called a tool function directly, with good and bad input
+- [ ] Registered a function you wrote, without parentheses after its name
+- [ ] Can state, for any tool on your bench, whether it is real or simulated
+
+## Your Learning Journal
+
+1. Which failure taught you more: the dictionary-style input, or an invented tool name?
+2. Write the description for a tool you wish your workplace systems offered a model. What input shape did you specify?
+3. Where in a product you use might a simulated tool be passing as a real one?
+
+## Next Steps
+
+One tool request is a single step. Real work needs several: fetch a number, compute with it, check the result, answer. The next chapter puts the step in a loop with a memory, reads the package's own loop line by line in spirit, and asks the question every loop must answer: what makes it stop?

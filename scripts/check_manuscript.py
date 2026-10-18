@@ -76,6 +76,8 @@ class ManuscriptChecks(unittest.TestCase):
             "chapters/any-provider.qmd": ("HANDS_ON_AI_SERVER", "{#sec-any-provider}"),
             "chapters/what-the-model-doesnt-know.qmd": ("grounded_by_hand", "{#sec-what-the-model-doesnt-know}"),
             "chapters/chunk-fetch-answer.qmd": ("get_top_k", "{#sec-chunk-fetch-answer}"),
+            "chapters/giving-the-model-hands.qmd": ("register_tool", "{#sec-giving-the-model-hands}"),
+            "chapters/the-react-loop.qmd": ("run_agent", "{#sec-the-react-loop}"),
             "appendices/just-enough-python.qmd": ("build_payload", "{#sec-just-enough-python .appendix}"),
         }
         for name, markers in written.items():
