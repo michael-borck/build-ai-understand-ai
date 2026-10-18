@@ -1,4 +1,4 @@
-# Just Enough Python {.appendix #app-just-enough-python}
+# Just Enough Python {#sec-just-enough-python .appendix}
 
 ::: {.callout-note}
 ## Skeleton

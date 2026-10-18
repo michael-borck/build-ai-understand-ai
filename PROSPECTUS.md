@@ -1,6 +1,6 @@
 # Build AI, Understand AI: Prospectus
 
-Date: 2026-10-11. Status: skeleton and outline; no chapters written.
+Date: 2026-10-11. Status: Part I drafted (Chapters 1 to 4, 2026-10-18); Parts II to V and appendices unwritten.
 
 The doing lives in the companion package `michael-borck/hands-on-ai`
 (`pip install hands-on-ai`): eight modules, roughly forty documentation
@@ -117,10 +117,25 @@ print pipeline. Cover after the draft stabilises.
 
 Done: skeleton (14 chapter stubs, 4 appendices), prospectus, licence
 files, preface draft, check script adapted from *Speak Software*.
+Done 2026-10-18: Chapter 1 (*One Call to the Model*) drafted as the
+pilot chapter, pinned to `hands-on-ai` 0.6.0 in the chapter header.
+Registered as `build` in `book-publisher/books.yml` and
+`publishing.yml`. Pilot sets the per-chapter pattern: epigraph,
+package companion and version pin, misconception, build, Python
+needed, concept first, real-life analogy, the build, a curtain-back
+section, failure modes, where a demo can mislead, five graded
+exercises, summary, reflection, journal, next steps.
+
+Done 2026-10-18 (continued): Chapters 2 to 4 drafted, completing
+Part I, each checked against the `hands-on-ai` 0.6.0 source
+(`pirate_bot` listing is the package's own function; `Conversation`
+save format, config precedence, and cache-off default verified by
+running the package offline). One skeleton note corrected in the
+writing: packaged bots take no `return_usage` argument, so Chapter 2
+measures instruction cost through the reader's own bot instead.
 
 Next, in order:
-1. Part I first draft (chapters 1–4) against the package's current
-   release; pin the version in RESOURCES.
+1. Author review of Part I.
 2. Appendix A (Just Enough Python) early, since every chapter
    depends on its constructs.
 3. Parts II–IV; Part V last (vision and voice demos age fastest).

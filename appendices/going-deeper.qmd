@@ -1,4 +1,4 @@
-# Going Deeper {.appendix #app-going-deeper}
+# Going Deeper {#sec-going-deeper .appendix}
 
 ::: {.callout-note}
 ## Skeleton

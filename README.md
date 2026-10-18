@@ -6,7 +6,7 @@ Part of the [books.borck.education](https://books.borck.education) series. The h
 
 ## Status
 
-Skeleton: prospectus, preface draft, 14 chapter stubs, 4 appendix stubs. No chapters written. See `PROSPECTUS.md` for the plan and the writing queue.
+In progress: prospectus, preface draft, and Part I (Chapters 1 to 4) drafted against `hands-on-ai` 0.6.0. The remaining 10 chapters and 4 appendices are stubs. See `PROSPECTUS.md` for the plan and the writing queue.
 
 ## Build
 

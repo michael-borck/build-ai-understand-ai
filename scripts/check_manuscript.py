@@ -68,6 +68,32 @@ class ManuscriptChecks(unittest.TestCase):
         self.assertIn("hands-on-ai", prospectus)
         self.assertIn("Chapter plan", prospectus)
 
+    def test_part_one_chapters_written(self):
+        written = {
+            "chapters/one-call.qmd": ("get_response", "{#sec-one-call}"),
+            "chapters/who-the-model-is.qmd": ("pirate_bot", "{#sec-who-the-model-is}"),
+            "chapters/no-memory.qmd": ("Conversation", "{#sec-no-memory}"),
+            "chapters/any-provider.qmd": ("HANDS_ON_AI_SERVER", "{#sec-any-provider}"),
+        }
+        for name, markers in written.items():
+            text = (ROOT / name).read_text(encoding="utf-8")
+            with self.subTest(chapter=name):
+                self.assertNotIn("## Skeleton", text)
+                self.assertGreater(len(text.split()), 1500)
+                self.assertIn("hands-on-ai` 0.6.0", text)
+                for marker in markers:
+                    self.assertIn(marker, text)
+
+    def test_appendix_labels_use_sec_prefix(self):
+        # Quarto only resolves @sec- cross-references; an #app- label
+        # renders as a broken citation. Appendices follow the series
+        # convention: {#sec-<slug> .appendix}.
+        for path in qmd_files():
+            text = path.read_text(encoding="utf-8")
+            with self.subTest(file=str(path)):
+                self.assertNotIn("#app-", text)
+                self.assertNotIn("@app-", text)
+
     def test_package_named_consistently(self):
         for path in qmd_files():
             text = path.read_text(encoding="utf-8")

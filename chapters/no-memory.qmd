@@ -1,13 +1,142 @@
 # No Memory Between Calls {#sec-no-memory}
 
-::: {.callout-note}
-## Skeleton
+> The model forgets you completely between calls. Anything it appears to remember, your code sent again.
 
-Kills: "it remembers me" — every call is stateless; memory is a
-transcript you resend.
+**Package companion:** `Conversation` in `hands_on_ai.chat`. Listings checked against `hands-on-ai` 0.6.0.
 
-Installs: `Conversation`, the context window, token budgets, why long
-chats get expensive and forgetful. Working build: a chat that
-remembers your name, then `save()`/`load()` to show the memory is a
-JSON file.
+**Misconception this chapter kills:** "It remembers me." Every call is stateless. Memory is a transcript you keep and resend.
+
+**The build:** a chat that learns your name and uses it. Then its memory, saved to a JSON file you can open, edit, and reload.
+
+**Python you need:** creating an object from a class, calling its methods with dot notation, and reading a list. @sec-just-enough-python covers the patterns. The word class is explained where it first matters, below.
+
+## The Concept First
+
+At the end of Chapter 2 your bot could not recall your name from one call to the next. That was not a flaw in your bot. It is how the call works. The server receives a payload, produces a reply, and keeps nothing. Your next call is, to the model, the first thing that has ever happened.
+
+Chat products hide this with bookkeeping. The app stores every message, yours and the model's, in order. On each new turn it sends the whole list again: the system instruction from Chapter 2 at the front, then the full conversation so far, then your new question at the end. The model reads the transcript, sees your name in an earlier message, and answers as though it remembered. The memory lives in the app and in the payload. The model is rereading, every time, at full price.
+
+Once you see the mechanism, three familiar behaviours of chat products stop being mysterious. Long conversations get slower and dearer, because each turn resends everything before it. Very long conversations start dropping their beginnings, because the payload has a size limit, called the context window. And a fresh chat feels like a stranger, because it is one: a new list with nothing in it but the instruction card.
+
+## Understanding Through Real Life
+
+Return to the well-read stranger who answers your letters, from Chapter 1. Imagine now that the stranger has a strict rule: every letter they receive is shredded the moment the reply is posted. If you want a continuing correspondence, there is exactly one way to have it. Each time you write, you copy the entire exchange so far into your new letter: your first question, their reply, your follow-up, their reply, and finally today's question at the bottom.
+
+Your letters get longer every week. Postage rises with length, so a long correspondence costs more per letter than a short one, even when today's question is a single line. Eventually the envelope reaches the largest size the post office will carry. Past that point something has to give. You can stop writing, start a new correspondence, or quietly leave the earliest pages out of the copy. The stranger will then answer as though those early exchanges never happened, because for them, they never did.
+
+Every part of that story is literal. The envelope limit is the context window, measured in tokens. The rising postage is the per-call token cost you met in Chapter 1. The missing early pages are why a long chat can forget the name you gave it an hour ago while remembering what you said a minute ago.
+
+## First, Watch the Forgetting
+
+Prove the statelessness to yourself before building the fix. Two separate calls, using the function you already know.
+
+```python
+# Listing 3.1 of 3: two calls, no memory (forgetful.py)
+from hands_on_ai.chat import get_response
+
+print(get_response("My name is Sam. Remember it."))
+print(get_response("What is my name?"))
+```
+
+The first reply will be warm and reassuring. The second will admit it does not know, or guess, or explain that it has no record of earlier conversations. The reassurance in the first reply is worth a moment of your attention. The model said it would remember because that is a natural thing to say in conversation. The words were produced by the same process that produces everything else it writes. No storage happened behind them. When a person says "I will remember that", a memory forms. When a model says it inside a stateless call, only the sentence exists. Telling those two situations apart, in products you use and in systems you might one day commission, starts here.
+
+## The Build: a Conversation That Resends
+
+The package does the bookkeeping in a class named `Conversation`. A class is a template for making objects that bundle data with the operations that belong to it. In practical terms for this chapter: you create one conversation object, it holds the message list inside itself, and you talk to it through a method named `ask`.
+
+```python
+# Listing 3.2 of 3: the same exchange, with a transcript (remembering.py)
+from hands_on_ai.chat import Conversation
+
+chat = Conversation(system="You are a helpful tutor.")
+
+print(chat.ask("My name is Sam."))
+print(chat.ask("What is my name?"))
+print("Tokens so far:", chat.total_tokens)
+```
+
+Run it, and the second answer gets your name right. Read the listing slowly, because the difference from Listing 3.1 is the whole chapter. The first line after the import creates the object and hands it the instruction card. That card becomes the first and, for now, only message in its list. The first `ask` appends your message to the list, sends the entire list to the model, receives the reply, and appends the reply to the list as well, under a third role you have not met yet: `assistant`. The second `ask` appends your new question and sends all four messages. The model sees "My name is Sam." in the transcript and answers from it. Nothing was recalled. Everything was resent.
+
+The last line prints the running token account. `Conversation` adds up the usage the server reports after each turn and keeps the total where you can read it. Ask a few more questions and print it again. Then do the arithmetic Chapter 1 prepared you for: the tenth turn of a conversation resends the nine before it, so a conversation does not cost the sum of its questions. It costs more, and the gap widens with every turn. On a local model you pay in waiting time. On a metered provider you pay in money, for rereading.
+
+::: {.callout-note title="Three roles, one list"}
+You have now seen every role a message can carry in this book's early chapters. `system` holds the builder's standing instructions. `user` holds what the person typed. `assistant` holds what the model replied, saved so it can be resent. When you read a saved transcript in the next section, roles are how you tell who said what, and the model relies on the same labels.
 :::
+
+## The Memory Is a File
+
+If the memory is a list your code keeps, then it can be written down. `Conversation` will do it for you.
+
+```python
+# Listing 3.3 of 3: save the transcript, load it back (save_chat.py)
+from hands_on_ai.chat import Conversation
+
+chat = Conversation(system="You are a helpful tutor.")
+chat.ask("My name is Sam.")
+chat.save("my_chat.json")
+
+later = Conversation.load("my_chat.json")
+print(later.ask("What is my name?"))
+print(later.history())
+```
+
+Open `my_chat.json` in any text editor before you run the second half. It is plain JSON, the same format as the payload from Chapter 1, holding five things: the system prompt, the model setting, the personality used for retry messages, the complete `messages` list, and the token total. The object that felt like a mind a moment ago serialises into a page of structured text, and `load` rebuilds the object from that page in a later run, on a later day, on a different machine. The reloaded chat answers with your name because the file carried the transcript across the gap. The model was never consulted about any of it.
+
+Two experiments make the point impossible to unsee. First, edit the file by hand. Change "Sam" to "Priya" inside the saved user message, reload, and ask again. The model will call you Priya with complete confidence. You did not hack the model. You edited the only record the model ever reads. Second, call `later.reset()` and ask once more. `reset` throws the transcript away and keeps only the system prompt, and the name is gone. Products dress these two operations in friendly buttons: edit history, delete conversation. Underneath, someone is keeping, editing, or discarding a list.
+
+The `history()` call in the last line returns the transcript without the system message, which is the view a product would show its user. The instruction card stays in the payload and out of sight, as Chapter 2 described.
+
+## The Window Has Edges
+
+The context window is the largest payload a model will accept, counted in tokens, instruction and transcript and new question together. Windows vary widely by model, from a few thousand tokens to well over a hundred thousand, and the model name in your configuration decides which one you have. Your local model will tell its limit in its documentation, and `handsonai models` can show what your server reports.
+
+`Conversation` in this package resends everything and trims nothing. That honesty is deliberate in a learning tool. It means a very long chat with this class will eventually produce an error from the server, or a reply that behaves as though the beginning never happened, depending on how the server handles an overlong request. Production chat products choose a trimming strategy instead: keep the most recent turns, summarise the older ones into a short paragraph that rides along in place of the originals, or pin a few facts while letting chatter scroll away. Each strategy loses something different. Each is a decision a person made about what the conversation is allowed to forget, and most products never tell their users which decision was taken.
+
+One more edge is already visible in your build. When a call fails, the package returns an error string, as Chapter 1 explained, and `Conversation` appends that string to the transcript as the assistant's turn. A failed exchange becomes part of the record the model rereads on the next turn. In a short lesson that is harmless. In a long session it can confuse matters, and noticing it in a saved file is exactly the kind of reading this book is training.
+
+::: {.callout-warning title="The transcript is evidence, and it is also a liability"}
+A saved conversation is a complete record of what was said, in a file anyone with the file can read. That makes transcripts wonderful for debugging, teaching, and the audit habits later chapters build. It also means a chat about a medical worry, a legal problem, or a business secret leaves a plain-text copy wherever the app stored it. Before you paste anything sensitive into any AI product, ask where its transcript lives and who can open it. You now know there always is one.
+:::
+
+## Where a Demo Can Mislead You
+
+"It remembers everything about you" is a claim about a list. The questions that follow from this chapter are concrete ones. How much of the transcript is resent, and what gets trimmed when the window fills? Where is the transcript stored, for how long, and can you read or delete the actual file rather than trusting a button? When the product says it learned your preferences, did anything change anywhere except the text prepended to your next call? A vendor with good answers built deliberate bookkeeping. A vendor who talks about the model getting to know you is describing a JSON file in the language of friendship.
+
+## Practice Exercises
+
+**Exercise 3.1 (Level 1).** Run `forgetful.py` and `remembering.py` with your own name. Copy the exact wording of the reassuring reply in the forgetful version into your journal.
+
+**Exercise 3.2 (Level 2).** Extend `remembering.py` to five turns about a topic you choose. Print `chat.total_tokens` after each turn. Explain, in two sentences, why the jump between turns grows even when your questions stay short.
+
+**Exercise 3.3 (Level 3).** Save a conversation, open the JSON, and change one fact in an earlier user message. Reload and ask about the fact. Then reset the loaded conversation and ask again. Record both answers and what each proves.
+
+**Exercise 3.4 (Level 4).** Have a conversation long enough to hurt: paste a few paragraphs of text into several turns and watch the token total. Look up your model's context window. Estimate how many turns like yours would fill it, and say what you would trim first if this were a product.
+
+**Exercise 3.5 (Level 5).** Write a ninety-word privacy note for a fictional chat product built on `Conversation`. It must state where the transcript is stored, how a user can read it, how a user can delete it, and what happens to failed turns. Plain English, no marketing words.
+
+## Chapter Summary
+
+- The model keeps nothing between calls. A conversation product stores the full message list and resends it on every turn.
+- `Conversation.ask` appends your turn, sends the whole list, appends the reply under the `assistant` role, and accumulates the reported token usage.
+- `save` writes the system prompt, settings, messages, and token total to a JSON file. `load` rebuilds the conversation from it. Editing the file edits the memory.
+- The context window caps the payload in tokens. Long conversations cost more per turn and eventually force a trimming decision.
+- A failed call returns an error string that `Conversation` records as the assistant's turn, so failures become part of the transcript.
+
+## Reflection
+
+Before moving on, ensure you:
+
+- [ ] Watched two separate `get_response` calls forget your name
+- [ ] Ran a `Conversation` that used your name correctly on a later turn
+- [ ] Opened a saved chat file and found your name inside the messages list
+- [ ] Changed a fact in the file and saw the reloaded chat believe the edit
+
+## Your Learning Journal
+
+1. What did the forgetful bot's reassurance teach you about reading model output?
+2. Which trimming strategy would you choose for a study tutor, and what would it lose?
+3. Where do the transcripts of the AI products you already use most likely live?
+
+## Next Steps
+
+Everything so far has run on one local model, chosen for you by a configuration file you have not opened. The next chapter opens it. You will point the same scripts at a different provider and a different model, change no code, and find out how much of this book so far was about AI in general rather than about one vendor in particular.

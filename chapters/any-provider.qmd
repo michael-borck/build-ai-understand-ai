@@ -1,13 +1,148 @@
 # Any Provider Will Do {#sec-any-provider}
 
-::: {.callout-note}
-## Skeleton
+> Your scripts name no vendor. Three settings decide whose model answers, and all three live outside your code.
 
-Kills: "I'm locked into one vendor" — OpenAI-compatible endpoints are
-a common language.
+**Package companion:** configuration and the response cache in `hands-on-ai`. Listings checked against `hands-on-ai` 0.6.0.
 
-Installs: the three environment variables, local Ollama for free and
-private runs, `HANDS_ON_AI_CACHE` for reproducible classroom reruns.
-Working build: the same script run against two providers with no code
-change.
+**Misconception this chapter kills:** "I am locked into one vendor." OpenAI-compatible endpoints are a common language, and your code already speaks it.
+
+**The build:** the Chapter 1 script, unchanged, run against a second provider. The only edits happen in your terminal, and the doctor confirms each switch.
+
+**Python you need:** none beyond reading environment variables as named settings. One listing sets them from inside Python, for notebook users.
+
+## The Concept First
+
+Look back at every script you have written so far. None of them contains a server address. None of them names Ollama, or any company. The most vendor-specific thing in them is a model name you chose in a payload exercise. And yet the calls worked, because something outside your code supplied the address, the model, and the key. That something is the package configuration, and this chapter opens it.
+
+The reason the configuration can stay outside is a piece of industry luck worth understanding. One company's API shape became the common dialect. A request is a `POST` to an address ending in `/v1/chat/completions`, carrying the JSON payload from Chapter 1, with the key sent as a standard authorisation header. Dozens of providers now accept that exact shape, whatever their own models are called. Tools that speak the dialect, including this package, can be pointed at any of them by changing an address and a key. The industry calls such services OpenAI-compatible, after the company whose shape won.
+
+Compatibility has limits, and a later section names them. Within those limits, the practical consequence is large: choosing a provider is a settings decision, reversible in a minute, and the code you write against the dialect survives the change.
+
+## Understanding Through Real Life
+
+Think of the SIM card in a phone. The handset holds your apps, your habits, and everything you have built up. The SIM decides whose network carries your calls and whose bill arrives. Swapping networks means swapping a small card and confirming the new signal works. Nobody expects to replace the handset to change carriers, and a phone that demanded it would be returned to the shop.
+
+Your scripts are the handset. The three settings in this chapter are the SIM: the server address, the model name, and the key. A provider who wants you locked in will try to move pieces of value out of your handset and into their network, into features only their dialect extensions can reach. That can be a fair trade when you choose it knowingly. This chapter exists so that you always know which parts of your setup would travel and which would not.
+
+## The Three Settings
+
+The package resolves its configuration in a fixed order, weakest first: built-in defaults, then a config file at `~/.hands-on-ai/config.json`, then environment variables, which win over everything. Chapter 1 ran on the defaults: a local Ollama server at `http://localhost:11434`, the model `llama3`, and no key, because a local server does not check one.
+
+Environment variables are named settings your terminal hands to every program it launches. Three of them steer everything in Part I:
+
+| Variable | Sets | Local default |
+|---|---|---|
+| `HANDS_ON_AI_SERVER` | The provider's base address | `http://localhost:11434` |
+| `HANDS_ON_AI_MODEL` | Which model answers | `llama3` |
+| `HANDS_ON_AI_API_KEY` | The key, where one is required | unset |
+
+Two small kindnesses in the package are worth knowing. The address does not need the `/v1` ending; the client adds it when it is missing, so addresses copied from provider documentation work either way. And when no key is set, the client still sends a harmless placeholder, because the underlying library insists on a key-shaped string even though your local server ignores it. You met that placeholder in Listing 1.3.
+
+`handsonai doctor` prints the resolved result of all this: the config file it read, the server and model it will use, and whether a key is configured, shown masked. Whenever you change a setting, run the doctor before you run a script. It reads the same configuration your code will read, in the same order, so an argument with the doctor is an argument you do not have to have with a traceback.
+
+## The Build: Same Script, Second Provider
+
+You need an account and a key from one hosted provider for this section. @sec-model-access lists routes, including free tiers and local-only alternatives, and explains what a key is and how to guard it. If you have no key and want none, read this section as a worked example and do the two-model variant in Exercise 4.2 instead. The lesson survives on local hardware alone.
+
+With `ask.py` from Chapter 1 in front of you, set the three variables for a hosted provider. This example uses OpenAI's own service; the package documentation gives the same three lines for OpenRouter, Groq, Together, and Gemini's compatible endpoint, among others.
+
+```bash
+# Listing 4.1 of 3: point the same code at a hosted provider (terminal)
+export HANDS_ON_AI_SERVER="https://api.openai.com"
+export HANDS_ON_AI_API_KEY="your-key-here"
+export HANDS_ON_AI_MODEL="gpt-4o-mini"
+
+handsonai doctor
+python ask.py
+```
+
+The doctor should now report the hosted address, the new model, and a configured key. Then `ask.py` runs, the file untouched since Chapter 1, and a model on another company's computers answers your post-office question. Run `remembering.py` from Chapter 3 next. It works too, transcript and all, because nothing in it ever knew which server would answer.
+
+That is the entire build, and its smallness is the argument. Provider-specific code would have made this section a rewrite. Settings made it four lines in a terminal.
+
+Notebook users can set the same variables from inside Python, before the first call. The package reads the environment when configuration is loaded, so the timing matters: set first, import after, or set before the first `get_response` call at the latest.
+
+```python
+# Listing 4.2 of 3: the same settings, set from Python (notebooks)
+import os
+
+os.environ["HANDS_ON_AI_SERVER"] = "https://api.openai.com"
+os.environ["HANDS_ON_AI_API_KEY"] = "your-key-here"
+os.environ["HANDS_ON_AI_MODEL"] = "gpt-4o-mini"
+
+from hands_on_ai.chat import get_response
+
+print(get_response("In one sentence, what does a post office do?"))
+```
+
+::: {.callout-warning title="A key is a password that spends money"}
+Treat an API key like a card number. Anyone holding it can run up charges on your account until you revoke it. Keep keys out of scripts you share, out of screenshots, and out of any repository you publish. Environment variables exist partly so the secret can live outside the code. If a key ever appears somewhere public, revoke it first and tidy up second.
 :::
+
+When you are done, return to local runs by unsetting the three variables or opening a fresh terminal, then run the doctor to confirm the local address is back. Settings set with `export` live only in that terminal session, which makes experiments like this one easy to undo.
+
+## Local and Hosted: an Honest Comparison
+
+Local Ollama and a hosted provider are both legitimate places to run this book, and they trade differently. A local model is free per call, works offline, and keeps your prompts on your own machine, which matters for the transcript concerns raised in Chapter 3. Its limits are your hardware's limits: smaller models, slower replies, and a smaller context window than the big hosted offerings. A hosted model reverses the trade. It is stronger and faster, it costs money per token, and every prompt travels to someone else's computers under their retention rules.
+
+Neither choice is the permanent one, which is the point of the chapter. A classroom can run Monday's lesson locally and Friday's on a hosted model for the harder project. A prototype can start where iteration is free and move when quality demands it. What you should not do is let the choice harden into your code by accident, one vendor-specific feature at a time, until moving would mean starting over.
+
+Compatibility also has edges, and honesty requires naming them. The dialect covers the request and reply shape for chat, which is everything Part I has used. It does not standardise every extra a provider offers. Model names differ and must be exact; `handsonai models` lists what your current server reports, which settles most name disputes. Usage reporting varies, so `usage` can be `None` on one provider and complete on another. And two models given identical payloads will still answer differently, in quality, tone, and how literally they follow your system prompt. Portability moves your code. It does not make the models interchangeable, and Part IV's judge exists partly because of that gap.
+
+## The Cache: When Reproducible Beats Fresh
+
+One more setting belongs in this chapter because it changes where answers come from. The package can keep a copy of every reply on disk and serve repeats from the copy instead of calling the model again. It is off until you switch it on:
+
+```bash
+# Listing 4.3 of 3: turn on the response cache (terminal)
+export HANDS_ON_AI_CACHE=~/.hands-on-ai/cache
+python ask.py
+python ask.py
+```
+
+The first run calls the model and stores the reply in a plain text file inside that directory, named by a hash of the three things that define the call: model, system prompt, and question. The second run finds the file and prints the stored reply without contacting any server. You can prove it to yourself by running the second one with Ollama stopped. It still answers, instantly, in the exact words of the first run.
+
+Classrooms love this. A teacher can warm the cache once, then thirty students rerun the lesson offline and see identical output, and nobody's exercise breaks because a model felt whimsical that morning. Chapter 11's judge needs stable material to judge, and the cache is how this book gets it. The costs are the mirror image of the benefits. A cached answer never improves when you switch to a better model, because the model is part of the lookup only as a name in the hash, and a stale cache can confuse you into thinking your new settings changed nothing. Cached replies also arrive with `usage` set to `None`, as Chapter 1 warned, because no tokens were spent. And the cache is one more folder of plain-text transcripts on disk, subject to the same care as the saved chats in Chapter 3. Clearing it is deleting the directory. There is no subtler machinery to learn, which is rather the theme of the book.
+
+## Where a Demo Can Mislead You
+
+"Powered by our proprietary AI platform" sometimes means a team built something substantial: retrieval, tools, evaluation, the subjects of Parts II to IV. Sometimes it means a system prompt and an account with a hosted provider, dressed in platform language. You can now estimate the difference from the outside. Ask what would happen to the product if its model provider doubled prices tomorrow. A team that can answer "we change three settings and re-run our evaluations" owns its handset. A team that goes quiet has rented the network and the phone from the same shop, and its pricing page is hostage to someone else's.
+
+## Practice Exercises
+
+**Exercise 4.1 (Level 1).** Run `handsonai doctor` and write down the resolved server, model, and key status. Then find which layer each value came from: default, config file, or environment. `handsonai config` can help.
+
+**Exercise 4.2 (Level 2).** No hosted key required. Download a second local model with `ollama pull`, switch only `HANDS_ON_AI_MODEL`, and run `ask.py` and Listing 2.1's pirate under both models. Record one difference in the answers that no setting caused.
+
+**Exercise 4.3 (Level 3).** With a hosted key, run the Chapter 3 remembering script against the hosted provider with no code changes. Compare `total_tokens` and the reply wording with your local run. Switch back to local and confirm with the doctor.
+
+**Exercise 4.4 (Level 4).** Turn the cache on, run `ask.py` twice, then stop your local server and run it a third time. Open the cache directory, find the file your answer lives in, and explain its name. Delete the directory and describe what the next run must do.
+
+**Exercise 4.5 (Level 5).** Write a one-page provider plan for a fictional school deploying these scripts to two hundred students. Cover where prompts travel, what a term of usage plausibly costs under each option, what happens on the day the provider has an outage, and how the cache changes the plan. End with the condition under which you would switch.
+
+## Chapter Summary
+
+- Configuration resolves in order: defaults, then `~/.hands-on-ai/config.json`, then environment variables. `handsonai doctor` shows the resolved result.
+- Three variables steer Part I: `HANDS_ON_AI_SERVER`, `HANDS_ON_AI_MODEL`, and `HANDS_ON_AI_API_KEY`. The client adds `/v1` to the address when missing.
+- OpenAI-compatible endpoints give many providers one request shape, so unchanged scripts run against local Ollama or hosted services. Model names, usage reporting, and answer quality still differ.
+- Local runs are free, private, and hardware-limited. Hosted runs are stronger, metered, and send prompts to the provider.
+- `HANDS_ON_AI_CACHE` turns on a plain-text reply cache keyed by model, system prompt, and question, for reproducible and offline reruns.
+
+## Reflection
+
+Before moving on, ensure you:
+
+- [ ] Can name the layer each of your current settings came from
+- [ ] Ran one earlier script against a second model or provider without editing it
+- [ ] Saw the doctor confirm a settings change before a script relied on it
+- [ ] Turned the cache on, found your answer's file, and cleared it
+
+## Your Learning Journal
+
+1. What surprised you most: that the code travelled unchanged, or that the answers still differed?
+2. For your own likely use, which matters more: prompts staying on your machine, or the strongest available model? What would flip your answer?
+3. Where in your current digital life have you rented the handset and the network from the same shop?
+
+## Next Steps
+
+Part I is complete. You can make the call, instruct the model, keep the transcript, and choose who answers. Every reply so far, though, came from whatever the model happened to learn during training, and training stopped on a date. Part II begins with a question your model gets confidently wrong, and then builds the fix: putting evidence into the payload yourself.

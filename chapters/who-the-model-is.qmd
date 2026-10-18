@@ -1,13 +1,161 @@
 # Who the Model Is Being {#sec-who-the-model-is}
 
-::: {.callout-note}
-## Skeleton
+> A chatbot with a personality is the call from Chapter 1 plus one string you wrote.
 
-Kills: "the AI has a personality" — a system prompt is just text in
-the request.
+**Package companion:** the personality bots in `hands_on_ai.chat`. Listings checked against `hands-on-ai` 0.6.0.
 
-Installs: system prompts, personality bots, the pirate in a box.
-Working build: two personalities from the same model, switched by one
-string; the reader reuses a bot with `return_usage=True` to watch what
-the instruction costs in tokens.
+**Misconception this chapter kills:** "The AI has a personality." A system prompt is text in the request, and you can read it, change it, and count what it costs.
+
+**The build:** one question asked three ways: with no instruction, with your own system prompt, and through a personality bot. Then your own bot, written as a function.
+
+**Python you need:** passing a named argument, and defining a small function with `def` and `return`. Both are in @sec-just-enough-python.
+
+## The Concept First
+
+In @sec-one-call you printed the payload and found a message you had not written. It had the role `system` and the content "You are a helpful assistant." That message goes first in the list, before anything the user says, and the model treats it as standing instructions for the whole exchange.
+
+That is all a system prompt is. Standing instructions, written by whoever built the product, sent on every call. When a help-desk bot stays polite under provocation, when a study app answers like a tutor and refuses to just hand over the answer, when a novelty app talks like a pirate, the mechanism is the same in each case. Someone wrote a paragraph, put it at the front of the list, and the model's replies bent around it.
+
+Two consequences follow, and this chapter demonstrates both. The personality belongs to the request, so it can be swapped between one call and the next with no change to the model. And the instruction is text like any other text in the payload, so it costs tokens on every single call, whether the user sees it or not.
+
+## Understanding Through Real Life
+
+Think of briefing a relief worker who will staff your shop counter for one shift. Before the first customer arrives, you hand them a card. The card says who they are today, how to greet people, what they may promise, and what to do when they do not know something. Every customer conversation then happens inside the frame the card set.
+
+Change the card and the same worker runs a different counter. "You are the returns desk. Be brief. Offer a refund or a replacement, nothing else." produces a different afternoon from "You are our most patient explainer. Walk people through setup one step at a time." The worker did not change. The card did.
+
+The analogy has one sharp edge worth keeping. A human reads the card once and remembers it. A model reads the card fresh on every call, because the card is inside every request, and your business pays for the reading each time. A long, careful card can be worth every token. It is still a running cost, and in this chapter you will watch it on the receipt.
+
+## The Build: One Question, Three Answers
+
+Start where Chapter 1 left off. Ask a question with a system prompt of your own.
+
+```python
+# Listing 2.1 of 4: your instruction, in the first message (who.py)
+from hands_on_ai.chat import get_response
+
+question = "Why is the moon sometimes visible in the daytime?"
+
+print(get_response(question))
+print()
+print(get_response(
+    question,
+    system="You are a witty pirate. Talk like a pirate from the 1700s.",
+))
+```
+
+Run it. The first answer arrives in the package's default voice, because the default system string from Chapter 1 went along as usual. The second answer explains the same astronomy in nautical slang. Same model, same server, same question string in the same variable. One argument changed.
+
+Read the new argument closely. `system=` is a named argument. It fills the `system` slot of `get_response`, which places your string in the first message of the payload, exactly where the default used to sit. If you want proof rather than my word for it, rebuild the payload printer from Listing 1.2 with your string in the first message and look at the output. The shape is identical. The content is yours.
+
+Try two more while you are here. "Answer in exactly one sentence." tends to hold. "You are a calm and clear teacher. You explain concepts step by step." changes the structure of the answer as well as its flavour. Notice what a system prompt can reach: tone, length, structure, what the reply refuses to do. Notice also what it cannot reach. It cannot give the model facts it does not have, and it cannot make the model remember this conversation tomorrow. Facts arrive in Part II. Memory arrives in the next chapter, and it arrives as plumbing, not as instruction.
+
+## The Pirate in a Box
+
+Typing a long instruction at every call gets old fast, so the package wraps common ones in functions with friendly names. These are the personality bots.
+
+```python
+# Listing 2.2 of 4: the same pirate, packaged
+from hands_on_ai.chat import pirate_bot, teacher_bot
+
+question = "Why is the moon sometimes visible in the daytime?"
+
+print(pirate_bot(question))
+print()
+print(teacher_bot(question))
+```
+
+There is no new machinery here, and that is the lesson. Open the source of `pirate_bot` in the [package repository](https://github.com/michael-borck/hands-on-ai) and you will find the whole of it, apart from its documentation string, is one line.
+
+```python
+# Listing 2.3 of 4: pirate_bot, complete (from the package source)
+def pirate_bot(prompt):
+    return get_response(prompt, system="You are a witty pirate. Talk like a pirate from the 1700s.", personality="parrot")
+```
+
+Your Listing 2.1 and the package's Listing 2.3 make the same call. The bot just spares you typing the string. The `personality=` argument is a smaller detail with a practical job. It does not go to the model at all. It chooses which set of retry messages the package prints while it reattempts a failed call, so a pirate that hits a network error apologises in character. Two different arguments, two different audiences: `system` instructs the model, `personality` styles the package's own chatter around the call. Keeping straight which text the model sees and which it never sees is a habit that matters more as the wrappers grow.
+
+The package ships thirteen of these bots, from `friendly_bot` and `coder_bot` to `shakespeare_bot` and `caveman_bot`. Every one of them is this same pattern. A function, a system string, a call. A shelf of personalities is a shelf of paragraphs.
+
+## Write a Bot of Your Own
+
+You have already written everything a bot contains. The last step is wrapping it in a function so you can reuse it by name.
+
+```python
+# Listing 2.4 of 4: your own bot (my_bot.py)
+from hands_on_ai.chat import get_response
+
+
+def plain_english_bot(prompt):
+    return get_response(
+        prompt,
+        system=(
+            "You explain things in plain English for a reader of about "
+            "twelve. Use short sentences. Give one everyday example. "
+            "If you must use a technical word, define it in the same sentence."
+        ),
+    )
+
+
+print(plain_english_bot("What is compound interest?"))
+```
+
+The `def` line names the function and its one input. The indented lines are its body. `return` hands the result of the inner call back to whoever called your bot, which is why `print` can show it. The system string here is longer than the pirate's because it has a real job: it sets reading level, sentence length, and a rule for technical words. Instructions that can be checked, like "define it in the same sentence", hold up better than instructions about vibes, like "be clear". You can test that claim yourself in the exercises.
+
+One design choice is hiding in plain sight. Your bot takes the question as an argument but keeps the instruction fixed. That split is the product pattern from real chatbots: the builder owns the system prompt, the user owns the question, and the user never sees the builder's paragraph. When you use a polished AI product and wonder why it behaves the way it does, a paragraph like this one, written by someone on the product team and sent with every request you make, is usually most of the answer.
+
+## What the Instruction Costs
+
+Chapter 1 ended with a receipt. Use it again, this time on your own bot's inner call. Add `return_usage=True` to the `get_response` call inside a copy of Listing 2.4 and print both values.
+
+Compare two runs of the same question: one with the package default system string, one with your plain-English paragraph. The question did not change. The reply length will wander a little, as replies do. The pattern to look for sits in `prompt_tokens`, which rises by roughly the length of your instruction, because your paragraph rides along in every request.
+
+On a local model this costs you a sliver of time. On a paid provider it is a per-call charge that never switches off, paid by every user on every question, including the ones who ask something trivial. Product teams feel this pressure from both sides. A longer system prompt can buy steadier behaviour, safer refusals, and a voice users recognise. It also taxes every exchange and, in a long conversation, crowds the space available for the conversation itself. The next chapter shows where that space goes. For now, the habit to install is simple: when you write an instruction, ask what it earns per token.
+
+::: {.callout-tip title="Instructions compete with each other"}
+A system prompt that demands one-sentence answers and step-by-step explanations in the same breath forces the model to choose which order to disobey. It will choose quietly, and differently on different runs. When a bot behaves inconsistently, read its card before you blame the model. Contradictions in standing instructions produce wobble that looks exactly like model randomness.
 :::
+
+## Where a Demo Can Mislead You
+
+A vendor introduces "our empathetic support agent" or "our strict compliance reviewer" as though a new kind of AI had arrived. You now know to ask a plainer question. What does its system prompt say? Sometimes the honest answer is a well-tested paragraph, refined over months, backed by retrieval and tools from later chapters of this book. Sometimes the honest answer is three sentences written the morning of the demo. The demo cannot tell you which. The behaviour under pressure can: ask the empathetic agent something outside its script, and watch whether the empathy survives contact with a question its card never anticipated.
+
+The same lens works in reverse when a model behaves oddly in your own builds. The model is being who the first message told it to be, inside the limits of what text can instruct. If you do not like who that is, you hold the pen.
+
+## Practice Exercises
+
+**Exercise 2.1 (Level 1).** Run Listing 2.1. Replace the pirate string with an instruction of your own choosing: a sports commentator, a cautious lawyer, a five-year-old. Keep the question fixed across all runs.
+
+**Exercise 2.2 (Level 2).** Call three packaged bots with the same question. In one sentence each, write what changed: tone, structure, length, or content. Then find each bot's system string in the package source and check your guesses.
+
+**Exercise 2.3 (Level 3).** Write a bot for a real job: a study helper that gives hints before answers, a meeting summariser limited to decisions and owners, an explainer for your own workplace jargon. State one rule in your system prompt that a reader could check in the output, and check it across three runs.
+
+**Exercise 2.4 (Level 4).** Measure the card. Run one question under the default system string, your Exercise 2.3 string, and a deliberately bloated version padded with repeated instructions. Record `prompt_tokens` for each. At a million calls, which version would you ship, and what would you cut first?
+
+**Exercise 2.5 (Level 5).** Break a bot politely. Ask your Exercise 2.3 bot a question its instruction never anticipated, then a question that asks it to ignore its instruction. Record what it does in each case. Rewrite the system prompt once to handle the worse failure, and say what your rewrite costs in tokens.
+
+## Chapter Summary
+
+- A system prompt is the first message in the payload: standing instructions written by the builder, sent on every call, invisible to the user.
+- Personality bots are functions that wrap `get_response` with a fixed system string. Thirteen ship with the package, and yours takes four lines.
+- The `system` argument instructs the model. The `personality` argument never reaches the model; it styles the package's retry messages.
+- Instructions cost `prompt_tokens` on every call. Checkable rules hold better than vague ones, and contradictory rules produce inconsistent behaviour.
+
+## Reflection
+
+Before moving on, ensure you:
+
+- [ ] Asked one question under at least three different system prompts
+- [ ] Read the source of one packaged bot and found its system string
+- [ ] Wrote and ran a bot function of your own
+- [ ] Compared `prompt_tokens` between a short and a long instruction
+
+## Your Learning Journal
+
+1. Which instruction changed the answer's structure rather than just its tone?
+2. What rule did you write that the model followed only sometimes? How could you make it checkable?
+3. Think of an AI product you use. Draft the three sentences you suspect sit in its system prompt.
+
+## Next Steps
+
+Your bots have character and no memory. Ask `plain_english_bot` your name in one call and it will answer warmly; ask in the next call what your name is and it will have no idea. The next chapter finds out why, and builds the transcript that fixes it.

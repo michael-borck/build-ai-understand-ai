@@ -1,4 +1,4 @@
-# The Project Gallery {.appendix #app-project-gallery}
+# The Project Gallery {#sec-project-gallery .appendix}
 
 ::: {.callout-note}
 ## Skeleton

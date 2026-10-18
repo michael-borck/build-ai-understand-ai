@@ -1,4 +1,4 @@
-# Model Access {.appendix #app-model-access}
+# Model Access {#sec-model-access .appendix}
 
 ::: {.callout-note}
 ## Skeleton
