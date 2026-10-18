@@ -68,19 +68,23 @@ class ManuscriptChecks(unittest.TestCase):
         self.assertIn("hands-on-ai", prospectus)
         self.assertIn("Chapter plan", prospectus)
 
-    def test_part_one_chapters_written(self):
+    def test_written_chapters(self):
         written = {
             "chapters/one-call.qmd": ("get_response", "{#sec-one-call}"),
             "chapters/who-the-model-is.qmd": ("pirate_bot", "{#sec-who-the-model-is}"),
             "chapters/no-memory.qmd": ("Conversation", "{#sec-no-memory}"),
             "chapters/any-provider.qmd": ("HANDS_ON_AI_SERVER", "{#sec-any-provider}"),
+            "chapters/what-the-model-doesnt-know.qmd": ("grounded_by_hand", "{#sec-what-the-model-doesnt-know}"),
+            "chapters/chunk-fetch-answer.qmd": ("get_top_k", "{#sec-chunk-fetch-answer}"),
+            "appendices/just-enough-python.qmd": ("build_payload", "{#sec-just-enough-python .appendix}"),
         }
         for name, markers in written.items():
             text = (ROOT / name).read_text(encoding="utf-8")
             with self.subTest(chapter=name):
                 self.assertNotIn("## Skeleton", text)
                 self.assertGreater(len(text.split()), 1500)
-                self.assertIn("hands-on-ai` 0.6.0", text)
+                if name.startswith("chapters/"):
+                    self.assertIn("hands-on-ai` 0.6.0", text)
                 for marker in markers:
                     self.assertIn(marker, text)
 

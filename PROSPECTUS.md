@@ -1,6 +1,6 @@
 # Build AI, Understand AI: Prospectus
 
-Date: 2026-10-11. Status: Part I drafted (Chapters 1 to 4, 2026-10-18); Parts II to V and appendices unwritten.
+Date: 2026-10-11. Status: Parts I and II and Appendix A drafted (2026-10-18); Parts III to V and Appendices B to D unwritten.
 
 The doing lives in the companion package `michael-borck/hands-on-ai`
 (`pip install hands-on-ai`): eight modules, roughly forty documentation
@@ -134,10 +134,17 @@ running the package offline). One skeleton note corrected in the
 writing: packaged bots take no `return_usage` argument, so Chapter 2
 measures instruction cost through the reader's own bot instead.
 
+Done 2026-10-18 (Part II pass): Appendix A drafted early, as the
+queue asked; all 17 of its examples run and match their printed
+output. Chapters 5 and 6 drafted, completing Part II, against
+`hands_on_ai.rag` (`chunk_text` output in Chapter 6 is program
+output; index save/load and `get_top_k` ranking verified offline
+with test embeddings; live embedding calls still need an author
+run against a reachable server).
+
 Next, in order:
-1. Author review of Part I.
-2. Appendix A (Just Enough Python) early, since every chapter
-   depends on its constructs.
-3. Parts II–IV; Part V last (vision and voice demos age fastest).
+1. Author review of Parts I and II, including one live run of the
+   model-dependent listings.
+2. Parts III–IV; Part V last (vision and voice demos age fastest).
 4. Project gallery appendix once capstones are chosen.
 5. Fresh-reader pass, print build, cover.

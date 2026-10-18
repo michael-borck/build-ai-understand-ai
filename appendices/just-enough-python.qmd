@@ -1,11 +1,358 @@
 # Just Enough Python {#sec-just-enough-python .appendix}
 
-::: {.callout-note}
-## Skeleton
+> This book uses about a dozen Python constructs. This appendix teaches all of them, and nothing else.
 
-Every construct the book uses, taught in about ten pages: variables,
-strings and f-strings, functions, lists, dictionaries, loops, imports,
-`pip install`, running a script. Written for the reader who has never
-programmed; each construct links back to the first chapter that uses
-it.
-:::
+You do not need to read this appendix first. Each chapter names the Python it needs and points back here. Read the section you need, when you need it, and return to the chapter. Every example in this appendix is complete, runs without a model or a network, and prints exactly what is shown beneath it. Type them in rather than pasting. The typing is where the shapes sink in.
+
+If you want to learn Python itself, properly and for its own sake, that is a different book: *Code Python, Consult AI* in this series. This appendix has a narrower promise. After it, no listing in this book will contain a construct you have not met.
+
+## Running a Script
+
+A Python program in this book is a plain text file whose name ends in `.py`. You write it in any text editor, save it, and run it from a terminal:
+
+```bash
+python ask.py
+```
+
+Python reads the file from the top, line by line, and does what each line says, in order. When it reaches the end of the file, the program is over. There is no separate compile step and no hidden starting point. The first line is the start.
+
+Lines beginning with `#` are comments. Python ignores them. Comments are notes for human readers, and in this book they often carry the listing number and the file name to save the code as.
+
+```python
+# This line is a comment. Python skips it.
+print("This line runs.")
+```
+
+```text
+This line runs.
+```
+
+*First used in @sec-one-call.*
+
+## print: Showing a Value
+
+`print` writes a value to the terminal. Getting a value and showing a value are different acts, and Chapter 1 makes you delete a `print` once to feel the difference.
+
+```python
+print("Hello")
+print(42)
+```
+
+```text
+Hello
+42
+```
+
+The words `Hello` are inside quotation marks, which makes them text. The `42` has no quotation marks, which makes it a number. That distinction, text versus number, is the next two sections.
+
+*First used in @sec-one-call.*
+
+## Variables: Named Values
+
+A variable is a name attached to a value. The `=` sign attaches it. Read `answer = "yes"` as "the name answer now refers to the text yes".
+
+```python
+name = "Sam"
+age = 31
+
+print(name)
+print(age + 1)
+```
+
+```text
+Sam
+32
+```
+
+A variable can be reassigned, and the old value is gone. A variable can also hold the result of a calculation or, throughout this book, the text a model returned. Names are yours to choose. Choose names that say what the value is: `question`, `answer`, and `usage` carry you through most of Part I.
+
+*First used in @sec-one-call.*
+
+## Strings: Text
+
+Text in Python is called a string: characters between quotation marks. Single and double quotes both work, and a string can contain the other kind of quote without trouble.
+
+```python
+greeting = "It's working."
+print(greeting)
+print(len(greeting))
+```
+
+```text
+It's working.
+13
+```
+
+`len` counts the characters, spaces and punctuation included. Two string operations appear constantly in this book. Adding strings with `+` joins them end to end. And an f-string, a string with the letter `f` before its opening quote, lets you drop values into the middle of text by naming them inside curly braces:
+
+```python
+name = "Sam"
+tokens = 53
+print("Name: " + name)
+print(f"{name} used {tokens} tokens.")
+```
+
+```text
+Name: Sam
+Sam used 53 tokens.
+```
+
+Chapter 6 builds a prompt by assembling strings exactly this way. When you see `f"..."` there, this is all it means.
+
+*First used in @sec-one-call. F-strings first used in @sec-chunk-fetch-answer.*
+
+## Imports and pip: Borrowing Code
+
+Python code written by other people is organised into packages. `pip install` downloads a package onto your machine once:
+
+```bash
+pip install "hands-on-ai==0.6.0"
+```
+
+An `import` line inside your script then borrows named pieces of that package for that run:
+
+```python
+from hands_on_ai.chat import get_response
+
+print(type(get_response))
+```
+
+```text
+<class 'function'>
+```
+
+Read the import as a path: inside the package `hands_on_ai`, in its `chat` section, find the thing called `get_response`. After that line, your script can use the name `get_response` as if you had written it yourself. If the package is not installed, Python stops at the import line with a `ModuleNotFoundError`, which is the error message's way of saying the install step was skipped.
+
+*First used in @sec-one-call.*
+
+## Calling Functions
+
+A function is a named piece of work that takes inputs, called arguments, and hands back a result. You call it by writing its name followed by parentheses holding the arguments:
+
+```python
+words = "the model sends text back".split()
+print(words)
+print(len(words))
+```
+
+```text
+['the', 'model', 'sends', 'text', 'back']
+5
+```
+
+Arguments can be given by position, as above, or by name. A named argument spells out which input it fills, and named arguments can often be left out, in which case the function uses a default value chosen by its author:
+
+```python
+def greet(name, greeting="Hello"):
+    return f"{greeting}, {name}."
+
+print(greet("Sam"))
+print(greet("Sam", greeting="Welcome back"))
+```
+
+```text
+Hello, Sam.
+Welcome back, Sam.
+```
+
+That example defines a function too, which is the next section. Hold on to the calling pattern, because `get_response(question, system="...")` in Chapter 2 is this exact move: one argument by position, one by name, the rest left at their defaults.
+
+*First used in @sec-one-call. Named arguments first used in @sec-who-the-model-is.*
+
+## Defining Functions: Naming Your Own Work
+
+The word `def` begins a function definition. The indented lines beneath it are the function's body, and `return` sends a value back to the caller:
+
+```python
+def add_tax(price):
+    return price * 1.10
+
+print(add_tax(20))
+```
+
+```text
+22.0
+```
+
+Indentation is not decoration in Python. The four spaces before `return` are how Python knows the line belongs to the function. Most editors insert them for you when you press Tab after a line ending in a colon. If Python complains about indentation, check that every line of the body lines up exactly.
+
+Chapter 2 wraps a system prompt in a function to make a bot. The function there does no arithmetic: it calls `get_response` and returns whatever came back. Same shape, different contents.
+
+*First used in @sec-who-the-model-is.*
+
+## Lists: Ordered Collections
+
+A list holds values in order, inside square brackets, separated by commas:
+
+```python
+roles = ["system", "user", "assistant"]
+print(roles[0])
+print(len(roles))
+roles.append("user")
+print(roles)
+```
+
+```text
+system
+3
+['system', 'user', 'assistant', 'user']
+```
+
+Counting positions in a list starts at 0, so `roles[0]` is the first item. That off-by-one surprise catches everyone once. `append` adds one item to the end. The message list in every payload in this book is a list, and `Conversation` in Chapter 3 spends its life appending to one.
+
+*First used in @sec-one-call, where the printed payload's `messages` value is a list.*
+
+## Dictionaries: Named Collections
+
+A dictionary holds values under names, called keys, inside curly braces. Each entry is a key, a colon, and a value:
+
+```python
+message = {"role": "user", "content": "What is my name?"}
+print(message["role"])
+print(message["content"])
+```
+
+```text
+user
+What is my name?
+```
+
+You read a value out by giving its key in square brackets. Each message in a payload is a dictionary with two keys, `role` and `content`, and the usage report from Chapter 1 is a dictionary with three. Environment variables in Chapter 4 live in a dictionary called `os.environ`, which your code reads and writes the same way:
+
+```python
+import os
+
+os.environ["HANDS_ON_AI_MODEL"] = "llama3"
+print(os.environ["HANDS_ON_AI_MODEL"])
+```
+
+```text
+llama3
+```
+
+*First used in @sec-one-call. `os.environ` first used in @sec-any-provider.*
+
+## Loops: Doing Something to Each Item
+
+A `for` loop runs its indented body once per item in a list:
+
+```python
+chunks = ["first chunk", "second chunk", "third chunk"]
+for chunk in chunks:
+    print("-", chunk)
+```
+
+```text
+- first chunk
+- second chunk
+- third chunk
+```
+
+The name `chunk` is a variable that takes each item's value in turn. The body can do more than print. Chapter 6 loops over retrieved chunks to build one long prompt string, adding a line per chunk:
+
+```python
+prompt = "Context:\n"
+for chunk in ["alpha", "beta"]:
+    prompt += f"- {chunk}\n"
+print(prompt, end="")
+```
+
+```text
+Context:
+- alpha
+- beta
+```
+
+Two details there are worth naming. `\n` inside a string means a newline, the invisible character that ends a line. And `+=` means "add this to the existing value", so `prompt += f"- {chunk}\n"` grows the string a line at a time.
+
+*First used in @sec-chunk-fetch-answer.*
+
+## Objects and Methods: Verbs After a Dot
+
+Some values carry their own operations. You reach those operations with a dot, and an operation reached by a dot is called a method. You have already used two in this appendix: `split` on a string and `append` on a list.
+
+Chapter 3 introduces the pattern at full size. `Conversation(system="...")` creates an object, a self-contained bundle holding a message list and a token total. The object is stored in a variable, usually `chat`. After that, `chat.ask(...)`, `chat.save(...)`, and `chat.reset()` call methods on that bundle, and `chat.total_tokens` reads a value stored inside it:
+
+```python
+class Counter:
+    def __init__(self):
+        self.total = 0
+
+    def add(self, amount):
+        self.total += amount
+        return self.total
+
+counter = Counter()
+print(counter.add(5))
+print(counter.add(3))
+print(counter.total)
+```
+
+```text
+5
+8
+8
+```
+
+That is a complete, if tiny, class. `Counter` is the template, `counter` is one object made from it, and the object remembers its total between calls because the total lives inside the object. This book never asks you to write a class. It asks you to use two or three written by the package, and this example is the whole idea behind them. The `self` you see repeated is how the object refers to its own stored values; you can read past it safely.
+
+*First used in @sec-no-memory.*
+
+## True, False, and None
+
+Three special values appear throughout the book. `True` and `False` are Python's yes and no, produced by comparisons and consumed by settings like `return_usage=True`. `None` means the absence of a value: no usage reported, no model chosen yet, nothing found in the cache.
+
+```python
+usage = None
+print(usage is None)
+print(3 > 2)
+```
+
+```text
+True
+True
+```
+
+When a listing checks `if usage:` before reading token counts, it is guarding against `None`. Chapter 1 explains the two ordinary situations where usage is `None`, and neither is an error.
+
+*First used in @sec-one-call.*
+
+## Reading an Error Message
+
+Sooner or later Python will stop and print a traceback: several lines naming the file and line where things failed, ending with the actual complaint. Read tracebacks from the bottom. The last line says what went wrong. The lines above it say where. Three complaints cover most of what beginners meet in this book:
+
+| Last line begins | Usually means | First thing to check |
+|---|---|---|
+| `ModuleNotFoundError` | A package is not installed | Run the `pip install` step |
+| `NameError` | A name was used before it existed | Spelling, or a missing import |
+| `SyntaxError` or `IndentationError` | Python could not parse the file | The line it points at: quotes, colons, indentation |
+
+Errors from the model call itself are different. As Chapter 1 explains, `get_response` returns them as strings beginning with ❌ or ⚠️ rather than stopping your program, and `handsonai doctor` is the first tool for those.
+
+## A Worked Example Using Most of It
+
+This script uses an import, a list of dictionaries, a loop, an f-string, and a function definition. It is the payload from Chapter 1, rebuilt from the pieces in this appendix, with no model involved:
+
+```python
+import json
+
+def build_payload(model, question):
+    messages = [
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user", "content": question},
+    ]
+    return {"model": model, "messages": messages}
+
+payload = build_payload("llama3", "What is my name?")
+for message in payload["messages"]:
+    print(f'{message["role"]}: {message["content"]}')
+print(json.dumps(payload))
+```
+
+```text
+system: You are a helpful assistant.
+user: What is my name?
+{"model": "llama3", "messages": [{"role": "system", "content": "You are a helpful assistant."}, {"role": "user", "content": "What is my name?"}]}
+```
+
+If that script reads as ordinary to you, you have enough Python for this book. Return to the chapter that sent you here.

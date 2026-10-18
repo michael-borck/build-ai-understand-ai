@@ -1,13 +1,138 @@
 # What the Model Doesn't Know {#sec-what-the-model-doesnt-know}
 
-::: {.callout-note}
-## Skeleton
+> A model answers from what it learned in training and what you put in the payload. Everything else is improvisation, delivered in the same confident voice.
 
-Kills: "it knows everything" — training data has a cutoff and a
-domain, and confidence is not knowledge.
+**Package companion:** `get_response` from Part I, used twice on the same question. Listings checked against `hands-on-ai` 0.6.0.
 
-Installs: hallucination as a property, not a bug; the cost of asking
-for facts the model cannot have. Working build: a question the model
-gets confidently wrong, then the same question with the answer pasted
-into the prompt.
+**Misconception this chapter kills:** "It knows everything." Training has a cutoff and a domain, and confidence is a style, not a measurement.
+
+**The build:** a question your model cannot possibly answer from training, asked bare, then asked again with the answer pasted into the prompt by hand.
+
+**Python you need:** a multi-line string and an f-string, both in @sec-just-enough-python.
+
+## The Concept First
+
+Every answer in Part I came from one of two places. The model was trained, once, on a very large collection of text, and that training ended on a particular date with a particular coverage. Call that everything the model learned at school. The second source is your payload: the system instruction, the transcript, and your question. There is no third source. The bare call you have been making cannot look anything up, cannot check today's news, and cannot read your documents unless you put them in the request.
+
+Trouble starts because the model does not experience the boundary between those sources as a wall. Its job is to produce a plausible continuation of the conversation, and it does that job with the same fluency whether the material under it is solid training knowledge, your supplied text, or nothing at all. Given a question it cannot answer from either source, it will often still answer, composing something that sounds like the kind of reply such a question usually gets. The industry calls an invented answer of that kind a hallucination. The word suggests a malfunction, and that suggestion misleads. Nothing broke. The machinery did exactly what it always does, in a place where it had nothing true to work with. Hallucination is a property of the setup, best managed by changing the setup.
+
+That reframing drives this whole part of the book. If invented answers are what a model produces when the payload lacks the facts, then the fix is to put the facts in the payload and instruct the model to stay inside them. This chapter does that by hand, with copy and paste. The next chapter automates it.
+
+## Understanding Through Real Life
+
+Think of a brilliant, well-read colleague who joined your organisation this morning. Ask her how double-entry bookkeeping works and you will get a superb answer: she learned it long before she met you. Ask her what your team's refund limit is, and a careful person says she does not know yet and asks where the policy lives. A model, asked the same question in the same bare way, frequently produces a number. The number will be formatted like a policy. It may even be a sensible number. It will not be your limit, because your limit is written in a document she has never seen, and no amount of general brilliance substitutes for reading it.
+
+Notice where the failure sits. The problem is not that the new colleague is dishonest or broken. The problem is that somebody asked for an internal fact without handing over the internal document, and accepted fluency as a substitute for the hand-over. Organisations run on facts of exactly the kind no training set contains: this term's timetable, your pricing, your house rules, what was decided in Tuesday's meeting. Every one of those questions needs the document in the room.
+
+## The Build: Ask for What It Cannot Have
+
+You need a fact the model cannot have from training. The surest supply is a small organisation of your own invention. This listing asks about one.
+
+```python
+# Listing 5.1 of 2: a question with no source (cannot_know.py)
+from hands_on_ai.chat import get_response
+
+question = (
+    "According to the Borck Street Book Club borrowing rules, "
+    "how many books can a member borrow at once, "
+    "and what is the fine per week for a late return?"
+)
+
+print(get_response(question))
+```
+
+Read the reply with a pen in hand. Models vary, and yours may hedge, ask for the document, or answer outright. All three outcomes teach the chapter. If it hedges well, ask a follow-up that presses for the numbers, the way an impatient user would. If it answers outright, look at what it gave you: specific figures, probably capped by a plausible policy voice. Those figures came from nowhere checkable. There is no Borck Street Book Club, or if the name collides with something real by accident, your model has certainly never read its borrowing rules. Whatever the reply says, it is not based on the rules, because the rules were never in the payload and training never contained them.
+
+Two features of the reply deserve naming, because they recur everywhere. The first is borrowed confidence. The answer's tone matches the tone it uses for bookkeeping, where it is usually right. Tone is generated along with everything else and tracks the style of the question, not the quality of the evidence. The second is plausible specificity. Invented answers tend to arrive with numbers, names, and structure, because real answers have those things and the model has read a great many real answers. Specificity is cheap to produce and expensive to check, which is why invented policies, invented citations, and invented product features slip past busy readers.
+
+Try a second family of unknowable questions while you are here: the very recent past. Ask who won a match played yesterday, or what a public figure said this morning. Training ended before those events, so a bare local model has no way to know. Some hosted products answer such questions well, and Chapter 4 taught you how to read that: something around the call fetched the news first. Your bare call has no such addition, so it guesses, hedges, or answers from stale training while sounding current. The cutoff is not a flaw in the model you picked. It is true of every model, on the day it ships, forever.
+
+## The Same Question, With the Evidence In the Room
+
+Now write the rules yourself, put them in the prompt, and ask again.
+
+```python
+# Listing 5.2 of 2: grounding by hand (grounded_by_hand.py)
+from hands_on_ai.chat import get_response
+
+rules = """
+Borck Street Book Club: borrowing rules (2026)
+- A member may borrow up to 4 books at once.
+- The loan period is 3 weeks.
+- The fine for a late return is $0.50 per book per week.
+- A lost book is charged at replacement cost plus a $5 fee.
+"""
+
+question = (
+    "Based only on the rules above: "
+    "how many books can a member borrow at once, "
+    "and what is the fine per week for a late return?"
+)
+
+prompt = f"Rules:\n{rules}\n\nQuestion: {question}"
+
+print(get_response(
+    prompt,
+    system="Answer only from the text provided. "
+           "If the text does not say, reply that the rules do not say.",
+))
+```
+
+The reply now has somewhere true to stand, and you can check it against the four lines you wrote. Three changes did the work. The evidence is inside the payload, as part of the prompt string. The question tells the model to base its answer on that text. And the system prompt, the standing instruction from Chapter 2, gives it a permitted way to decline: if the text does not say, say so. That permitted decline matters more than it looks. A model with no graceful exit will usually improvise one, and giving it the exact sentence to use when the evidence runs out is a small, repeatable defence.
+
+Test the exit. Add a second question your rules never address, about guest passes or meeting nights, and watch whether the reply uses your escape sentence or quietly invents a policy anyway. Models differ in obedience here, and instruction alone is a soft guardrail: it lowers invention, it does not abolish it. Chapter 11 returns to measuring how often such instructions hold. For now, record what yours did. You are building the habit of checking the boundary, not trusting the tone.
+
+Step back and look at the shape of what you just built, because the next chapter is nothing but this shape with machinery attached. You selected relevant text. You pasted it into the prompt ahead of the question. You instructed the model to answer from the text and to say when the text runs out. Search, then a prompt with the search results in it. The only part you did personally, by hand, with copy and paste, is the part Chapter 6 hands to code.
+
+## What Asking Bare Questions Costs
+
+It is tempting to treat the bare call as a free oracle and reserve grounding for important questions. That gets the economics backwards. A bare question about general knowledge is cheap and often fine. A bare question about your documents, your customers, or last week costs you a check you probably will not do, because the answer arrives formatted as though the check already happened. The expensive moment is never the call. It is the decision made from a fluent invention by someone who had no reason to suspect it.
+
+Three questions sort most requests before you send them. Could the model have learned this in training, from public text written before its cutoff? Is the fact stable, or could it have changed since? And if the answer were invented, who would find out, and when? A question that fails the first two tests and embarrasses you on the third does not need a better model. It needs its evidence in the payload, which from the next chapter onward your code will supply.
+
+::: {.callout-note title="Confidence is not a dial you can read"}
+People sometimes ask a model how confident it is, hoping the number separates knowledge from invention. Treat the reply as more generated text. A model can produce "I am 95% certain" for the same reason it produces any fluent sentence: such sentences appear in its training, attached to right and wrong answers alike. The checks that actually separate the two are external: evidence in the prompt, a source you can open, a second method, a judge measured against examples. This book builds those, in that order.
 :::
+
+## Where a Demo Can Mislead You
+
+A demo question is chosen by the demonstrator, and demonstrators instinctively choose questions training covers well. The model shines, and the audience generalises the shine to their own questions, which live in documents training has never seen. When you watch any AI demo from here on, keep one question of your own ready: a fact from your world, recent or internal, that you can verify on the spot. What the system does with that question, and whether it can show you its source, tells you more in ten seconds than the prepared hour did.
+
+## Practice Exercises
+
+**Exercise 5.1 (Level 1).** Run `cannot_know.py` three times. Note whether the invented numbers stay the same across runs. What does their stability, or lack of it, tell you?
+
+**Exercise 5.2 (Level 2).** Ask your bare model about an event from the last seven days and one from five years ago, both of which you can check. Record accuracy and tone for each. Which answer sounded more confident, and was it the right one?
+
+**Exercise 5.3 (Level 3).** Replace the book club rules with a short real document of yours: a timetable, a price list, a policy page. Ask two questions the document answers and one it does not. Check all three replies against the document, line by line.
+
+**Exercise 5.4 (Level 4).** Weaken Listing 5.2 in stages: remove the system prompt's escape sentence, then remove "based only on the rules above" from the question. Re-ask the unanswerable question at each stage. Which removal cost you more honesty?
+
+**Exercise 5.5 (Level 5).** Write a five-question trap set for a bare model: one internal fact, one recent event, one stable public fact, one question about a document only you have, one trick with a false premise. Predict the outcome of each in writing before you run them. Score your predictions as well as the model.
+
+## Chapter Summary
+
+- A bare model answers from training and from your payload. There is no third source, and training has a cutoff and a coverage limit.
+- Given a question neither source can answer, the model often improvises in the same fluent voice. Hallucination is a property of that setup, not a malfunction.
+- Grounding by hand fixes the setup: put the evidence in the prompt, instruct the model to answer from it, and give it a permitted sentence for when the evidence runs out.
+- Confidence in a reply, including a self-reported percentage, is generated text. It does not measure evidence.
+- Before asking, sort the question: could training know it, is it stable, and who catches an invention?
+
+## Reflection
+
+Before moving on, ensure you:
+
+- [ ] Collected one answer your model could not have sourced, and can say why
+- [ ] Re-asked with evidence in the prompt and checked the reply against your text
+- [ ] Tested the escape sentence with a question your evidence does not answer
+- [ ] Can explain a training cutoff without saying the model is broken
+
+## Your Learning Journal
+
+1. Which invented detail in your bare answer was most believable, and what made it so?
+2. Where in your own work are people asking bare questions about internal facts?
+3. What escape sentence would you want every AI tool in your organisation to use?
+
+## Next Steps
+
+Grounding by hand works for four lines of rules. It fails for four hundred pages of documents, because the context window from Chapter 3 will not hold them and your paste hand will tire. The next chapter keeps the shape and replaces your hand with code: split the documents into chunks, fetch the chunks a question needs, and assemble the prompt you built manually here.
