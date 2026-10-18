@@ -1,12 +1,130 @@
 # Workflows as Folders {#sec-workflows-as-folders}
 
-::: {.callout-note}
-## Skeleton
+> A workflow can be a folder of numbered stages, each one a readable file, with a person reviewing the output before the next stage runs.
 
-Kills: "orchestration needs a framework" — numbered folders of
-reviewable stages are enough.
+**Package companion:** `hands_on_ai.workflow`, the `Pipeline` class and `init_workspace`. Listings checked against `hands-on-ai` 0.6.0.
 
-Installs: `init_workspace`, `CONTEXT.md`, `run_next()`; the review
-gate between stages as the point. Working build: a three-stage
-pipeline (research, outline, draft) run one reviewed stage at a time.
+**Misconception this chapter kills:** "Orchestration needs a framework." Numbered folders of reviewable stages are enough to see, steer, and restart a multi-step job.
+
+**The build:** a three-stage pipeline, research then outline then draft, run one stage at a time with your review in between.
+
+**Python you need:** objects and methods from @sec-just-enough-python, at the level Chapter 3 used them.
+
+## The Concept First
+
+Part III chained steps inside one run, at machine speed, in a transcript you had to go looking for. That suits a two-step calculation. It suits a report, a lesson plan, or a grant draft much worse, because the moment you most want is the pause between steps: read what the research stage gathered before the drafting stage builds on it, fix the outline before prose hardens around it, stop the line cheaply. A workflow, in this chapter's sense, is that pause made structural.
+
+The package implements workflows as folders. A workspace holds numbered stage folders. Each stage folder holds a `CONTEXT.md`, plain-language instructions for that stage, and an `output` folder. Running a stage means assembling one familiar call: a shared system instruction, the stage's contract, any reference rules, and the previous stage's output file as input. The reply is written to `output/output.md`, and then everything stops until a person has read that file and asked for the next stage. The package calls the method ICM, for Interpretable Context Methodology, and the name is the design claim: the context at every step is a file a person can open, rather than state inside a framework you must take on faith.
+
+Notice what is absent. No scheduler, no message queue, no graph language, no agent hierarchy. The ordering device is the number in the folder name. The memory device is the file system, the same trick Chapter 3's saved transcript played, at a larger grain. The review device is you, with a text editor, and because the input to each stage is literally the previous output file, your edits are not notes the system might honour. They are the input, word for word.
+
+## Understanding Through Real Life
+
+Think of a production line with inspection benches between stations. Work arrives at a station with its job card, gets transformed, and sits in the out-tray until an inspector passes it to the next station. The inspector can send a piece back, correct a small flaw by hand and pass it on, or stop the whole line when a station's job card turns out to be wrong. Nobody confuses the line with magic because you can walk it, bench by bench, and see the state of every piece at a glance.
+
+The folder workspace is that line. Stage folders are stations, `CONTEXT.md` files are job cards, `output.md` in the out-tray is the work so far, and `status()` is the glance down the line. The contrast with Chapter 8's loop is deliberate: the ReAct loop optimises for a machine deciding its own next step quickly; the pipeline optimises for a person deciding whether the last step deserves a next one. Most work worth doing with AI has a cheapest point of intervention, and it is usually between stages, before an error gets three stages of polish applied to it.
+
+## The Build: Three Stages, Two Pauses
+
+One function lays out the line:
+
+```python
+# Listing 9.1 of 2: lay out the workspace (make_pipeline.py)
+from hands_on_ai.workflow import Pipeline, init_workspace
+
+init_workspace(
+    "report_workspace",
+    stages=["research", "outline", "draft"],
+    system="You are helping prepare a short briefing for a school board. Be accurate, plain-spoken, and brief.",
+)
+
+pipe = Pipeline("report_workspace")
+print(pipe.status())
+```
+
+```text
+  [ ] 01_research
+  [ ] 02_outline
+  [ ] 03_draft
+[('01_research', False), ('02_outline', False), ('03_draft', False)]
+```
+
+Open the workspace in your file browser and look at what was made. A top-level `CONTEXT.md` holds the shared instruction, which becomes the system prompt for every stage, Chapter 2's card promoted to plant manager. Under `stages/`, each numbered folder holds its own `CONTEXT.md`, created as a stub asking you to describe the stage's job, and an empty `output` folder. A `references/` folder waits at the top level for stable rules, house style, a marking rubric, anything every stage should obey; the runner folds every markdown file in it into each stage's prompt under a references heading. The package calls that folder the factory, by which it means the part of the setup you tune once while the workpieces flow through.
+
+Your job before any model runs is to write the three job cards. In `01_research/CONTEXT.md`, describe the gathering job: the topic, what counts as a useful finding, and the shape to return, perhaps five findings each with a one-line implication. In `02_outline`, ask for an outline built only from the research output, with a named section per decision the board must make. In `03_draft`, ask for prose following the outline, at a stated length, introducing no fact the research stage did not supply. Writing those cards is Chapter 2's instruction craft and Chapter 5's grounding discipline, applied per stage. Vague cards produce vague stations, and no pipeline design rescues them.
+
+Then run the line, one station at a time:
+
+```python
+# Listing 9.2 of 2: run, review, run (run_pipeline.py)
+from hands_on_ai.workflow import Pipeline
+
+pipe = Pipeline("report_workspace")
+
+print(pipe.run_next()["stage"])   # research runs; read its output.md now
+# Open stages/01_research/output/output.md.
+# Fix it, trim it, or delete it and run this stage again.
+
+print(pipe.run_next()["stage"])   # outline, built from your edited research
+# Open stages/02_outline/output/output.md and review again.
+
+print(pipe.run_next()["stage"])   # draft
+print(pipe.run_next())            # None: nothing left to run
+```
+
+Each `run_next` call finds the first stage whose output file is missing or empty, assembles its call, writes the reply, and returns a small dictionary naming the stage, the output path, and the text. When every stage has a non-empty output, it returns `None` and does nothing. That definition of done, a non-empty `output.md`, is simple enough to reason about at the bench. Edit an output and you have edited the next stage's input, full stop. Delete an output and that stage becomes the next one to run again. Clear every output, which the `reset()` method does in one call, and the line restarts from the first station with the same job cards.
+
+## Read the Assembly
+
+One stage's call, unpacked, is Part I in a trench coat. The system prompt is the workspace `CONTEXT.md` if you wrote one, or a careful default about executing one stage exactly. The prompt is the stage contract first, then the reference rules under their heading if any exist, then the previous stage's output under an input heading, joined into one string. That string goes to `get_response`, and the reply is written to disk verbatim.
+
+Two consequences are worth naming. Stage boundaries are context boundaries: the drafting stage sees the outline file and its own card, not the research transcript, not the road not taken, not your reasoning at the review bench unless you wrote it into the file. Whatever must survive a boundary must be written in the workpiece, which is why good stage contracts ask outputs to carry their evidence with them. And a failed stage leaves its failure in the out-tray, literally: as Chapter 1 established, a connection error comes back as a string, so `output.md` can contain an error message, non-empty and therefore "done" by the runner's rule, quietly feeding the next stage. The review pause is not ceremony. On this design, it is the error handling.
+
+For completeness, the runner offers `run_all`, which fires the remaining stages in sequence with no pause, bounded by a generous step limit. The package documentation is blunt that it is for pipelines you already trust. Treat your first run of any new line as untrusted by definition. `run_all` is what you earn after the cards have survived a few inspected runs, and even then, the saved files mean a bad run can be rewound stage by stage rather than rerun from a blank prompt and a prayer.
+
+::: {.callout-tip title="Contracts are the product"}
+When a pipeline disappoints, the fix almost never lives in the runner, which only assembles and files. It lives in a job card: the research card did not say what a finding looks like, the outline card did not forbid new facts, the draft card never named its reader. Iterate on `CONTEXT.md` files the way Chapter 7 taught you to iterate on tool descriptions, by feeding the stage exactly what its card requests and reading what the card, as written, actually asked for.
 :::
+
+## Where a Demo Can Mislead You
+
+"Fully autonomous multi-agent workflow" demos run the whole line at speed and show the finished piece. You now know the questions that expose the build quality. Can I see the workpiece between stages, as a file or its equivalent, and edit it before the next stage consumes it? If stage two of five goes wrong, do we rerun one stage or the universe? Where do the standing rules live, and can a person change them without a deployment? When a stage fails, does the failure stop the line in a visible tray, or flow downstream dressed as content? A framework that answers those well has earned its complexity over numbered folders. One that cannot show you the trays is asking you to buy the line without walking it.
+
+## Practice Exercises
+
+**Exercise 9.1 (Level 1).** Build the three-stage workspace, write the cards for a topic you know well, and run the research stage only. Read `output.md` and mark every claim you could not verify from your own knowledge.
+
+**Exercise 9.2 (Level 2).** Edit the research output by hand: correct one claim, delete the weakest finding, add one finding of your own. Run the outline stage and trace which of your edits visibly shaped it.
+
+**Exercise 9.3 (Level 3).** Add a `references/style.md` with three rules for the draft stage, reset the workspace, and rerun. Compare the two drafts. Which rule was obeyed most literally, and which needed rewording?
+
+**Exercise 9.4 (Level 4).** Sabotage the line: empty the middle stage's output file without deleting it, then call `run_next`. Then write an error sentence into it by hand and call `run_next` again. Record how the runner's definition of done handled each case, and what your review habit must therefore include.
+
+**Exercise 9.5 (Level 5).** Design a four-stage pipeline for a real recurring job: meeting notes to decisions, lesson material to quiz, incident log to board brief. Write all four cards without running anything. For each boundary, state what the output must carry so the next stage needs nothing upstream.
+
+## Chapter Summary
+
+- A workflow workspace is numbered stage folders, each with a `CONTEXT.md` contract and an `output/output.md`. A stage counts as done when its output file exists and is non-empty.
+- Running a stage assembles one ordinary call: workspace instruction as system prompt, then contract, reference rules, and the previous stage's output as the prompt.
+- `run_next` runs one stage and stops for review; your edits to an output become the next stage's input verbatim. `run_all` removes the pauses and is for trusted lines only.
+- Stage boundaries are context boundaries. Anything needed downstream must be written in the output file itself.
+- An error string from a failed call is non-empty, so it counts as done. The review pause is the error handling.
+
+## Reflection
+
+Before moving on, ensure you:
+
+- [ ] Laid out a workspace and can walk its folders station by station
+- [ ] Wrote stage contracts and ran at least two stages with a review between
+- [ ] Edited an output and traced the edit into the next stage's result
+- [ ] Can state the runner's definition of done and its one dangerous consequence
+
+## Your Learning Journal
+
+1. Which job card took the most rewriting, and what did its first version fail to ask for?
+2. What did you write into an output file purely so the next stage would have it?
+3. Describe a workflow you already do by hand in stages. Where are its inspection benches?
+
+## Next Steps
+
+The pipeline repeats across stages, with you as the metronome. The next chapter repeats within one stage: the same improvement step applied again and again to its own output, with the stopping decision handed to a goal you state in advance.

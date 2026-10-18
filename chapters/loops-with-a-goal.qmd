@@ -1,12 +1,162 @@
 # Loops with a Goal {#sec-loops-with-a-goal}
 
-::: {.callout-note}
-## Skeleton
+> Do, check, repeat is a fine engine and a terrible plan, until the check is a goal you can state and the repetitions have a budget.
 
-Kills: "more steps means better" — repetition needs a stopping
-condition, and progress needs a memory of the best so far.
+**Package companion:** `hands_on_ai.loop`, with `run_loop`, `run_ratchet`, and `judged`. Listings checked against `hands-on-ai` 0.6.0.
 
-Installs: `run_loop` with a goal, `judged()` thresholds, the ratchet
-that keeps only wins. Working build: a paragraph improved until a
-stated goal is met, with the iteration count visible.
+**Misconception this chapter kills:** "More steps means better." Repetition needs a stopping condition, and progress needs a memory of the best so far.
+
+**The build:** a rough paragraph improved by a loop until a stated standard is met, twice: once keeping whatever the last step produced, once keeping only improvements.
+
+**Python you need:** passing a function as an argument, first met in @sec-giving-the-model-hands, and the one-line functions written with `lambda`, explained below. The rest is @sec-just-enough-python.
+
+## The Concept First
+
+Chapter 8's agent loop repeated until the model declared an answer. This chapter's loop is the same shape with the roles clarified and handed to you. A `step` function does one piece of work to the current state. A `goal` function inspects the new state and returns `True` when it is good enough. The runner alternates them, keeping a history, until the goal fires or a budget of iterations runs out. Do, check, repeat, with the check written down before the doing starts.
+
+That advance statement of the goal is the entire discipline. Without it, a loop around a model will happily polish for as many iterations as you fund, including the iterations where the text gets longer, greasier, and worse, because nothing in "improve this" contains a stopping point or a direction of improvement that two readers would agree on. With a goal, two honest outcomes become possible: the loop can report that it met the standard in this many iterations, or that it spent its budget without meeting it. Both are information. A loop that always returns its last attempt with quiet confidence gives you neither.
+
+The package names the two parts for you. The trigger is the starting state plus the step that fires every turn. The goal is the stopping check, and it can be anything callable that answers yes or no about a state: a word count under a limit, a required phrase present, a test suite passing in your own code, or, from the next chapter's machinery, a model judging the output against criteria and scoring it high enough.
+
+## Understanding Through Real Life
+
+Think of kneading dough to the windowpane test. The step is kneading for a minute. The goal is not "knead until it seems right". It is a stated check: stretch a small piece until light passes through it without tearing. A baker checks after each round, stops the moment the test passes, and knows that kneading past the test is not extra quality but damage. Notice also the budget hiding in practice: if the test has not passed after a reasonable effort, something upstream is wrong with the flour or the water, and more kneading will not rescue it. The honest report is "test not passed in the time", followed by a different decision.
+
+A goal-checked loop is that bakery discipline for text. The windowpane test must exist before the kneading starts, must be cheap enough to run every round, and must be capable of failing. A check that always passes by round two is a ribbon, not a test.
+
+## The Build, First Without a Model
+
+The runner does not care whether a step calls a model, which makes it possible to learn the shape with plain Python and exact output. This loop builds a sentence one word at a time until it is long enough:
+
+```python
+# Listing 10.1 of 3: the loop shape, no model (loop_shape.py)
+from hands_on_ai.loop import run_loop
+
+def add_word(state):
+    return (state + " word").strip()
+
+result = run_loop(
+    step=add_word,
+    goal=lambda text: len(text.split()) >= 4,
+    start="start",
+    max_iters=10,
+)
+
+print(result["result"])
+print(result["iterations"], result["met_goal"])
+print(result["history"])
+```
+
+```text
+start word word word
+3 True
+['start word', 'start word word', 'start word word word']
+```
+
+Read the return value as a small report, because it is the same report your model versions will give you. `result` is the final state. `iterations` counts the steps that actually ran. `met_goal` tells you which exit fired: the goal's `True`, or the budget running out first. `history` holds every intermediate state in order, the loop's equivalent of Chapter 8's trace, and it is where you will later watch quality rise, stall, or decay. The `lambda` in the listing is Python's way of writing a tiny unnamed function in one line: `lambda text: ...` defines a function taking `text` and returning the value after the colon. Chapter 7 handed named functions to a registry; loops take one-line functions so often that the shorthand earns its place here.
+
+Set `max_iters=2` and run it again in your head: the same step, the same goal, and the report changes to three words, two iterations, `met_goal` false. Nothing failed. The loop simply tells the truth about a budget too small for its goal, and hands the decision back to you. Loops in products that cannot utter that sentence will utter a worse one disguised as success.
+
+## The Build, With a Model and a Stated Standard
+
+Now the step becomes a model call and the goal becomes a judgement. The package's `judged` helper wraps next chapter's judge into a goal function: give it criteria in words and a threshold score, and it returns the `goal(state)` check `run_loop` wants. Reading Chapter 11 first is allowed and even sensible; the wiring makes sense on contact either way.
+
+```python
+# Listing 10.2 of 3: improve until good enough (improve_paragraph.py)
+from hands_on_ai.chat import get_response
+from hands_on_ai.loop import judged, run_loop
+
+result = run_loop(
+    step=lambda draft: get_response(f"Improve this paragraph:\n{draft}"),
+    goal=judged("clear, concise, and friendly", threshold=4),
+    start="loops are when you do stuff again and again",
+    max_iters=5,
+)
+
+print(result["result"])
+print("in", result["iterations"], "iterations; goal met:", result["met_goal"])
+for draft in result["history"]:
+    print("-", draft)
+```
+
+Count the model calls before you run it, because Chapter 3's arithmetic has a new multiplier. Each iteration costs one improvement call from the step and one judging call hidden inside the goal, so a budget of five iterations is up to ten calls, each carrying its own prompt. On a local model that is patience. On a metered provider it is a line item, and `max_iters` is where you signed for it.
+
+Read the printed history with a marker in hand. The interesting runs are the imperfect ones. A draft may reach the threshold by becoming shorter in a way that loses the point, because "concise" was in your criteria and "keeps the original meaning" was not. A later iteration may be worse than an earlier one, and here `run_loop` has a character trait you must know: it keeps the last state, whatever the history shows. The goal check happens after the step, so a run that decays through its final iteration returns the decayed text with `met_goal` honestly false, and the best draft of the run sits in `history` for you to rescue by hand. That design is simple and sometimes exactly wrong, which is why the package ships a second shape.
+
+## The Ratchet: Keep Only Wins
+
+`run_ratchet` changes what the loop remembers. Each iteration, the step proposes one change to the current best. A `score` function rates the proposal, and the proposal replaces the best only if it scores strictly higher. Otherwise it is discarded, the way a mechanical ratchet refuses to slip backward, and the loop logs every proposal's score and whether it was kept. The package nicknames it the Ralph Wiggum technique, and the loop it describes is a classroom-sized relative of how serious optimisation harnesses grind on a problem overnight.
+
+```python
+# Listing 10.3 of 3: only improvements survive (ratchet_paragraph.py)
+from hands_on_ai.chat import get_response
+from hands_on_ai.eval import judge
+from hands_on_ai.loop import run_ratchet
+
+CRITERIA = "clear, concise, friendly, and keeps the original meaning"
+
+result = run_ratchet(
+    step=lambda draft: get_response(
+        f"Improve this paragraph in one small way:\n{draft}"
+    ),
+    score=lambda draft: judge(draft, CRITERIA)["score"],
+    start="loops are when you do stuff again and again",
+    max_iters=5,
+)
+
+print(result["best"])
+print("final score:", result["score"])
+for row in result["log"]:
+    print(row)
+```
+
+The log is the deliverable to read first. Each row is one proposal: its iteration number, its score, and whether it was kept. A healthy log shows a few keeps early and discards later as the text firms up. A log of all discards says your starting text already beat everything the step proposed, or that the score cannot tell your proposals apart. A log of all keeps with climbing scores on a vague criterion should make you suspicious in the other direction: the step may be learning to please the scorer rather than to serve the reader, which is next chapter's central caution arriving early. Note two bookkeeping facts for your budget: the ratchet scores the starting state once to set the baseline, and a proposal whose score comes back `None`, which happens when a judge's reply cannot be parsed, is never kept. Inaction on unreadable evidence is the right default, and here it is built in.
+
+Choosing between the shapes is choosing what a mediocre run hands back. `run_loop` pursues a stated standard and returns wherever it stopped, with the history as evidence. `run_ratchet` guarantees the returned text is at least as good, by your score, as where you started, and pays for the guarantee with a scoring call per proposal and a step that must be kept to small changes. For a paragraph, the ratchet's guarantee is worth it. For reaching a format or passing a test, the plain loop says the honest thing faster.
+
+::: {.callout-warning title="A loop is an amplifier"}
+A step and a goal that are each slightly wrong do not cancel out in a loop. They compound. A step that pads text and a goal that rewards thorough-sounding criteria will march a paragraph away from its reader a few confident iterations at a time, logging progress at every step. Read histories and logs, especially early on, the way Chapter 9 taught you to read stage outputs. The budget you set is also a statement about how far you trust the amplifier unsupervised.
 :::
+
+## Where a Demo Can Mislead You
+
+"It refines itself until it is excellent" compresses every question in this chapter into a slogan. Unpack it on contact. What is the goal, stated so a third party could check it, and who wrote the criteria? What is the budget in iterations and in model calls, and what does the system return when the budget expires without the goal firing? Does it keep the last attempt or the best? May I see a history or a log from a run that failed to meet its goal, since anyone can show the run that converged? A loop with stated goals, honest exits, and inspectable logs is an engineering tool. A loop described only by its destination is a kneading machine with no windowpane test and no off switch you are allowed to see.
+
+## Practice Exercises
+
+**Exercise 10.1 (Level 1).** Run `loop_shape.py`, then change only the goal to demand six words and only the budget to three iterations, one at a time. Predict the full report dictionary before each run.
+
+**Exercise 10.2 (Level 2).** Run the paragraph improver on a rough paragraph of your own writing. Read the history aloud. Mark the first iteration you would have stopped at, and compare it with where the loop stopped.
+
+**Exercise 10.3 (Level 3).** Add "keeps the original meaning" to the criteria in Listing 10.2, then remove it, running on the same start text both times. Where does the criterion change the outcome, and where does the loop simply not notice?
+
+**Exercise 10.4 (Level 4).** Run the ratchet with a deliberately crude step that rewrites the whole paragraph each time instead of one small change. Read the log. Why does the ratchet's logic prefer small proposals, and what did whole rewrites do to the keep rate?
+
+**Exercise 10.5 (Level 5).** Design a loop for a real task (quiz questions until they meet a rubric, summaries until they fit a limit with facts intact). Spec sheet only: start state, one-paragraph step prompt, goal criteria written to be checkable, threshold, budget in iterations and estimated calls, and the exact sentence the loop should hand back when the goal is not met.
+
+## Chapter Summary
+
+- A goal loop alternates a `step(state)` doing one piece of work with a `goal(state)` check stated in advance, bounded by `max_iters`.
+- `run_loop` returns the final state, the iteration count, whether the goal was met, and the full history. It keeps the last state even when the goal never fires.
+- `judged(criteria, threshold)` turns the model-as-judge into a goal. Each judged iteration costs one step call plus one judging call.
+- `run_ratchet` keeps a proposal only when it scores above the best so far, logs every proposal with its score and keep decision, and never keeps an unscorable proposal.
+- Loops amplify the step and the goal together. Histories and ratchet logs are how you watch direction as well as arrival.
+
+## Reflection
+
+Before moving on, ensure you:
+
+- [ ] Ran a plain-Python loop and can explain all four keys of its report
+- [ ] Saw `met_goal` come back false and read the history that explains why
+- [ ] Ran a ratchet and accounted for every keep and discard in its log
+- [ ] Can state, for a loop of your own design, its budget in model calls rather than iterations
+
+## Your Learning Journal
+
+1. At which iteration would you have stopped your paragraph run, and what does the gap to the loop's choice say about your criteria?
+2. Describe a check in your own work that functions as a windowpane test: cheap, repeatable, capable of failing.
+3. When have you kept the last version of something when an earlier one in the history was better?
+
+## Next Steps
+
+Both shapes in this chapter leaned on a scorer that has so far operated offstage: a model asked to grade text against your criteria and return a number. The next chapter puts that judge on the bench, takes it apart into the call and prompt it really is, and calibrates how far its numbers deserve your trust.

@@ -78,6 +78,9 @@ class ManuscriptChecks(unittest.TestCase):
             "chapters/chunk-fetch-answer.qmd": ("get_top_k", "{#sec-chunk-fetch-answer}"),
             "chapters/giving-the-model-hands.qmd": ("register_tool", "{#sec-giving-the-model-hands}"),
             "chapters/the-react-loop.qmd": ("run_agent", "{#sec-the-react-loop}"),
+            "chapters/workflows-as-folders.qmd": ("init_workspace", "{#sec-workflows-as-folders}"),
+            "chapters/loops-with-a-goal.qmd": ("run_ratchet", "{#sec-loops-with-a-goal}"),
+            "chapters/the-judge.qmd": ("judge(", "{#sec-the-judge}"),
             "appendices/just-enough-python.qmd": ("build_payload", "{#sec-just-enough-python .appendix}"),
         }
         for name, markers in written.items():

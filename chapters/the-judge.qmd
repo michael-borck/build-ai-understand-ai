@@ -1,13 +1,124 @@
 # The Judge {#sec-the-judge}
 
-::: {.callout-note}
-## Skeleton
+> When output is cheap and plentiful, the scarce skill is telling good from fluent, at a scale your eyes cannot cover alone.
 
-Kills: "I can eyeball quality" — at scale you cannot, and the demo is
-not a test.
+**Package companion:** `hands_on_ai.eval`, the `judge` function behind Chapter 10's goals. Listings checked against `hands-on-ai` 0.6.0.
 
-Installs: the LLM judge, criteria, thresholds, calibrated distrust;
-judging as the baseline literacy of the AI era. Working build:
-`judge-your-bot` — score a chatbot's answers against stated criteria
-and read where the judge itself disagrees with you.
+**Misconception this chapter kills:** "I can eyeball quality." At scale you cannot, the demo is not a test, and a score is a signal to calibrate rather than a verdict to obey.
+
+**The build:** `judge-your-bot`, the package's evaluation project. Score a set of chatbot answers against stated criteria, then compare the judge's marks with your own and read the disagreements closely.
+
+**Python you need:** dictionaries and loops from @sec-just-enough-python.
+
+## The Concept First
+
+Every chapter since Chapter 5 has widened the gap this one addresses. Production is now the cheap direction: a call produces an answer, a pipeline produces a draft, a loop produces five drafts and a log. Evaluation is where the cost went. Somebody, or something, has to read all of that output and separate the sound from the merely fluent, and a human reader does not scale past a few dozen items a day with their attention intact. The industry's working answer is the pattern this chapter takes apart: LLM-as-judge, in which a model is asked to score an output against criteria you state, returning a number and a reason your code can act on, as Chapter 10's goals already did.
+
+Strip the name and the judge is the smallest build in the book. It is one call, with a system prompt casting the model as a strict but fair evaluator and demanding exactly two lines back, a score and a reasoning, followed by a small parser that extracts the number and clamps it into the scale. There is no special evaluation engine. Which is precisely why calibration matters more than the mechanism: a judge is a model producing text about text, with a model's failure modes, and the craft is in knowing how far its numbers track your own judgement on work you have actually read.
+
+That is the literacy claim in this chapter's skeleton, worth stating plainly before the listings. Judging is becoming a baseline skill of working with AI in the way estimating a search result's reliability became one a generation ago. Not because judges are wise, but because output volume has already passed the point where unaided reading is the control, and the alternative to a calibrated judge is not careful human review. At scale, the alternative is no review, with a demo's confidence in its place.
+
+## Understanding Through Real Life
+
+Think of examination marking at scale. One chief examiner cannot read ten thousand scripts, so a team of markers works from a shared rubric: criteria bands, exemplar answers at each level, and moderation meetings where markers compare scores on the same scripts and argue until their standards converge. No sane system treats a new marker's first hundred marks as ground truth. They are sampled, compared, adjusted. Trust in a marker is earned per rubric, per season, and it expires when the rubric changes.
+
+An LLM judge joins your marking team as an indefatigable new marker who reads at inhuman speed and never gets tired at script nine thousand. It also arrives with no stake in being right, a susceptibility to confident presentation it inherited from training, and standards that live entirely in the rubric text you handed it. The moderation meeting is not optional garnish. It is the process by which this particular marker, on this particular rubric, earns the right to mark unsampled work. This chapter's build is that meeting, held at classroom scale with your own marks as the comparison.
+
+## The Build: Put the Judge on the Bench
+
+Start with a single verdict, printed in full, so every part of the return value is visible:
+
+```python
+# Listing 11.1 of 2: one verdict, all its parts (one_verdict.py)
+from hands_on_ai.eval import judge
+
+verdict = judge(
+    "TCP retransmits lost packets so data arrives complete and in order.",
+    criteria="accurate, concise, and answers the question asked",
+    question="What does TCP do?",
+)
+
+print(verdict["score"])
+print(verdict["reasoning"])
+print(repr(verdict["raw"]))
+```
+
+The dictionary has three entries, and the third is the one beginners skip. `score` is the parsed number, an integer on the scale you chose (1 to 5 unless you pass `scale=`), or `None` when the reply contained no readable score. `reasoning` is the one-sentence justification the prompt demanded. `raw` is the judge's untouched reply, kept so that when a score surprises you, the text it was parsed from is one print away. Keep `raw` in anything you build on this. A score whose source text you cannot inspect is a mark from a marker who shredded the script.
+
+Run the listing a few times on the same answer, and treat the wobble as data. Scores may hold steady or drift by a point between runs, because the judge is a model call, subject to everything Part I taught you about model calls. Drift does not make the instrument useless, any more than marker variance abolishes examinations. It tells you what the numbers can and cannot carry: separating a 2 from a 5 with confidence, perhaps, while a ranking built on 4-versus-5 distinctions is reading tea leaves unless your calibration says otherwise.
+
+## The Moderation Meeting: Judge Your Bot
+
+Now the project the package names `judge-your-bot`. Take a small set of answers from a bot you have built, a personality bot from Chapter 2 or your RAG bot from Chapter 6 answering questions you chose, and mark them twice: once yourself, once with the judge, against the same written criteria.
+
+```python
+# Listing 11.2 of 2: your marks beside the judge's (judge_your_bot.py)
+from hands_on_ai.eval import judge
+
+CRITERIA = "accurate, based only on the provided documents, and concise"
+
+cases = [
+    ("What does TCP do?", "TCP retransmits lost packets so data arrives complete and in order.", 5),
+    ("What does TCP do?", "TCP is a very important protocol that does many things on the internet.", 2),
+    ("How does HTTP work?", "The rules do not say.", 4),
+]
+
+for question, answer, my_score in cases:
+    verdict = judge(answer, CRITERIA, question=question)
+    print(f"mine={my_score} judge={verdict['score']} :: {verdict['reasoning']}")
+```
+
+Write your scores into the listing before you run it, from your own reading, as the tuples above suggest. Then read the output disagreement first, agreement second. Each mismatch is a small investigation with exactly three possible findings. Your criteria may be underwritten: the judge marked to the words you gave it, and the words did not say what you meant, which is Chapter 2's instruction lesson in a new uniform. Your own mark may be the sloppy one, given on a skim the judge's slower pass exposed. Or the judge may simply be wrong in a way worth characterising: rewarding length, rewarding confidence, missing a factual error it had no source to check against, punishing a correct refusal because it looks unhelpful. Sort your mismatches into those three piles and you have a calibration record: where this judge, on this rubric, with this model, can be trusted, and where it must be sampled or overruled. That record, refreshed when the model or criteria change, is the asset. The scores themselves are exhaust.
+
+## Writing Criteria a Judge Can Use
+
+Everything the marking analogy promised depends on the rubric, and rubric writing for a model follows the rules this book has been teaching all along, sharpened. Criteria should name checkable properties rather than vibes: "states the borrowing limit as a number" can be marked against a document; "high quality" cannot be marked against anything. Where correctness matters, give the judge something to be correct against: the question, the source chunk, the expected fact. A judge asked to score accuracy from its own training is a second opinion from the same well the first answer was drawn from, and Chapter 5 already told you what that well contains. Keep the scale honest about the discrimination you verified in moderation: if your judge reliably separates poor, adequate, and strong, a 1-to-3 scale collects the information without pretending to five points of it. And separate criteria that pull against each other into separate judgements when the trade-off matters, because a single score for "accurate and entertaining" hides which one failed, exactly as Chapter 2's contradictory system prompts hid which instruction the model disobeyed.
+
+A last mechanical honesty: the parser clamps and the parser fails, by design, visibly. A judge that replies with a score off the scale has it clamped to the nearest end. A judge whose reply contains no `SCORE:` line yields `None`, which Chapter 10's goal treats as not good enough and the ratchet treats as never an improvement. Neither behaviour fixes a confused judge. Both keep a confused judge from silently passing work, which is the correct direction for a default to lean.
+
+::: {.callout-warning title="The judge can be captured by its input"}
+A judge reads the output it is marking, and that output is model-generated text, which can contain sentences addressed to the marker: flattery, instructions, a forged `SCORE: 5` line of its own. The parser takes the first score it finds in the judge's reply, and a small model quoted its input often enough for this to matter in adversarial settings. In your classroom builds the risk is mostly accidental, but the bench rule from Chapter 7 applies with roles reversed: treat the marked text as untrusted input to the marking process, and be suspicious of perfect scores on work you have not sampled.
 :::
+
+## Where a Demo Can Mislead You
+
+Evaluation claims are where AI marketing goes to feel scientific: a percentage here, a benchmark name there, a chart ascending to the right. You can now ask the moderation questions. Who or what produced these scores, against criteria I may read? Where is the calibration sample comparing the judge's marks with marks from someone accountable, and what did the disagreements look like? What happens to the score distribution when the judge model and the judged model swap? Can I see raw verdicts, or only the averaged number that survived contact with a slide template? None of these questions require doubting that automated judging works. They require the vendor to have held the moderation meeting, and to be able to show its minutes.
+
+## Practice Exercises
+
+**Exercise 11.1 (Level 1).** Run one verdict five times on the same answer and record the scores and reasonings. Report the range, and state what decisions you would and would not base on this judge at this stability.
+
+**Exercise 11.2 (Level 2).** Build a case list of eight answers from your own earlier chapters, at least two of which are fluent and wrong. Mark them yourself, run the judge, and sort every disagreement into rubric, my mark, or judge error.
+
+**Exercise 11.3 (Level 3).** Rewrite your criteria to repair the largest rubric-caused disagreement, rerun the same cases, and report what moved and what stubbornly did not.
+
+**Exercise 11.4 (Level 4).** Probe the judge's soft spots with paired answers: same content at two lengths, same content in confident and hedged tones, a correct refusal against a fluent invention. Which dimension moved the score most, and was it one your criteria mentioned?
+
+**Exercise 11.5 (Level 5).** Write the moderation protocol for a course team adopting this judge for feedback drafts: sampling rate, who marks the sample, what disagreement rate suspends the judge, and when recalibration is mandatory. One page, ending with the decision this judge is never allowed to make alone.
+
+## Chapter Summary
+
+- The judge is one model call with a strict evaluator prompt and a parser. It returns `score` (clamped to the scale, or `None` when unparsable), `reasoning`, and the untouched `raw` reply.
+- Scores wobble between runs and track your rubric's wording as much as the work's quality. Calibration against your own marks on sampled work is what converts scores into a usable signal.
+- Disagreements sort into rubric gaps, your own marking errors, and judge errors such as rewarding length or confidence. Each pile has a different fix.
+- Checkable criteria, evidence supplied to the judge, a scale sized to verified discrimination, and separate scores for competing virtues all raise what the numbers can carry.
+- Marked text is untrusted input to the marking process. Keep raw verdicts, sample continuously, and treat averages without minutes as marketing.
+
+## Reflection
+
+Before moving on, ensure you:
+
+- [ ] Collected repeated verdicts on one answer and measured the wobble
+- [ ] Marked a case set yourself before seeing the judge's scores
+- [ ] Sorted your disagreements into the three piles and repaired one rubric gap
+- [ ] Can state one decision this judge may inform and one it must never make alone
+
+## Your Learning Journal
+
+1. Which disagreement most changed your mind: one where the judge caught you, or one where you caught it?
+2. What did your criteria say that you did not mean, once a literal reader marked to them?
+3. Where in your own work is quality currently judged by whoever had time to glance at it?
+
+## Next Steps
+
+Part IV is complete: work staged in folders with review gates, repetition bounded by stated goals, and quality marked by a calibrated judge. Everything so far has moved text in and text out. Part V gives the same call two more senses, pictures and voice, and finds out how much of the machinery you already own simply by changing what rides in the payload.
