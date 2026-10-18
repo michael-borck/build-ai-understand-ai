@@ -1,6 +1,6 @@
 # Build AI, Understand AI: Prospectus
 
-Date: 2026-10-11. Status: Parts I to IV and Appendix A drafted (2026-10-18); Part V, conclusion, and Appendices B to D unwritten.
+Date: 2026-10-11. Status: first draft complete (2026-10-18); fresh-reader pass, live listing run, print build, and cover pending.
 
 The doing lives in the companion package `michael-borck/hands-on-ai`
 (`pip install hands-on-ai`): eight modules, roughly forty documentation
@@ -160,10 +160,23 @@ and unparsable replies returning `None`) verified offline with
 scripted stand-ins. Part III committed and pushed as `0728bbb`
 before this pass.
 
+Done 2026-10-18 (completion pass): Part IV committed as `744846f`
+(local, ahead of origin at time of writing). Chapters 12 to 14 and
+Appendices B to D drafted against `hands_on_ai.vision`,
+`hands_on_ai.voice`, and the package project guides, completing
+the first draft at roughly 37,000 words. Vision payload shape and
+voice error behaviour verified offline; live vision and audio
+calls still need an author run with a vision model and audio
+servers reachable.
+
 Next, in order:
-1. Author review of Parts I to IV, including one live run of the
-   model-dependent listings.
-2. Part V last (vision and voice demos age fastest), then the
-   conclusion and Appendices B to D.
-4. Project gallery appendix once capstones are chosen.
-5. Fresh-reader pass, print build, cover.
+1. Author fresh-reader pass over the whole draft, including one
+   live run of every model-dependent listing, replacing
+   representative output with captured output where the text
+   promises similarity rather than exactness.
+2. Print build (PDF/EPUB via the standard pipeline; the audit's
+   print-support files are still missing) and cover design,
+   including registry entries in `book-publisher/design/`.
+3. Decide the open question below with the draft in hand:
+   listings stay frozen in the book, pinned per chapter to
+   `hands-on-ai` 0.6.0 (the current practice), or move.

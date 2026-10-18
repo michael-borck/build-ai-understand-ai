@@ -1,14 +1,67 @@
 # The Shape Underneath {#sec-conclusion}
 
-::: {.callout-note}
-## Skeleton
+> You came for thirteen chapters of machinery and found one call, five things people wrap around it, and your own judgement at every seam.
 
-Kills: "I need to learn a framework" — everything in the package was
-one call plus plain Python, and now the reader can see which parts of
-any AI product are the model and which are the harness.
+**Package companion:** all of `hands-on-ai` 0.6.0, which you have now read in the pieces that matter.
 
-Closes: the five-part shape (call, ground, act, control, sense);
-the exit map to production tools; the argument that understanding the
-machine is what makes supervising AI possible. Points to Appendix D
-and to *Ship Python, Orchestrate AI* for the professional road.
-:::
+**Misconception this chapter kills:** "I need to learn a framework." Frameworks will come and go above this shape. You now own the shape.
+
+**The build:** none. This chapter assembles what you built into one picture and hands you the questions to carry out of the lab.
+
+## The five-part shape
+
+Every system in this book is one call to a model, wrapped in plain Python. The five parts of the book were the five families of wrapper, and each killed the misconception that its wrapper was the intelligence:
+
+| Part | Wrapper added | The plain version |
+|---|---|---|
+| I. The Model | Instructions, transcript, settings | A payload, a system string, a resent list, three variables |
+| II. Grounding | Evidence fetched before the call | Search, then the results pasted into the prompt |
+| III. Action | Functions the model may request, in a loop | Your code executes, results return as messages |
+| IV. Control | Stages, goals, scores | Folders of contracts, a stated goal, a calibrated marker |
+| V. The Senses | Pictures in, translators at the edges | An image in the payload; speech to text and back |
+
+Point at any AI product you use this week and the decomposition exercise from Chapter 1 now has five drawers to sort its behaviour into. The chatbot is Part I with a budget. The document helper is Part II with better retrieval. The agent is Part III with a larger bench and higher stakes. The platform is Part IV with dashboards where your folders and logs were. The voice assistant is Part V wrapped around whichever of the earlier parts does its thinking. Products differ, sometimes enormously, in the quality and scale of their wrappers. Almost none differ in the underlying event: text, and now pictures and sound by conversion, assembled into a payload; a model call; the result checked, filed, or fed around again by code someone wrote on a Tuesday.
+
+## The questions to carry
+
+Each chapter ended by slowing a demo down, and the questions collect into a single habit worth more than any module API in this book. What did this add around the plain call? Where does the evidence come from, and can I open it? Who executes, on what allowlist, and what happens on the worst input? Where are the stage outputs, the traces, the logs, and which exit ended this run? Who marked the quality, against what criteria, calibrated against whose reading? Where did my words, pictures, and voice travel, and how long are they kept?
+
+Those questions are the transferable asset. Models will be replaced under you quarterly; several already have been while this book was written. The wrappers will be renamed by vendors twice a year. The questions survive both, because they attach to the seams where someone's code met a model call and a decision got made about evidence, authority, cost, or proof. Asking them of your own builds first is the difference between supervising AI systems and merely operating them, and it is the same difference this series' other titles circle from their own directions: *Conversation, Not Delegation* for the thinking discipline, *Speak Software* for directing agents without code, *Prove, Don't Persuade* for insisting on evidence over demonstration.
+
+## Leaving the lab
+
+This package was built to be outgrown, and its own philosophy says so without embarrassment: a learning lab, small on purpose, trading completeness for clarity so the concepts stay visible. The moment your needs name a gap here, error handling with real retries and budgets, streaming at scale, a vector store, judged evaluation over thousands of cases, agents running tools concurrently, voice with interruption handling, you have not hit a failure of the book. You have reached the exit it was aimed at, carrying the concepts a production framework will assume you have. @sec-going-deeper maps each module to its grown-up counterparts, and *Ship Python, Orchestrate AI* in this series takes the professional road in full: the same shapes, built to be operated by strangers.
+
+One graduation exercise is worth doing before you shelve the lab, because it converts reading into the reading habit itself. Pick the module you leaned on hardest and read its whole source in one sitting, pen in hand, answering for every function the question Chapter 1 taught you: what does this add to the plain call? The chat module will take an afternoon. So, in truth, will the rest together. A reader who has done that once stops asking whether they are technical enough to judge an AI system, which was the quiet hope underneath the preface.
+
+## Practice Exercises
+
+**Exercise 14.1 (Level 1).** Choose an AI product you used this week and sort its behaviour into the five drawers, one line per drawer, naming what you are inferring rather than observing.
+
+**Exercise 14.2 (Level 2).** Revisit your earliest learning journal entries. Find one belief about AI systems that a specific chapter's build, not its prose, changed for you. Name the listing.
+
+**Exercise 14.3 (Level 3).** Assemble two parts on one bench: a voice loop whose answers are grounded by your document index, or a judge watching your workflow's draft stage. Keep it small; the composition is the exercise.
+
+**Exercise 14.4 (Level 4).** Write the one-page version of this book for a colleague: the shape, the five questions, and the single exercise from any chapter that would teach the most in an hour. Defend your choice of exercise.
+
+**Exercise 14.5 (Level 5).** Capstone. Build one small thing for real use, from @sec-project-gallery or your own backlog, under this book's disciplines: stated criteria, a checkable goal, sources shown, errors visible, a budget. Ship it to one other person and record what their use taught you that your testing did not.
+
+## Chapter Summary
+
+- Every system built here is one model call plus a wrapper, and the wrappers sort into five families: the call itself, grounding, action, control, and the senses.
+- The durable skill is seam questions: evidence, execution authority, traces and exits, calibrated quality, data travel and retention.
+- The package is a learning lab designed to be outgrown. Reaching its limits with the concepts intact is success, and @sec-going-deeper is the exit map.
+
+## Reflection
+
+Before you close the book, ensure you:
+
+- [ ] Can decompose a product you use into the five drawers without notes
+- [ ] Read one whole package module against the Chapter 1 question
+- [ ] Know which appendix you will open next, and why
+
+## Your Learning Journal
+
+1. Which misconception, of the fourteen, were you most reluctant to give up?
+2. What will you now refuse to accept from a demo, including your own?
+3. What is the first production-shaped problem you intend to point these habits at?

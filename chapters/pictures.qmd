@@ -1,13 +1,106 @@
 # Pictures {#sec-pictures}
 
-::: {.callout-note}
-## Skeleton
+> Seeing, in this machinery, is a prompt with a picture attached. The reply is still text, and it can still be wrong in a confident voice.
 
-Kills: "vision is a different kind of AI" — images go into the same
-kind of call, descriptions come out.
+**Package companion:** `hands_on_ai.vision`, its one function `describe`. Listings checked against `hands-on-ai` 0.6.0.
 
-Installs: `hands_on_ai.vision`, what a vision-language model can and
-cannot see, where grounded answers still need retrieval. Working
-build: `talking-picture` — a photograph that answers questions about
-itself.
+**Misconception this chapter kills:** "Vision is a different kind of AI." Images go into the same kind of call, and descriptions come out.
+
+**The build:** `talking-picture`, the package's vision project. A photograph that answers questions about itself, asked three different ways.
+
+**Python you need:** one function call and a file path. The interesting work in this chapter is choosing photographs that test the model honestly.
+
+## The Concept First
+
+A vision-language model, VLM for short, accepts a payload whose user message carries two parts instead of one string: your text question, and an image. Somewhere inside the server, the image is converted into the same internal currency the model uses for words, tokens, and the machinery from Chapter 1 proceeds as always. Text and picture go in. Text comes out. That is the whole of the new sense at the level this book operates, and the module docstring says it without decoration: seeing is another way of writing a prompt. Note the direction, too. This module describes images. It does not create them; image generation is a different family of models and outside this book.
+
+How the image travels is worth one paragraph, because it explains the costs and failures to come. A web address can pass through as a link for the server to fetch. A local file, the normal case for your own photographs, is read by your code and encoded as base64, a text representation of the file's bytes, inlined into the payload as a data URL. Your photograph quite literally becomes a very long string inside the JSON from Chapter 1. Long means long: a phone photograph inflates into hundreds of thousands of characters of payload before the server has done any thinking, which is one reason vision calls are slower and the package allows them a generous timeout.
+
+## Understanding Through Real Life
+
+Think of describing a scene over the phone to someone who has never seen your street. The description is a translation, and like every translation it is shaped by the question asked. "What is happening in this photo?" earns a story about the scene. "How many people are wearing hats?" earns a count the describer may or may not have performed carefully. "What does the sign say?" earns a reading, accurate where the sign is legible and confabulated where it is not, unless the describer is the rare sort who says the text is too small to read.
+
+A VLM is that describer with two exaggerations. It has seen vastly more photographs in training than any person, and its scene sense is correspondingly strong. And it shares the language model's reluctance to say it cannot tell: fine print, exact counts, small text, spatial relations like left-of versus behind, and anything the downscaled encoding smeared away may all come back rendered in fluent certainty. Chapter 5's rule applies unchanged, with pixels added: separate what the image could show from what this call could recover, and check the parts that matter against the picture yourself.
+
+## Connect a Vision Model Before You Build
+
+Vision needs a model that accepts images, configured separately from your chat model, the way Chapter 6 added an embedding model. The default is `moondream`, a small vision model, changeable through the `vision_model` setting or `HANDS_ON_AI_VISION_MODEL`:
+
+```bash
+ollama pull moondream
+handsonai doctor
+```
+
+The doctor reports the vision model alongside the others. If you point the package at a hosted provider instead, use one of its vision-capable models under the same setting; @sec-model-access gathers the details. Expect the first call to be slow while the model loads, and expect quality to track model size more brutally than chat did. A small local VLM is a wonderful teaching instrument and a mediocre proofreader, and this chapter's exercises lean into both halves of that sentence.
+
+## The Build: a Photograph That Answers
+
+The module has one function, and its defaults need no help. Save a photograph of your own beside the script, something with a scene in it rather than a screenshot, and ask it three questions of widening difficulty:
+
+```python
+# Listing 12.1 of 2: the talking picture (talking_picture.py)
+from hands_on_ai.vision import describe
+
+photo = "market.jpg"
+
+print(describe(photo))
+print(describe(photo, "What is the main thing being sold here?"))
+print(describe(photo, "How many people are in this picture? Count carefully."))
+```
+
+The first call uses the default prompt, "Describe this image.", and gets you the tour. The second shows the real pattern, which is not description for its own sake but questions put to a picture: reading a label, identifying a plant, checking whether a gauge is in the red, asking what is funny here. A picture plus a pointed question is the vision equivalent of Chapter 5's grounded prompt, with the image as the evidence in the room. The third call is the honesty test. Counting is where small vision models go to be humbled, along with small text and precise spatial claims, and seeing your own model produce a crisp number you can refute by looking at the photograph teaches the calibration faster than any warning in this paragraph.
+
+Underneath, `describe` assembles the two-part user message and sends it through the same `chat_completion` machinery as every chat call in the book, with the longer timeout. One behaviour will look familiar from Chapter 1 by design: point it at a file that does not exist and you get an error string back, `❌ Error: Image file not found: ...`, rather than a crash. Your program can tell failure from description exactly the way it learned to in Part I.
+
+## What It Can and Cannot See
+
+A useful first hour with a VLM sorts its answers into three piles. Scene gist is strong: what kind of place this is, what is broadly happening, the salient objects and their rough relations. Reading is conditional: signage and labels come back well when they are large, level, and high-contrast, and degrade into plausible invention as they shrink, tilt, or blur. Precision work is weak on small models especially: exact counts, small differences between similar objects, charts read to values, and anything depending on detail the encoding downscaled away. Your mileage will vary with model size, and re-sorting the piles per model is the same moderation exercise Chapter 11 taught, with the photograph as ground truth sitting right there.
+
+Two fusions with earlier parts are worth seeing before the exercises. Vision output is text, so it can be judged: a description can be scored against criteria, and better, against a human transcript of the same image, by exactly the machinery of Chapter 11. And a picture rarely answers the question behind the question alone. What the sign says comes from the photograph; whether the shop is open now comes from a document or a tool. Systems that pair a VLM's description with retrieval from Chapter 6 or a lookup tool from Chapter 7 are not a new invention. They are this book's parts on one bench, which by now should be a familiar and slightly disappointing revelation.
+
+::: {.callout-warning title="Photographs carry people"}
+Your photographs will be uploaded, encoded, to whatever server your configuration names, and Chapter 3's transcript warning applies with faces in place of words. Local models keep the bytes on your machine; hosted ones are governed by the provider's retention terms. Photographs of other people deserve the consent habit you would want applied to your own likeness, and some workplaces and jurisdictions regulate biometric uses well beyond anything in this chapter. Description for learning is benign. Build the consent reflex anyway, while the stakes are homework.
 :::
+
+## Where a Demo Can Mislead You
+
+Vision demos choose photographs the way Chapter 5's demonstrators chose questions: big subjects, clean light, legible signs, counts of three. The counter-demo takes a minute to assemble from your own phone. A crowd to count, a receipt to read to the cent, a dashboard at an angle, a shelf where one item differs from its neighbours. Run the product on your photographs and sort its answers into this chapter's three piles. Then ask the vendor's questions: at what resolution is my image downscaled before the model sees it, where do the bytes go and how long are they kept, and show me the runs where the count was wrong. The pile boundaries will move as models grow. The need to draw them yourself, per model, on your material, will not.
+
+## Practice Exercises
+
+**Exercise 12.1 (Level 1).** Run the talking picture on a photograph of your own. Ask the tour question and two pointed ones, and grade each answer against the picture.
+
+**Exercise 12.2 (Level 2).** Assemble a five-photograph test set spanning the three piles: a scene, a sign or label, a crowd, a chart or receipt, a near-duplicate pair. Record where your model's pile boundaries actually fall.
+
+**Exercise 12.3 (Level 3).** Ask a question the photograph cannot answer (when it was taken, what happened next, who these people are). Record whether the model declines, hedges, or improvises, and compare with Chapter 5's escape-sentence experiment.
+
+**Exercise 12.4 (Level 4).** Pair the senses: describe a photograph of a document, save the description, and ask your Chapter 6 RAG bot a question needing both the picture's content and your documents. Where did the hand-off between them lose information?
+
+**Exercise 12.5 (Level 5).** Write the acceptance test for a vision feature at your workplace: the photograph set, the questions, the accuracy bar per pile, the consent and retention rules. One page, ending with the pile you would refuse to ship at this model's scores.
+
+## Chapter Summary
+
+- A vision call is a chat call whose user message carries text plus an image, inlined as base64 for local files. Descriptions come out; images are not created.
+- `describe` needs a vision-capable model, configured separately (`moondream` by default), and runs slower with a generous timeout. Missing files return an error string.
+- Sort your model's work into scene gist (strong), reading (conditional on size and clarity), and precision (weak, especially counting and small text), using your own photographs as truth.
+- Vision output is text and composes with the rest of the book: it can be judged, grounded against documents, and checked like any other claim.
+- Photographs travel to the configured server. Local models keep them home; people in pictures deserve a consent habit.
+
+## Reflection
+
+Before moving on, ensure you:
+
+- [ ] Asked one photograph three questions of widening difficulty
+- [ ] Caught at least one fluent error by checking against the picture
+- [ ] Can say where your model's three pile boundaries fall today
+- [ ] Know which server your photographs were sent to, and approve of it
+
+## Your Learning Journal
+
+1. Which answer most surprised you by being right, and which by being wrong?
+2. Describe a picture from your work where the conditional pile, reading, is exactly what matters. What would you pair the model with?
+3. What is your personal rule, after this chapter, for sending photographs of people to a hosted model?
+
+## Next Steps
+
+Pictures arrived as an attachment to the call you already had. Voice arrives the same way, twice over: one call turns speech into the text your chat loop already eats, and another turns its reply back into speech. The next chapter stitches those three calls into a conversation you can hear, and meets the one problem text never had, which is time.

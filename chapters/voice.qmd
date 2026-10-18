@@ -1,12 +1,112 @@
 # Voice {#sec-voice}
 
-::: {.callout-note}
-## Skeleton
+> A voice agent is the chat loop with ears and a mouth bolted on: speech in, text through the machinery you know, speech out.
 
-Kills: "voice AI is a different technology" — it is transcribe,
-think, speak: a loop around the chat loop you already understand.
+**Package companion:** `hands_on_ai.voice`, with `transcribe` and `speak`, around the `Conversation` from Chapter 3. Listings checked against `hands-on-ai` 0.6.0.
 
-Installs: `hands_on_ai.voice`, transcription and synthesis as plain
-calls, latency as the real engineering problem. Working build: a
-talk-out-loud chatbot, three calls stitched together.
+**Misconception this chapter kills:** "Voice AI is a different technology." It is transcribe, think, speak: three plain calls, and a fight against the clock.
+
+**The build:** a talk-out-loud chatbot in two forms: typed input with spoken replies first, then a recorded question carried the whole way around the loop.
+
+**Python you need:** function calls and the `Conversation` object. The new material is about servers and timing, not syntax.
+
+## The Concept First
+
+Look for the thinking in a voice system and you will find the text machinery of Parts I to IV, unchanged, with two translators hired at the edges. A speech-to-text model, STT, takes an audio file and returns the words as text. That text enters the chat loop you built in Chapter 3 and receives a reply in text. A text-to-speech model, TTS, takes the reply and returns an audio file. Transcribe, think, speak. Each translator is a model call to an OpenAI-compatible endpoint under `/v1/audio/`, made with the same client patterns as Chapter 1 and Chapter 6's embeddings. Voice adds senses the way pictures did: by converting to and from the text the system already runs on.
+
+What genuinely changes is the constraint. Text chats tolerate a slow reply gracefully; the words appear when they appear. Spoken conversation runs on human turn-taking clock, where a pause of two seconds already feels like the other party has wandered off. Every hop in the chain spends from that budget: recording and uploading the audio, transcribing it, thinking over a growing transcript, synthesising the reply, downloading and playing it. Latency, the total time from the end of your sentence to the start of the reply, is the engineering problem of voice systems. The intelligence in the middle was finished chapters ago.
+
+## Understanding Through Real Life
+
+Think of a conversation conducted through two interpreters in a soundproof booth relay. You speak your language. The first interpreter renders it into the booth's working language and passes the words across. Your counterpart, who thinks in the working language, composes a reply. The second interpreter renders the reply back into yours. Everyone in the chain can be excellent and the conversation can still feel drunk, because each hand-off adds delay and small translation choices: a name heard slightly wrong enters the working language as fact, and a long, clause-heavy reply that reads beautifully becomes punishing when someone has to speak it and someone else has to stand there listening.
+
+Both failure flavours matter. Transcription errors propagate inward disguised as the user's own words, and the system answers the sentence it heard rather than the one you said. Reply style propagates outward: length, lists, tables, and URLs that serve a reader well become unusable when spoken, which is why voice system prompts beg for brevity. You will meet both flavours within the hour, from your own builds.
+
+## Two More Servers Before You Build
+
+Audio models usually do not live on the chat server. A plain Ollama install serves chat, embeddings, and vision, but speech typically comes from a separate local server that speaks the same `/v1/audio/` dialect: tools such as speaches or whisper.cpp serving Whisper models for transcription, and Kokoro or Piper for synthesis. The package therefore carries separate settings, `HANDS_ON_AI_STT_SERVER` and `HANDS_ON_AI_TTS_SERVER`, which default to your main server, and separate model settings defaulting to `whisper-1` for transcription and `kokoro` for speech. A hosted provider with audio endpoints collapses all of this back to one address and one key, at hosted prices and with your voice recordings travelling to it.
+
+Before building anything, point those settings at servers you actually have, local or hosted, and confirm with the doctor habits from Chapter 4. @sec-model-access collects the variables in one table. Then test the two translators in isolation, in the spirit of Chapter 7's call-the-tool-yourself rule:
+
+```python
+# Listing 13.1 of 2: the ears and the mouth, separately (voice_pieces.py)
+from hands_on_ai.voice import speak, transcribe
+
+print(speak("The loop is transcribe, think, and speak.", out_path="hello.wav"))
+print(transcribe("hello.wav"))
+```
+
+`speak` returns the path of the WAV file it wrote, `speech.wav` in the current folder if you do not name one, or the familiar error string in place of the path. Empty text comes back as a warning string without troubling any server, Chapter 1 manners again. Feed the file it just made back through `transcribe` and you have run a small, perfect experiment: a sentence that went text to speech to text, with both translators at their best behaviour, on clean synthesised audio. Compare the returned words with the originals. Then transcribe a recording of yourself, made on your phone in a real room, and compare again. The gap between those two transcriptions is where voice products earn or lose their keep, and no chat model downstream can recover words the ears never delivered.
+
+## The Build: the Loop Wearing Headphones
+
+The package's own interactive voice loop starts with a sensible cheat: you type what you would say, and only the reply is spoken. Microphone capture is platform plumbing, the extension exercise, while the loop shape is the lesson. In your own code it is Chapter 3's `Conversation` with one added line, plus a system prompt that knows its output will be heard rather than read:
+
+```python
+# Listing 13.2 of 2: typed question, spoken answer (voice_chat.py)
+from hands_on_ai.chat import Conversation
+from hands_on_ai.voice import speak
+
+SYSTEM = (
+    "You are a helpful assistant. Keep your answers short and "
+    "conversational, one or two sentences, because they will be read aloud."
+)
+
+chat = Conversation(system=SYSTEM)
+
+question = transcribe("my_question.wav") if False else input("You: ")
+reply = chat.ask(question)
+print(reply)
+print(speak(reply, out_path="reply.wav"))
+```
+
+The `if False` is a scaffolding trick worth keeping: flip it, record your question as a WAV file by whatever tool your machine offers, and the same script runs the full round trip, ears included, with `Conversation` still holding the transcript between turns if you wrap it in a loop of your own. Playback of the reply file is deliberately your problem; the package's command-line REPL makes a best effort with `afplay` on macOS and `aplay` on Linux and otherwise tells you to open the file. That seam, getting sound out of speakers and in from microphones across operating systems and browsers, is where small demos end and voice frameworks like Pipecat begin, and @sec-going-deeper points at the bridge project, the package's *Build the World's Smallest Pipecat*.
+
+Now feel the latency. Time one full turn with a stopwatch: question finished, reply audible. Then ask where the seconds went. Transcription of a short clip, the chat call over a transcript that grows every turn (Chapter 3's tax, now audible), synthesis of the whole reply before the first sound plays. The industry's answers are all visible from here: stream the reply in pieces and start speaking the first sentence while the rest generates, keep spoken answers short by instruction, run smaller local models for the translators, and put the servers close. None of those change the shape. They shave the relay.
+
+::: {.callout-note title="Voice is biometric in a way text is not"}
+A voice recording identifies a person in ways a typed sentence does not, and speech synthesis can be pointed at imitation with enough samples. The consent reflex from Chapter 12 applies in full: record yourself freely, record others with their knowledge, know which server your audio travelled to, and treat cloning a real person's voice as a line that needs their explicit agreement rather than your technical ability. The tools in this chapter synthesise a stock voice. Keep the ethics at stock settings too.
 :::
+
+## Where a Demo Can Mislead You
+
+Voice demos are staged in quiet rooms with close microphones, short questions, and presenters who have learned to pause where the demo needs them to. Your counter-demo is a kitchen with a kettle on, a name the transcriber will mangle, a question whose honest answer is a list, and an interruption mid-reply. The questions for the vendor write themselves by now. What is the end-to-end latency at the ninety-fifth percentile, not the anecdote? Where does my audio go, how long is it kept, and is it used for training? What happens when transcription hears me wrong: can I see the words the system thinks I said and correct them before action is taken? And which parts of this are your engineering, versus three API calls I assembled this morning from a learning package? The last question is not an insult. It is how you now price the difference between plumbing and product.
+
+## Practice Exercises
+
+**Exercise 13.1 (Level 1).** Run `voice_pieces.py`, then transcribe a phone recording of the same sentence. Diff the two transcripts and list what the room cost you.
+
+**Exercise 13.2 (Level 2).** Run the typed voice chat for four turns. Note the first reply that would have been fine on screen and was painful aloud, and adjust the system prompt because of it.
+
+**Exercise 13.3 (Level 3).** Time a full round trip with a recorded question. Attribute the seconds across transcription, thinking, and synthesis as best you can, then shorten the turn by one deliberate change and re-time.
+
+**Exercise 13.4 (Level 4).** Feed the loop its own transcription errors on purpose: dictate names, numbers, and a homophone-rich sentence. Where did the chat model recover the meaning anyway, and where did it earnestly answer the wrong sentence?
+
+**Exercise 13.5 (Level 5).** Spec a voice front end for your Chapter 6 document bot: input and output paths, latency budget per hop, the spoken style rules, what the user sees when transcription is uncertain, and the consent and retention terms for recordings. One page, ending with the turn length at which you would switch the user back to text.
+
+## Chapter Summary
+
+- A voice agent is transcribe, think, speak: an STT call turns audio into text, the existing chat machinery answers, and a TTS call turns the reply into an audio file. All three are OpenAI-compatible calls.
+- Audio usually needs its own servers and models, configured separately with defaults falling back to the main server. `speak` returns a file path or an error string, and empty text is refused locally.
+- Latency is the voice problem: every hop spends from a turn-taking budget, and long replies hurt twice, once to generate and once to hear. Voice system prompts demand brevity for engineering reasons.
+- Transcription errors enter disguised as the user's words, and the system answers the sentence it heard. Show the transcript where it matters.
+- Voice recordings are identifying data. Consent, retention, and refusing imitation are part of the build, not the brochure.
+
+## Reflection
+
+Before moving on, ensure you:
+
+- [ ] Ran both translators alone, on clean and on real audio
+- [ ] Heard a `Conversation` reply spoken from your own script
+- [ ] Timed a full turn and can name its slowest hop
+- [ ] Caught the system answering a sentence you did not say, or deliberately failed to
+
+## Your Learning Journal
+
+1. Which transcription error was funniest, and which would have been most expensive in a real task?
+2. Rewrite one of your earlier chapters' system prompts for the ear. What did you cut?
+3. Whose voice will you never feed to a hosted service, and where did that line come from?
+
+## Next Steps
+
+The senses turned out to be adapters: a picture in the payload, translators at the edges. Every part of the book has now been the same shape in different clothes. The conclusion names that shape once, plainly, gathers the questions each chapter taught you to ask of a demo, and points at the doors out of the learning lab.

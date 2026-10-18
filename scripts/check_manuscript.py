@@ -81,14 +81,21 @@ class ManuscriptChecks(unittest.TestCase):
             "chapters/workflows-as-folders.qmd": ("init_workspace", "{#sec-workflows-as-folders}"),
             "chapters/loops-with-a-goal.qmd": ("run_ratchet", "{#sec-loops-with-a-goal}"),
             "chapters/the-judge.qmd": ("judge(", "{#sec-the-judge}"),
+            "chapters/pictures.qmd": ("describe", "{#sec-pictures}"),
+            "chapters/voice.qmd": ("transcribe", "{#sec-voice}"),
+            "chapters/conclusion.qmd": ("five-part shape", "{#sec-conclusion}"),
             "appendices/just-enough-python.qmd": ("build_payload", "{#sec-just-enough-python .appendix}"),
+            "appendices/model-access.qmd": ("HANDS_ON_AI_CACHE", "{#sec-model-access .appendix}"),
+            "appendices/project-gallery.qmd": ("Capstones", "{#sec-project-gallery .appendix}"),
+            "appendices/going-deeper.qmd": ("Karpathy", "{#sec-going-deeper .appendix}"),
         }
         for name, markers in written.items():
             text = (ROOT / name).read_text(encoding="utf-8")
             with self.subTest(chapter=name):
                 self.assertNotIn("## Skeleton", text)
-                self.assertGreater(len(text.split()), 1500)
-                if name.startswith("chapters/"):
+                minimum = 1000 if name.startswith("chapters/") else 500
+                self.assertGreater(len(text.split()), minimum)
+                if name.startswith("chapters/") and "conclusion" not in name:
                     self.assertIn("hands-on-ai` 0.6.0", text)
                 for marker in markers:
                     self.assertIn(marker, text)

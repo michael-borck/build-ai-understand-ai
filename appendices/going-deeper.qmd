@@ -1,12 +1,29 @@
 # Going Deeper {#sec-going-deeper .appendix}
 
-::: {.callout-note}
-## Skeleton
+> A map, not a manual. For each module you outgrow, the grown-up neighbourhood to move into, and the idea from this book to carry through the door.
 
-The exit map from learning lab to production: official SDKs and
-LiteLLM, LlamaIndex and real vector stores, Pydantic AI and agent
-frameworks, Pipecat and the voice stack, and Karpathy's Zero to Hero
-for the reader who wants to build the model itself. Framed as a map,
-not a manual: the ecosystem moves fast, the ideas you now have do
-not.
-:::
+You will outgrow this package at a named moment: a budget it cannot express, a volume it cannot serve, an error it returns as a string where production needs a policy. That moment is the enrolment form for everything below. Frameworks and services change quickly enough that this appendix names neighbourhoods and the current well-known residents, and trusts you to check who lives there when you arrive. The concepts in the left column are the permanent part.
+
+## The Call Itself (Part I)
+
+Your next step is the providers' official SDKs, which add streaming, structured outputs, provider-native tool calling, and proper exceptions where this package returns error strings. If several providers must sit behind one interface in your own code, that is the job of routing layers such as LiteLLM, which generalise Chapter 4's three variables into a managed surface. Carry with you: the payload is still the truth; read what any SDK actually sends before trusting its abstractions, exactly as Listing 1.2 taught you.
+
+## Grounding (Part II)
+
+Production retrieval adds real vector stores, hybrid keyword-plus-vector search, metadata filtering, incremental reindexing, and evaluation sets for retrieval quality. LlamaIndex is the neighbourhood's best-known framework address, with LangChain's retrieval pieces and every vector database vendor nearby. Carry with you: it is still chunk, fetch, answer. The engineering is in chunking policy, freshness, and proving with scores and sampled answers that the fetch deserves the prompt built on it.
+
+## Action (Part III)
+
+Agent frameworks such as Pydantic AI and the SDKs' native agent tooling replace text-format parsing with validated function calling, add dependency injection for tools, retries with policy, and tracing as a first-class output. Carry with you: the model still only proposes. Your registry, your allowlists, and your worst-input discipline from Chapter 7 are the safety case, whatever the framework calls its decorators. Read *Ship Python, Orchestrate AI* in this series for this transition taken at professional length.
+
+## Control (Part IV)
+
+Workflow engines and durable-execution platforms add scheduling, parallelism, persistence across crashes, and human-task queues where this book had folders and a person at a bench. Evaluation matures into dataset-driven evals: fixed case sets, regression gates in CI, judge ensembles with measured agreement. Carry with you: stage outputs you can inspect, goals stated before loops run, and moderation records for every judge. A platform that hides any of the three is a downgrade wearing scale.
+
+## The Senses (Part V)
+
+Vision production work adds image pipelines, detection and OCR specialists beside the general VLM, and serious thinking about resolution and cost per image. Voice production is its own stack, and Pipecat is the friendly front door the package's final project points at: streaming transcription and synthesis, interruption handling, and the latency budget fought hop by hop. Carry with you: translators around a text core, and the consent and retention questions, which do not get simpler at scale.
+
+## The Model Itself
+
+One door remains if the black box itself is what you want opened. Andrej Karpathy's *Zero to Hero* series and the nanoGPT line of projects build a small language model from first principles, at the cost of the mathematics this book promised to spare you: gradients, tensors, training loops. Nothing in Parts I to V requires it, and most builders of AI systems will rightly never train a model. But the reader who arrived here asking how the call's other side works now knows enough to get full value from the going.

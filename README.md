@@ -6,7 +6,7 @@ Part of the [books.borck.education](https://books.borck.education) series. The h
 
 ## Status
 
-In progress: prospectus, preface draft, Parts I to IV (Chapters 1 to 11) and Appendix A drafted against `hands-on-ai` 0.6.0. The remaining 3 chapters and 3 appendices are stubs. See `PROSPECTUS.md` for the plan and the writing queue.
+First draft complete (2026-10-18): all 14 chapters and 4 appendices drafted against `hands-on-ai` 0.6.0, roughly 37,000 words of manuscript. Fresh-reader pass, one live run of the model-dependent listings, print build, and cover pending. See `PROSPECTUS.md` for the plan and what remains.
 
 ## Build
 

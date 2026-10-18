@@ -1,11 +1,86 @@
 # Model Access {#sec-model-access .appendix}
 
-::: {.callout-note}
-## Skeleton
+> Every setting this book needs, in one place: which server answers, which models fill which roles, what each chapter spends, and what to check when nothing answers.
 
-Providers and keys: the three environment variables, OpenAI, Gemini,
-Groq, OpenRouter, and free local models with Ollama. Cost notes per
-chapter, the response cache for reproducible classroom reruns, and
-troubleshooting the common failures (wrong URL, missing key, model
-name not found).
-:::
+The package resolves its configuration in a fixed order, weakest first: built-in defaults, then the config file at `~/.hands-on-ai/config.json`, then environment variables, which win over everything. `handsonai doctor` prints the resolved result and probes the server. `handsonai config` shows and edits the file layer. `handsonai models` lists what your server reports. When in doubt, run the doctor before touching code; it reads the same configuration your scripts will, in the same order.
+
+## The Settings
+
+| Variable | Role | Default |
+|---|---|---|
+| `HANDS_ON_AI_SERVER` | Chat, embedding, and vision server address | `http://localhost:11434` |
+| `HANDS_ON_AI_API_KEY` | Key for every server above | unset (local servers ignore it) |
+| `HANDS_ON_AI_MODEL` | Chat model | `llama3` |
+| `HANDS_ON_AI_EMBEDDING_MODEL` | Retrieval embeddings, Chapter 6 | `nomic-embed-text` |
+| `HANDS_ON_AI_VISION_MODEL` | Vision model, Chapter 12 | `moondream` |
+| `HANDS_ON_AI_STT_SERVER` | Speech-to-text server, Chapter 13 | the main server |
+| `HANDS_ON_AI_STT_MODEL` | Transcription model | `whisper-1` |
+| `HANDS_ON_AI_TTS_SERVER` | Text-to-speech server, Chapter 13 | the main server |
+| `HANDS_ON_AI_TTS_MODEL` | Speech model | `kokoro` |
+| `HANDS_ON_AI_CACHE` | Response cache directory | unset, caching off |
+| `HANDS_ON_AI_LOG` | Set to `debug` for verbose logging | unset |
+
+Each row has a matching key in the config file (`server`, `api_key`, `model`, `embedding_model`, `vision_model`, `stt_server`, `stt_model`, `tts_server`, `tts_model`) for settings you want to survive terminal sessions. Environment variables still win on the day.
+
+## The Free Local Path
+
+Ollama covers chat, embeddings, and vision from one install at `http://localhost:11434` with no account and no key. The pulls this book needs:
+
+```bash
+ollama pull llama3           # chat (Parts I to IV)
+ollama pull nomic-embed-text # retrieval (Chapter 6)
+ollama pull moondream        # vision (Chapter 12)
+```
+
+Audio is the local exception. Transcription and speech typically come from a small separate server that speaks the same `/v1/audio/` dialect: speaches or whisper.cpp serving a Whisper model for speech-to-text, Kokoro or Piper for text-to-speech. Point `HANDS_ON_AI_STT_SERVER` and `HANDS_ON_AI_TTS_SERVER` at them and Chapter 13 works untouched. Local everything is the private, offline, per-call-free route; its costs are your hardware's limits on model size and patience, felt most in Parts III and V.
+
+## Hosted Providers
+
+Any service exposing the OpenAI-compatible chat and embeddings endpoints can drive most of the book through the three variables from Chapter 4. The package documentation carries worked examples; the shapes are uniform:
+
+```bash
+export HANDS_ON_AI_SERVER="https://api.openai.com"       # OpenAI
+export HANDS_ON_AI_SERVER="https://openrouter.ai/api"    # OpenRouter
+export HANDS_ON_AI_SERVER="https://api.groq.com/openai"  # Groq
+export HANDS_ON_AI_API_KEY="your-key-here"
+export HANDS_ON_AI_MODEL="the-provider's-model-name"
+```
+
+Audio and vision coverage varies by provider, so check the endpoints you need before a Part V weekend. Free tiers come and go and are deliberately not enumerated here; the package documentation and the providers are the live sources. A classroom pattern worth copying: one shared local or hosted server behind a key, the three variables issued to students, and the cache (below) warmed before the lesson so a network failure cannot fail thirty exercises at once.
+
+## What Each Chapter Spends
+
+Local calls cost time; hosted calls cost money per token. Either way, the shape of the spend per build is knowable in advance:
+
+| Build | Calls, roughly |
+|---|---|
+| Part I scripts | 1 per line you run |
+| `Conversation` | 1 per turn, over a resent transcript that grows |
+| Indexing, Chapter 6 | 1 embedding call for all chunks, then 1 per question plus its embedding |
+| One agent run | 1 per iteration, up to `max_iterations` |
+| One judged loop iteration | 1 step call + 1 judge call |
+| One ratchet proposal | 1 step call + 1 scoring call, plus 1 to score the start |
+| One vision question | 1, carrying a large payload, on a slow clock |
+| One voice turn | 1 transcription + 1 chat + 1 synthesis |
+
+Budgets in the chapters (`max_iters`, `max_iterations`) are counted in iterations, not calls. Multiply before you fund a run.
+
+## The Response Cache
+
+Setting `HANDS_ON_AI_CACHE` to a directory turns on a plain-text reply cache for `get_response`: identical model, system prompt, and question return the stored answer without contacting a server, and with token usage reported as `None`. Warm it once for a classroom and reruns become reproducible, offline-capable, and free. Clear it by deleting the directory. Remember from Chapter 4 that it is also a folder of transcripts on disk, and that a model or prompt change does not invalidate old entries until the name inside the lookup changes. Note its scope: the cache sits in `get_response`, so direct `Conversation` turns and vision calls bypass it.
+
+## Troubleshooting
+
+| Symptom | Likely cause | First check |
+|---|---|---|
+| `❌ Error: Connection error.` | Server off, wrong address, blocked network | `handsonai doctor`; read the resolved server aloud |
+| Error naming a model | Model never pulled, or name mismatch | `handsonai models`; compare with your settings exactly |
+| 401 or 403 from a hosted server | Missing or wrong key | `HANDS_ON_AI_API_KEY` present in *this* terminal |
+| Chat works, Chapter 6 fails | Embedding model missing | `ollama pull nomic-embed-text`, or the embedding setting |
+| Chapter 12 fails, chat fine | Vision model missing or not vision-capable | `vision_model` setting; pull `moondream` |
+| Chapter 13 fails, all else fine | Audio needs its own server | `STT`/`TTS` server variables actually set |
+| Answers never change however you edit | The cache is serving stored replies | Unset `HANDS_ON_AI_CACHE` or delete the directory |
+| Agent replies look unstructured | Small model in the text format | Let `format="auto"` choose, as Chapter 8 discussed |
+| Everything worked yesterday | Settings were terminal-session exports | Put durable choices in `~/.hands-on-ai/config.json` |
+
+One habit resolves most of the table without the table: run the doctor, read what it resolved, and argue with settings before arguing with scripts. The scripts in this book are short. They are seldom the problem, and when they are, the error strings Part I taught you to read will usually say which line to look at.
