@@ -1,0 +1,92 @@
+# Teach It a Dialect {#sec-teach-it-a-dialect}
+
+> Fine-tuning teaches a model how to answer here: the voice, the format, the habits. Facts still belong in evidence you can point at.
+
+**Notebook companion:** `finetune_adapter_colab.ipynb` in the package repository's `notebooks/` folder, distilled from the LocoLabo capstone training notebook your author supervises. It needs a free Colab GPU. Budget tens of minutes at this chapter's scale, not the capstone's hours.
+
+::: {.callout-warning title="Still the advanced arc"}
+This chapter needs the notebook machinery from the previous one plus Unsloth in Colab, and it will happily consume an afternoon on data preparation alone. That is not overhead around the lesson. At this scale, data preparation is most of the lesson. Simplified throughout, as flagged: a production fine-tuning programme adds data governance, regression suites, and serving decisions this chapter only names.
+:::
+
+**Misconception this chapter kills:** "Fine-tuning teaches the model our facts." An adapter mostly learns from relatively few examples how answers should sound and behave here. Whether it beats the base model at anything is an empirical question with a sealed test, and the honest answer is sometimes no.
+
+**The build:** a LoRA adapter over Qwen3-4B teaching one plain-English answering dialect, exported to Ollama, then judged blind against its own base model.
+
+## The Concept First
+
+Almost nobody retrains a capable model from scratch to specialise it, for the arithmetic reason Chapter 16 made vivid: full training touches every weight, with the memory and compute to match. Fine-tuning starts from a pretrained base and continues the same next-token training on a small, deliberate dataset: examples of the behaviour you want more of, formatted as the conversations the model should learn to continue. LoRA, low-rank adaptation, goes one step thriftier. The base weights are frozen, and a small set of extra weights wired alongside key layers is the only thing trained: in the notebook's configuration, well under one percent of the total parameter count. At serving time the adapter can be merged back into the base to produce one ordinary model file, which is what the notebook exports for Ollama.
+
+Hold the proportion in mind, because it governs what this technique can and cannot do. A fraction of a percent of movable weights, trained on dozens to hundreds of examples, is enough to shift voice, format discipline, refusal habits, and which of the base model's existing knowledge gets foregrounded in a domain. It is a poor place to store a policy manual. Facts planted by fine-tuning arrive with no citation, go stale silently, and compete with everything else in the base, while Chapter 6's retrieval supplies facts at question time with sources attached. Mature systems therefore reach for the division of labour this chapter teaches: retrieval for what is true, system prompts for what is cheap to state, and an adapter only for behaviour that examples teach better than instructions do.
+
+## Understanding Through Real Life
+
+Think of accent coaching for an already fluent speaker joining a regional service desk. You do not reteach them the language. You give them fifty recorded calls that sound right for this desk: the greeting shape, the local terms, the calm way of saying no, and you drill until the habits are theirs under pressure. Their underlying competence was never the gap. And you would not coach product prices into their accent, however many times they repeat them in training calls, because prices change next quarter and the information belongs on the screen in front of them, not in their muscle memory.
+
+The measurement discipline matches too. You would not certify the coaching by replaying the practice calls. You would hold back calls the coach never used, have the newcomer handle them, and compare against how they sounded on day one, judged by the desk's own standards. Anything less certifies the rehearsal, not the readiness.
+
+## The Build: Data First, Because Data Is the Build
+
+Open the companion notebook and resist scrolling to the training cell; the chapter lives in Steps 3 and 4. The training format is JSONL, one conversation per line, user then assistant, and the notebook opens with a miniature built-in dataset teaching a single dialect, short plain-English answers, so the whole pipeline can be smoke-tested before your own data is at stake. The checks that follow are the highest-value cells in the file: every line parses, turns alternate correctly, no assistant answer is empty, duplicate prompts are flagged, and training prompts are intersected with eval prompts to catch leakage by name. Read two examples by eye before any GPU wakes up, because the model will imitate the assistant column with total sincerity, typos, hedges, evasions, and all. In fine-tuning, your dataset is not fuel for the lesson. It is the lesson, and its quality ceiling becomes yours.
+
+Two scaling notes separate the book build from the capstone it distils. The capstone demands at least 500 training examples and 50 sealed eval examples before a proposal is even approved, because its question is whether a domain adapter beats a 4B base in earnest. The notebook here builds 60 smoke-test records from four question-answer pairs repeated, which is enough to exercise every mechanism and nowhere near enough to claim a specialisation. Your real run sits between: 50 to 100 of your own examples with a sealed eval set you wrote before training, not after seeing results. Write the eval first, while your standards are innocent. It is the same moderation-before-marks discipline Chapter 11 required, applied to the dataset factory floor.
+
+## Train, Export, and Put It Back on the Bench
+
+The middle of the notebook is the LocoLabo machinery at book scale: Unsloth loads Qwen3-4B in 4-bit so a free GPU can hold it, `get_peft_model` attaches the LoRA layer to the attention projections, examples are rendered through the model's own chat template (worth reading once, to see the exact markers the model trains on), and an SFT trainer runs three epochs at the recorded settings. Watch the loss with Chapter 16's eyes: on a set this small it will head toward memorisation quickly, and the training loss is the rehearsal number, of interest mainly when it misbehaves. Then the merge: the notebook exports a quantised GGUF, roughly two and a half gigabytes, and the instructions walk it out of Colab before the session deletes it, a failure mode with its own graveyard of lost evenings.
+
+Back on your machine the artefact rejoins the world of Part I. A one-line Ollama Modelfile (`FROM ./your-file.gguf`) registers it under a name, `HANDS_ON_AI_MODEL` points your earlier chapters' scripts at it, and the department has a new intern whose only difference from the old one is the dialect you drilled. Nothing else in your stack changes, which is the practical magic of the whole arrangement: fine-tuning, done this way, is a change of model file, evaluated like any other model change from Chapter 4.
+
+## The Only Question That Matters: Did It Beat the Base?
+
+Now the sealed eval earns its keep. Ask every sealed question of both models, the untouched base and your adapter, ideally with the answers shuffled and their sources hidden from whoever marks. Mark them against the criteria your dialect claims: plainness, brevity, format, whatever the adapter was for, using Chapter 11's judge as the tireless marker and your own reading of a sample as the moderation. Report both scores and read some actual answers, not only the aggregate, because a point gained in style while losing a fact is visible only at reading distance.
+
+Prepare for the unfashionable outcomes, because at this scale they are common and each teaches something specific. The adapter may win on voice and lose on substance, which says your examples taught manner at the expense of content. It may match the base everywhere, which usually says a system prompt would have bought the same shift for almost nothing, and Chapter 2 should be tried first next time. Or it may simply lose, through too few examples, too many epochs, or a dialect the base already spoke. The capstone this notebook descends from states its position in its brief, and this chapter adopts it whole: a negative result with a rigorous explanation is a better piece of work than a flattering number nobody can defend. Publish the training log either way; the log template travels with the notebook materials for exactly that reason.
+
+## Extension: Learn from Preferences
+
+Supervised fine-tuning imitates examples. Preference learning goes one step further and adjusts weights from comparisons: for the same prompt, this answer over that one. The simplest teachable form is DPO, direct preference optimisation, which consumes triples of prompt, chosen answer, and rejected answer and nudges likelihood toward the chosen style without a separate reward model to babysit. Your supply chain for pairs already exists in this book: generate two candidate answers per sealed-style prompt with your SFT model, rank them against your criteria (your marks first, the judge's second, per Chapter 11's order of trust), and file the winners and losers. The companion notebook's closing section sketches the additional cells; treat them as a second sitting, not a first run.
+
+Beyond DPO sits online reinforcement learning proper, GRPO being the current teachable shape: sample several answers, score them with a reward, push weights toward the better-scoring behaviour, repeat. It earns its complexity only where the reward can be computed rather than vibes: arithmetic checked by Python, formats validated by a parser, code judged by its tests. That is also the honest answer to whether simple RL exists. At inference time, yes, and you built it in Chapter 10: the ratchet is reward-guided search that changes no weights. In weights, the simple on-ramp is preferences offline, verifiable rewards online, and everything beyond that is a research programme wearing a notebook costume. Each step up this ladder is judged by the same sealed set, untouched by SFT, DPO, and every threshold conversation in between.
+
+## Where a Demo Can Mislead You
+
+"Fine-tuned on our data" is a claim about a process, not a result, and it demos beautifully because style is the easiest thing an adapter changes and the first thing an audience feels. Ask for the base model's score on the same sealed questions, the size and provenance of the training set, who wrote the assistant column and to what standard, and what the system does about the facts the adapter confidently absorbed wrong. Then ask the substitution question this chapter makes unavoidable: what here could retrieval or a system prompt not have done, cheaper and with citations? A team with a real specialisation answers with behaviour examples and eval tables. A team with a fine-tune looking for a justification answers with the word proprietary.
+
+## Practice Exercises
+
+**Exercise 17.1 (Level 1).** Run the notebook's data cells only (no GPU work): build the miniature dataset, run the checks, and deliberately introduce one malformed record, one duplicate, and one leaked eval prompt. Confirm each is caught by name.
+
+**Exercise 17.2 (Level 2).** Write your sealed eval set first: ten questions with the answers your dialect should produce, marked against criteria you state now. Date the file. Nothing in training may touch it.
+
+**Exercise 17.3 (Level 3).** Complete the smoke-test training run and export. Register the result in Ollama beside the base and ask both models three training questions and three sealed ones. Record where rehearsal and readiness diverge.
+
+**Exercise 17.4 (Level 4).** Grow to your own 50-plus examples in a dialect you care about. Train, export, and run the blind comparison. Write the training log entry the capstone would expect, whichever way the result lands.
+
+**Exercise 17.5 (Level 5).** Build preference pairs from your adapter's sealed-set answers, ranked by your marks with the judge as second reader. Spec the DPO run (pairs count, epochs, what would make you stop) and the exact result that would convince you it beat SFT alone. Run it if the spec survives your own reading.
+
+## Chapter Summary
+
+- LoRA fine-tuning freezes the base and trains a small added layer, well under one percent of weights here, on conversation examples; merged and quantised, it serves as an ordinary Ollama model.
+- Adapters teach voice, format, and habits. Facts belong in retrieval, cheap instructions belong in system prompts, and the substitution question comes before any training run.
+- The dataset is the lesson: format checks, duplicate and leakage detection, and reading examples by eye precede the GPU work and matter more than the settings.
+- Success is defined against a sealed eval, base versus adapter, marked blind. A negative result, rigorously shown, is a legitimate and publishable outcome.
+- Preference learning extends the arc in order: ratchet search (no weights), DPO on ranked pairs, GRPO only with verifiable rewards. The sealed set judges all three.
+
+## Reflection
+
+Before moving on, ensure you:
+
+- [ ] Can state what your adapter is for in one sentence a system prompt could not achieve
+- [ ] Wrote your sealed eval before training and kept it untouched
+- [ ] Compared base and adapter blind, and read raw answers beside the scores
+- [ ] Logged settings, loss, and outcome, especially if the answer was no
+
+## Your Learning Journal
+
+1. What did your assistant column teach that you did not know you had written?
+2. Where did the adapter beat the base honestly, and where did it merely sound more like your examples?
+3. Which behaviour in your working life is currently bought with a long system prompt that fifty examples might teach better?
+
+## Next Steps
+
+Part VI ends where the book's first page began, with a model call, except that you have now stood on both sides of it: directing pretrained models through their front door, and adjusting weights yourself at toy scale. The conclusion gathers all six parts into the single shape they share. Readers going deeper from here have two well-lit roads: Karpathy's line for training itself, in Appendix D, and the LocoLabo capstone this chapter distilled, for adapter work done as a team sport with real domains and real stakes.

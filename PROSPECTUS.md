@@ -1,6 +1,6 @@
 # Build AI, Understand AI: Prospectus
 
-Date: 2026-10-11. Status: first draft complete (2026-10-18); fresh-reader pass, live listing run, print build, and cover pending.
+Date: 2026-10-11. Status: first draft complete including the advanced arc (2026-10-19); fresh-reader pass, live listing run, adapter training run, print build, and cover pending.
 
 The doing lives in the companion package `michael-borck/hands-on-ai`
 (`pip install hands-on-ai`): eight modules, roughly forty documentation
@@ -24,7 +24,9 @@ afternoon each, stops being fooled by demos.
 The bet is the package's bet: models change every few months, the
 ideas underneath change slowly. The book teaches the ideas and uses
 the package as the vehicle, the way a physics course uses a lab kit.
-No training, no gradients, no maths prerequisites. The reader writes
+No training, no gradients, no maths prerequisites in Parts I to V
+(the optional Part VI fences its training off; see the advanced
+arc plan below). The reader writes
 a little Python (taught in an appendix) and reads a little more.
 
 ## Audience and boundaries
@@ -41,9 +43,10 @@ Appendix A. Boundary statement for "What this book is not":
 - Not *Ship Python, Orchestrate AI*. Workflows, loops and judges
   appear here in miniature, to be understood, not in production
   form, to be shipped.
-- Not a machine-learning book. No training, no tensors. The model
-  is a black box with a documented front door; the book is about
-  everything on this side of that door.
+- Mostly not a machine-learning book. Parts I to V: no training,
+  no tensors; the model is a black box with a documented front
+  door. Optional Part VI opens the box a crack in notebooks, at
+  toy scale, with its own stated prerequisites.
 
 ## Position in the series
 
@@ -169,14 +172,82 @@ voice error behaviour verified offline; live vision and audio
 calls still need an author run with a vision model and audio
 servers reachable.
 
-Next, in order:
+## Advanced arc plan (recorded 2026-10-18; approved and executing)
+
+Goal: two additions without breaking the learning-lab pitch.
+(1) Typed, fast judgments (structured output / System 1 style) as
+a first-class primitive. (2) Part VI, an optional advanced arc
+that demonstrates training, fine-tuning, and preference learning
+at toy scale, for understanding rather than production use.
+
+Contract change: Parts I to V keep the no-training, no-new-maths
+promise and treat the model through its documented front door.
+Part VI is optional, opens the box a crack in notebooks, declares
+extra prerequisites (PyTorch for the tiny-model notebook; a Colab
+GPU for the adapter), and is simplified, never production-ready.
+Readers who stop at the conclusion lose nothing. Preface,
+prospectus boundaries, and README are amended, not quietly bent.
+
+Typed Answers: one new chapter at the end of Part IV, after The
+Judge (Judge stays Chapter 11), written against a new
+`hands_on_ai.decide` module (classify, decide, score_output,
+extract) on the existing Instructor/Pydantic stack. Local
+schema-constrained backend by default; optional TypeSafe Jev
+backend (`TYPESAFE_API_KEY`) for calibrated-probability
+comparison; local confidence is self-reported and uncalibrated
+and the text says so. `eval.judge` is refactored onto the shared
+structured core while keeping its `{score, reasoning, raw}` API.
+
+Part VI (Inside the Box), three committed chapters plus a gate
+(a classical-ML bridge, *The Older AI in the Room*, added at its
+head on 2026-10-19 with the naming/scope fixes below):
+Train a Tiny Model (one CPU/Colab notebook, character-level tiny
+transformer, loss and sampling visible); Teach It a Dialect
+(SFT LoRA adapter distilled from the LocoLabo capstone notebook,
+50 to 100 examples at book scale, sealed eval, GGUF to Ollama,
+negative result legitimate), with Learn from Preferences (DPO on
+judge-ranked pairs; GRPO only with a Python-checkable reward) as
+a section of that chapter unless an actual adapter run produces
+usable pairs worth a separate chapter. Training code lives in
+`hands-on-ai/notebooks/`, never in the installable package; no
+torch or Unsloth in core dependencies. Karpathy pointers in
+Appendix D move from nanoGPT to nanochat/MicroGPT after primary
+re-verification at drafting time.
+
+Execution checklist (update as items land):
+
+- [x] 1. Package: `hands_on_ai.decide` with offline tests;
+      judge refactored onto it, API unchanged.
+- [x] 2. Book: contract amended; stubs added; conclusion moved
+      last; `_quarto.yml` order updated.
+- [x] 3. Book: Typed Answers chapter against shipped `decide`.
+- [x] 4. Notebook: `train_tiny_model.ipynb` executed end to end;
+      Part VI Chapter 1 written against its artefacts.
+- [x] 5. Notebook: distilled adapter notebook; Part VI Chapter 2
+      written (DPO section per the gate above).
+- [x] 6. Conclusion and Appendix D updated to six drawers;
+      checks, render, audit green.
+
+Validation: package tests scripted offline plus one live local
+run per primitive (and Jev if a key exists); notebooks executed
+with outputs saved; manuscript checks extended; full render with
+cross-references resolving; chapter-number prose swept after
+renumbering. Highest risk: an actual adapter training run (GPU
+and time). If it cannot be completed honestly, Part VI ships at
+the tiny-model chapter plus the adapter chapter written against
+the LocoLabo notebook with its run explicitly marked author-side.
+
+Next beyond this plan, in order:
 1. Author fresh-reader pass over the whole draft, including one
-   live run of every model-dependent listing, replacing
-   representative output with captured output where the text
-   promises similarity rather than exactness.
+   live run of every model-dependent listing.
 2. Print build (PDF/EPUB via the standard pipeline; the audit's
    print-support files are still missing) and cover design,
    including registry entries in `book-publisher/design/`.
-3. Decide the open question below with the draft in hand:
-   listings stay frozen in the book, pinned per chapter to
-   `hands-on-ai` 0.6.0 (the current practice), or move.
+3. Listings stay frozen in the book, pinned per chapter (the
+   `decide` chapters pin the package version that ships it).
+
+Naming audit (2026-10-19): subtitle and package tagline scoped
+to LLM systems; preface gains an explicit AI-field note; the
+classical bridge chapter and classical_ml notebook added so the
+title umbrella is earned narrowly rather than merely excused.
+No rename: PyPI/import installed base and series pattern kept.

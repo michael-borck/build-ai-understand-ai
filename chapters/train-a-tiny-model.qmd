@@ -1,0 +1,100 @@
+# Train a Tiny Model {#sec-train-a-tiny-model}
+
+> Training is not uploading knowledge. It is nudging a large pile of numbers until the model's next guess scores better, and a model small enough to train in seconds lets you watch every nudge.
+
+**Notebook companion:** `train_tiny_model.ipynb` in the package repository's `notebooks/` folder. It runs on a laptop CPU in seconds at its defaults, or on a free Colab GPU if you prefer. This chapter narrates it; the notebook is the doing.
+
+::: {.callout-warning title="Part VI changes the rules, on purpose"}
+Everything before this part needed a model you could call and the Python in Appendix A. This part needs PyTorch (`pip install torch`, preinstalled on Colab) and introduces two ideas the earlier parts fenced out: loss and gradient descent, each explained in place without calculus. The builds are simplified teaching versions, in the open. Nothing here is how you would train for production, and the chapters say where the production road starts instead.
+:::
+
+**Misconception this chapter kills:** "Training uploads knowledge into the model." Training adjusts weights so next-token guesses score better on examples. What looks like knowledge later is that adjustment, generalised or memorised, and this chapter shows you the difference on a graph.
+
+**The build:** a character-level model of 38,874 parameters, trained on ten sentences about this book, sampled before and after training, then overtrained on purpose.
+
+## The Concept First
+
+Strip a language model to its training loop and four moves remain. Represent text as numbers, because arithmetic needs numbers: here, one integer per distinct character, the smallest tokenisation that is honest. Guess the next token everywhere in a batch of examples, with the current weights. Measure how wrong the guesses were with a loss, a single number that falls as guesses improve, computed here as cross-entropy, which you can read as average surprise at the true next character. Then nudge every weight a small step in the direction that would have reduced that loss on this batch, which is all gradient descent means at the altitude this chapter flies: follow the slope downhill, in very small steps, many thousands of times.
+
+Frontier training runs are those four moves at planetary scale, on trillions of tokens, with engineering this book will not pretend to summarise. But scale changes the behaviour that emerges, not the identity of the moves. A model that has only ever done this, whose entire education is guessing the next character slightly less badly each step, is the same kind of object whose call you have been making since Chapter 1. Keeping that continuity in mind is the chapter's real payload. When a large model answers from its training in Chapter 5's sense, this loop, on that text, is all the contact it ever had with the material.
+
+## Understanding Through Real Life
+
+Think of learning a piano piece by playing it through against a score you can check note by note. Each pass, you hear where your fingers expected one note and the score had another, and your hands adjust a little. Play one short piece five hundred times and two different things can happen. You might learn the piece so thoroughly that related music gets easier, the fingering patterns generalising. Or you might merely memorise this one sequence, brilliant at these forty bars and helpless at bar one of anything else. From outside, during practice, both feel like improvement. The test that separates them is a piece you have not practiced.
+
+Training loss is your accuracy on the practiced piece. Validation loss, computed on held-out text the trainer never trains on, is the unpracticed piece. Watching only the first number is how every overfitting story in machine learning begins, and the notebook is designed so you watch it diverge with your own eyes in the first minute.
+
+## The Build: Ten Sentences and a Sealed Test
+
+Open the notebook and run it cell by cell the first time. The corpus is ten sentences about this book ("the model proposes and the code disposes" and its friends), small enough that you can audit every word the model could possibly learn. Eight sentences form the training text; two are held out whole as the sealed validation set, the same discipline the LocoLabo capstone enforces on its training data. That whole-sentence split matters more than it looks, and the notebook lets you prove it later: split repeated text at a character offset instead and the same sentences appear on both sides, after which validation loss flatters you by measuring memorisation and calling it learning. Leakage of exactly that kind, dressed in larger datasets, is behind a depressing share of published AI results.
+
+Before training, the notebook samples from the fresh model. Keep the output. In the run captured for this draft, seeded for reproducibility, the untrained model produced this, starting from the characters `the `:
+
+```text
+the ifolhpydttyctri.jfemckylhcr.dpkxu.fsdscouotlf x deorxxxaoxdyilatyle
+```
+
+That is what near-random weights sound like: the alphabet available, no preferences worth the name. Then 600 steps of training, which took about four seconds on the machine that captured this run:
+
+```text
+step    0  train 3.322  val 3.350
+step  100  train 1.500  val 3.027
+step  200  train 0.606  val 4.477
+step  300  train 0.413  val 5.260
+step  400  train 0.332  val 5.553
+step  500  train 0.248  val 5.862
+step  600  train 0.233  val 6.154
+```
+
+Read that table as the chapter's argument in numbers. At step 0 the model is equally surprised by everything, training and held-out text alike. Training loss then falls without pause, exactly as promised. Validation loss rises almost from the start. The model is not learning English or even these sentences' patterns in any general sense; it is memorising eight sentences with increasing fidelity, at the expense of the two it has never trained on. Sample it and the memorisation is audible: near-verbatim corpus sentences at low temperature, degrading gracefully as temperature rises and the sampler is allowed to choose less probable characters. Temperature, met here as a dial between conservative and adventurous sampling from the same weights, is worth remembering when hosted models expose it as a setting: it changes the choosing, never the knowledge.
+
+The notebook then overtrains deliberately, four times more steps, and the finishing figures in the captured run (training loss 0.153, validation 7.984) complete the picture. Nothing malfunctioned. The optimiser did its job on the objective it was given, examples it was shown, and a corpus far too small to generalise from. Scale is not a detail in this field; it is most of the difference between this party trick and the models in Part I. But notice what did not vary with scale: the loop, the loss, the need for sealed evaluation, and the ease of lying to yourself with the wrong split.
+
+## What This Buys You as a Reader
+
+You will likely never pretrain a model anyone uses, and neither will most professional builders of AI systems. The returns on this afternoon are conceptual, and they compound through the rest of Part VI and back into the earlier parts. Training data is now a concrete thing you have assembled and audited by eye, which changes how you read claims about what a model "was trained on". Loss is a number whose two versions you have watched diverge, which is the permanent antidote to training-curve screenshots in vendor decks. And generation is demystified at the source: the fluent text of Part I is sampling from next-token scores, at some temperature, all the way down.
+
+The honest limits deserve the same print. A one-layer, 38,874-parameter character model teaches the loop, not the capabilities: word-level tokenisation, depth, instruction tuning, reinforcement from feedback, and data curation at scale are each worlds this notebook gestures past. The notebook's closing cell points at Karpathy's *Zero to Hero* for the concepts taught properly and at nanochat, nanoGPT's successor codebase (nanoGPT itself is now deprecated by its author), for readers who want this chapter at full size. Appendix D carries the same pointers in the exit map.
+
+## Where a Demo Can Mislead You
+
+"We trained our own model" spans everything from this notebook to a frontier run, and the sentence alone tells you nothing. The questions that price it are the ones your four seconds of training just made concrete. Trained on what, how much of it, and who audited the corpus the way you just audited ten sentences? What was sealed for evaluation, and can I see validation beside training performance rather than a sample of outputs? Is this full training, continued training, or an adapter over someone else's base, which is the next chapter's distinction and the one most often elided in pitches? A team that answers with data cards, splits, and held-out numbers has done training. A team that answers with adjectives has done a demo.
+
+## Practice Exercises
+
+**Exercise 16.1 (Level 1).** Run the notebook untouched. Save the before-training sample, the loss table, and both temperature samples. Explain the validation column to an imaginary colleague in three sentences.
+
+**Exercise 16.2 (Level 2).** Repeat with the leakage split the notebook warns about (one repeated text, cut at a character offset). Compare validation behaviour and state, in writing, which split you would trust for a result you intended to publish.
+
+**Exercise 16.3 (Level 3).** Swap in your own small text, commit messages, a poem, your meeting openings. Hold out a sensible sealed slice for that genre and defend the split. What does the trained model capture, and what does it plainly not?
+
+**Exercise 16.4 (Level 4).** Vary one setting at a time (model width, steps, learning rate) across three runs with the seed fixed. Record which moved validation loss and which only moved training loss. That table is your first hyperparameter intuition, earned cheaply.
+
+**Exercise 16.5 (Level 5).** Write the data card for your tiny corpus as if for publication: source, size, split discipline, known biases, what a model trained on it should never be trusted to do. One page, suitable for attaching to the notebook.
+
+## Chapter Summary
+
+- Training is four moves on repeat: tokenise, guess next tokens in batches, measure surprise as loss, nudge weights downhill. Scale changes what emerges, not what the moves are.
+- A 38,874-parameter character model trained on eight sentences memorises them in seconds; sealed validation sentences expose the memorisation as training loss falls and validation loss rises.
+- Splits are methodology, not bookkeeping. Splitting repeated text leaks the test into training and makes validation lie politely.
+- Sampling temperature changes the choosing, not the knowledge.
+- This notebook is a teaching instrument: real pretraining adds tokenisation, depth, data curation, and post-training this chapter only names.
+
+## Reflection
+
+Before moving on, ensure you:
+
+- [ ] Ran the notebook and kept the before-training noise as your baseline
+- [ ] Can explain the diverging loss columns without the word "learning" doing any work
+- [ ] Tried both split disciplines, or can state exactly how their validation numbers would differ
+- [ ] Know which cell you would point a sceptic at to prove generation is sampling
+
+## Your Learning Journal
+
+1. At what step did the samples stop being noise to your ear, and what had the losses done by then?
+2. Describe a published AI result you now want to ask about the split.
+3. What would your ten sentences be, if a tiny model's whole world had to be your writing?
+
+## Next Steps
+
+You have now trained a model from nothing and watched it memorise. Almost nobody in practice starts from nothing: they start from a capable base model and adjust its behaviour with a comparatively tiny amount of additional training. The next chapter does that with a LoRA adapter, your own examples, and the same sealed evaluation, and asks the only question that matters there: did it actually beat the base?

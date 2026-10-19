@@ -6,7 +6,7 @@ Part of the [books.borck.education](https://books.borck.education) series. The h
 
 ## Status
 
-First draft complete (2026-10-18): all 14 chapters and 4 appendices drafted against `hands-on-ai` 0.6.0, roughly 37,000 words of manuscript. Fresh-reader pass, one live run of the model-dependent listings, print build, and cover pending. See `PROSPECTUS.md` for the plan and what remains.
+First draft complete, advanced arc included (2026-10-19): 17 chapters and 4 appendices. The core (Parts I to V) is pinned to `hands-on-ai` 0.6.0; the Typed Answers chapter uses the `decide` module on package main after 0.6.0, and optional Part VI trains toy models in companion notebooks. Fresh-reader pass, live listing runs, print build, and cover pending. See `PROSPECTUS.md` (advanced arc plan) for tracking.
 
 ## Build
 

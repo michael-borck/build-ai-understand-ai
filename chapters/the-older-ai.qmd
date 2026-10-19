@@ -1,0 +1,87 @@
+# The Older AI in the Room {#sec-the-older-ai}
+
+> Before the chat box, and still underneath much of the world, sit models fitted to tables of numbers. They are fast, inspectable, and frequently the right tool.
+
+**Notebook companion:** `classical_ml.ipynb` in the package repository's `notebooks/` folder. It needs only scikit-learn, already installed as a package dependency, and runs in seconds with no model server of any kind.
+
+::: {.callout-note title="Part VI opens the fence here"}
+Parts I to V needed no training and almost no maths. This optional part relaxes both, in notebooks, at toy scale. It begins with the classical machine learning that predates LLMs, because the training chapters after it reuse its habits (features, splits, sealed tests) at every step. Skip the whole part and the book remains complete; read it and the title's umbrella word, AI, is one you have personally surveyed rather than taken on trust.
+:::
+
+**Misconception this chapter kills:** "AI means LLMs now." The field is older and wider, and for a large class of tabular problems the older machinery is cheaper, clearer, and better behaved than a language model will ever be.
+
+**The build:** a decision tree classifying iris flowers from four measurements, read back as plain rules and scored on sealed rows; then the labels thrown away and k-means left to find the groups alone.
+
+## The Concept First
+
+AI is the umbrella: machines doing tasks we would call intelligent in a person. Under it sit several families with different ancestries. Symbolic AI reasons over rules and search. Classical machine learning fits models to tables: rows of examples, columns of numeric features, and, for supervised learning, a label to predict. Deep learning fits neural networks with gradient descent, the machinery the next chapter opens, and gave us both convolutional networks (CNNs) that learned to see images as spatial patterns and, eventually, the transformers behind LLMs. The first five parts of this book lived in that last twig of the family tree. This chapter visits the trunk it grew from, because the trunk still carries enormous weight: spam filtering, fraud scoring, demand forecasting, medical risk scores, and recommendation plumbing run overwhelmingly on classical models and their ensembles, for reasons this chapter will make obvious with 150 flowers.
+
+The classical workflow has a rhythm worth naming before the code: assemble a table, seal some rows away for testing before any fitting begins, fit a model on the rest, predict on the sealed rows, and evaluate against the truth you withheld. `fit`, `predict`, `evaluate`. Every later chapter in this part, including the adapter work with its sealed eval set, is that rhythm at greater expense. Learn it here, where the whole cycle takes milliseconds and the model fits on one screen, and the expensive chapters become variations rather than new worlds.
+
+## Understanding Through Real Life
+
+Think of a botanist's field key, the printed kind that walks you through a plant by measurements. If the petal is under two and a half centimetres, it is a setosa; otherwise check the width; otherwise check this. A good key is a decision tree written by a person over seasons of observation. The notebook's first build asks what key the data writes for itself when an algorithm chooses the thresholds to best separate the rows it was shown. The second build removes the guide's species labels entirely and asks a different field question: given only measurements, do these flowers fall into natural groups at all? That is clustering, and its ancestor is every market segmentation and anomaly hunt running quietly in industry: find the lumps in the data first, argue about their names second.
+
+## The Build: a Key the Data Writes Itself
+
+Open `classical_ml.ipynb` and run it top to bottom; this section narrates what to look at. The dataset is the iris table that ships inside scikit-learn, so nothing downloads: 150 flowers, four measurements each, three species in equal numbers. Thirty percent of rows are sealed away stratified by species, leaving 105 training rows and 45 test rows. Fitting is one line, `DecisionTreeClassifier(...).fit(X_train, y_train)`, and it is over before you can look up, which deserves a pause of its own. After five parts of server round trips, token budgets, and timeouts, a model that trains in milliseconds on your own CPU and needs no account, key, or network is a useful reminder that "AI" did not always imply a data centre.
+
+Then the rare pleasure: print the model. The learned key opens with the same observation a botanist would, that petal length alone separates setosa cleanly (`petal length (cm) <= 2.45`), and resolves the harder two species through a handful of further width thresholds, eight leaves deep at most. Every prediction the tree ever makes can be traced down those branches by a person with a ruler. Scored on the sealed rows, the run captured for this draft (seed fixed, so yours should match) reaches 0.933 accuracy: 42 of 45 correct, with all three mistakes calling borderline versicolor flowers virginica. Read the mistakes individually, as the notebook does. Their measurements sit where the two species genuinely overlap, which is a property of flowers rather than a scandal in the model, and deciding whether those three errors matter is a judgement no accuracy number makes for you. That sentence, you may notice, is Chapter 11's moderation habit in a field guide's clothing.
+
+The second build deletes the answer key. K-means is asked for three clusters in the same measurement space, knowing nothing of species: pick three centres, assign each flower to the nearest, move each centre to the middle of its assignees, repeat until settled. Against the true species it scores an adjusted Rand index of 0.73 in the captured run, where 1.0 is perfect agreement and 0 is chance. The composition table is the story behind the decimal: one cluster is purely setosa, all fifty, the geometry having found unaided what the tree's first threshold found with labels; the other two clusters split the versicolor and virginica ranges untidily between them, because those species really do blur into each other in these measurements. Unsupervised does not mean unevaluated. It means the evaluation argues from structure and usefulness rather than from a withheld answer key, a softer standard that the next chapter's sealed losses will stiffen again.
+
+## What Each Branch Is For
+
+The point of the visit is not nostalgia. It is a routing skill, of the same kind Chapter 12 fenced around typed judgments: given a problem, which branch of the family earns the first attempt?
+
+| Your material looks like | Reach first for | Because |
+|---|---|---|
+| A table of numbers, a label to predict | Decision tree or its ensembles; SVM beside it | Fast, inspectable, strong baselines, honest error bars |
+| A table of numbers, no labels | k-means and kin | Structure and segments before anyone names them |
+| Images, audio, signals with spatial or time shape | CNNs and deep nets (next chapter's family) | Features must be learned from the raw grid, not hand-slotted |
+| Language, instructions, messy documents, conversation | LLMs and this book's wrappers | Meaning arrives unslotted; that is their whole trick |
+
+A support vector machine, the SVM in the first row, earns its mention as the classical classifier that draws the widest separating boundary it can between classes, the geometric opposite temperament to a tree's axis-aligned questions; the notebook's closing cell swaps it in on identical splits so you can compare held-out scores rather than temperaments in the abstract. Ensembles, forests of trees voting, are why the first row still wins tabular competitions against far larger machinery. And the routing cuts both ways, which is the sentence to carry back into LLM work: reaching for a language model to classify rows that already sit in clean numeric columns is usually an expensive way to get a worse, less inspectable answer, a category error this chapter exists to inure you against. Conversely, hand-engineering feature columns for raw text is the 2010s version of the same mistake. Knowing which side of that line a problem sits on is most of what seniority in this field actually consists of.
+
+## Where a Demo Can Mislead You
+
+Two symmetrical cons run in this territory. The first relabels: a logistic regression or a gradient-boosted tree that has scored transactions well for a decade is presented, post-2023, as "our AI platform", with the LLM era's glamour borrowed for machinery that neither needs nor survives it. The second overreaches: an LLM demo classifies support tickets from raw text beautifully, and nobody mentions the tree over structured fields that would do most of the same job at a thousandth of the cost with rules a regulator can read. Your questions now cover both. What model family is this, in the taxonomy rather than the brochure? Show me the held-out score and the mistakes, not the accuracy on data it trained on. If it is classical, which features carry the decision, and who chose them? If it is an LLM doing a table's job, what did the table baseline score, and what does the difference cost per million rows?
+
+## Practice Exercises
+
+**Exercise 15.1 (Level 1).** Run the notebook untouched. From the printed tree alone, classify a made-up flower with petal length 5.0 and width 1.8, then check your hand-trace against `tree.predict`.
+
+**Exercise 15.2 (Level 2).** Limit the tree to depth 2 and rerun the split. Record the accuracy and readability trade in one sentence each, in both directions.
+
+**Exercise 15.3 (Level 3).** Swap the classifier for `SVC` on identical splits. Compare held-out accuracy and the confusion pattern with the tree's. Which mistakes moved, and what does that say about the boundary's shape?
+
+**Exercise 15.4 (Level 4).** Run k-means with two and with five clusters. Using the composition tables, argue which count the data itself prefers, and state what evidence would change your mind.
+
+**Exercise 15.5 (Level 5).** Take a classification your workplace currently sends to an LLM (or does by hand). Spec the classical baseline: the table, the features, the label, the sealed split, the acceptance bar that would make the LLM unnecessary. Build it if the data is yours to touch.
+
+## Chapter Summary
+
+- AI is the umbrella; classical ML, deep learning, and LLMs are branches. This book's first five parts occupy the LLM twig, and the title is earned narrowly and now explicitly.
+- Supervised classical learning runs fit, predict, evaluate on a sealed split. A decision tree on iris reaches 0.933 held-out accuracy in milliseconds and prints as rules a person can trace.
+- Unsupervised k-means finds geometric groups without labels; on iris it isolates setosa perfectly and blurs the overlapping pair, ARI 0.73.
+- Routing by material is the skill: tables to trees and SVMs, unlabelled tables to clustering, raw signals to deep nets, language to LLMs. Each branch misused on another's material is a category error with an invoice attached.
+- The evaluation discipline (seal first, read mistakes, distrust training scores) is one continuous habit from this chapter through adapters.
+
+## Reflection
+
+Before moving on, ensure you:
+
+- [ ] Traced one prediction down the printed tree by hand
+- [ ] Read all the held-out mistakes individually, not only the accuracy
+- [ ] Can explain what k-means was never told and how you measured it anyway
+- [ ] Routed one problem from your own life to its branch, with reasons
+
+## Your Learning Journal
+
+1. Which felt more like "AI" to you, the readable tree or the fluent chatbot, and what does that feeling track?
+2. Where in your work is an LLM doing a table's job, or a spreadsheet doing a language model's?
+3. What would your sealed test set be for a model whose errors you currently never count?
+
+## Next Steps
+
+The tree chose its thresholds by testing splits, a tidy, countable search. The deep learning branch could not work that way: its models have millions of continuous knobs, and the only way to set them is the training loop, guess, measure surprise, nudge downhill, that the next chapter runs in miniature.

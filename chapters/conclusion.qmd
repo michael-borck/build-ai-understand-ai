@@ -1,6 +1,6 @@
 # The Shape Underneath {#sec-conclusion}
 
-> You came for thirteen chapters of machinery and found one call, five things people wrap around it, and your own judgement at every seam.
+> You came for seventeen chapters of machinery and found one call, five things people wrap around it, and your own judgement at every seam.
 
 **Package companion:** all of `hands-on-ai` 0.6.0, which you have now read in the pieces that matter.
 
@@ -8,19 +8,20 @@
 
 **The build:** none. This chapter assembles what you built into one picture and hands you the questions to carry out of the lab.
 
-## The five-part shape
+## The shape, in six drawers
 
-Every system in this book is one call to a model, wrapped in plain Python. The five parts of the book were the five families of wrapper, and each killed the misconception that its wrapper was the intelligence:
+Almost every system in this book is one call to a model, wrapped in plain Python. The six parts were five families of wrapper plus, in the optional Part VI, a look at how the object inside the call is made. Each part killed the misconception that its wrapper was the intelligence:
 
 | Part | Wrapper added | The plain version |
 |---|---|---|
 | I. The Model | Instructions, transcript, settings | A payload, a system string, a resent list, three variables |
 | II. Grounding | Evidence fetched before the call | Search, then the results pasted into the prompt |
 | III. Action | Functions the model may request, in a loop | Your code executes, results return as messages |
-| IV. Control | Stages, goals, scores | Folders of contracts, a stated goal, a calibrated marker |
+| IV. Control | Stages, goals, scores, typed judgments | Folders of contracts, a stated goal, a calibrated marker, a schema |
 | V. The Senses | Pictures in, translators at the edges | An image in the payload; speech to text and back |
+| VI. Inside the Box (optional) | Weights adjusted in miniature | A training loop and an adapter, judged on sealed eval |
 
-Point at any AI product you use this week and the decomposition exercise from Chapter 1 now has five drawers to sort its behaviour into. The chatbot is Part I with a budget. The document helper is Part II with better retrieval. The agent is Part III with a larger bench and higher stakes. The platform is Part IV with dashboards where your folders and logs were. The voice assistant is Part V wrapped around whichever of the earlier parts does its thinking. Products differ, sometimes enormously, in the quality and scale of their wrappers. Almost none differ in the underlying event: text, and now pictures and sound by conversion, assembled into a payload; a model call; the result checked, filed, or fed around again by code someone wrote on a Tuesday.
+Point at any AI product you use this week and the decomposition exercise from Chapter 1 now has six drawers to sort its behaviour into, the last one asking what the model itself was trained and adapted on. The chatbot is Part I with a budget. The document helper is Part II with better retrieval. The agent is Part III with a larger bench and higher stakes. The platform is Part IV with dashboards where your folders and logs were. The voice assistant is Part V wrapped around whichever of the earlier parts does its thinking. Products differ, sometimes enormously, in the quality and scale of their wrappers. Almost none differ in the underlying event: text, and now pictures and sound by conversion, assembled into a payload; a model call; the result checked, filed, or fed around again by code someone wrote on a Tuesday.
 
 ## The questions to carry
 
@@ -36,19 +37,19 @@ One graduation exercise is worth doing before you shelve the lab, because it con
 
 ## Practice Exercises
 
-**Exercise 14.1 (Level 1).** Choose an AI product you used this week and sort its behaviour into the five drawers, one line per drawer, naming what you are inferring rather than observing.
+**Exercise 18.1 (Level 1).** Choose an AI product you used this week and sort its behaviour into the six drawers, one line per drawer, naming what you are inferring rather than observing.
 
-**Exercise 14.2 (Level 2).** Revisit your earliest learning journal entries. Find one belief about AI systems that a specific chapter's build, not its prose, changed for you. Name the listing.
+**Exercise 18.2 (Level 2).** Revisit your earliest learning journal entries. Find one belief about AI systems that a specific chapter's build, not its prose, changed for you. Name the listing.
 
-**Exercise 14.3 (Level 3).** Assemble two parts on one bench: a voice loop whose answers are grounded by your document index, or a judge watching your workflow's draft stage. Keep it small; the composition is the exercise.
+**Exercise 18.3 (Level 3).** Assemble two parts on one bench: a voice loop whose answers are grounded by your document index, or a judge watching your workflow's draft stage. Keep it small; the composition is the exercise.
 
-**Exercise 14.4 (Level 4).** Write the one-page version of this book for a colleague: the shape, the five questions, and the single exercise from any chapter that would teach the most in an hour. Defend your choice of exercise.
+**Exercise 18.4 (Level 4).** Write the one-page version of this book for a colleague: the shape, the five questions, and the single exercise from any chapter that would teach the most in an hour. Defend your choice of exercise.
 
-**Exercise 14.5 (Level 5).** Capstone. Build one small thing for real use, from @sec-project-gallery or your own backlog, under this book's disciplines: stated criteria, a checkable goal, sources shown, errors visible, a budget. Ship it to one other person and record what their use taught you that your testing did not.
+**Exercise 18.5 (Level 5).** Capstone. Build one small thing for real use, from @sec-project-gallery or your own backlog, under this book's disciplines: stated criteria, a checkable goal, sources shown, errors visible, a budget. Ship it to one other person and record what their use taught you that your testing did not.
 
 ## Chapter Summary
 
-- Every system built here is one model call plus a wrapper, and the wrappers sort into five families: the call itself, grounding, action, control, and the senses.
+- Almost every system built here is one model call plus a wrapper: the call itself, grounding, action, control (typed judgments included), and the senses. Part VI adds where the weights inside the call come from, and how little of them an adapter moves.
 - The durable skill is seam questions: evidence, execution authority, traces and exits, calibrated quality, data travel and retention.
 - The package is a learning lab designed to be outgrown. Reaching its limits with the concepts intact is success, and @sec-going-deeper is the exit map.
 
@@ -56,12 +57,12 @@ One graduation exercise is worth doing before you shelve the lab, because it con
 
 Before you close the book, ensure you:
 
-- [ ] Can decompose a product you use into the five drawers without notes
+- [ ] Can decompose a product you use into the six drawers without notes
 - [ ] Read one whole package module against the Chapter 1 question
 - [ ] Know which appendix you will open next, and why
 
 ## Your Learning Journal
 
-1. Which misconception, of the fourteen, were you most reluctant to give up?
+1. Which misconception, of the seventeen, were you most reluctant to give up?
 2. What will you now refuse to accept from a demo, including your own?
 3. What is the first production-shaped problem you intend to point these habits at?

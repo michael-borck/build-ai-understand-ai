@@ -18,7 +18,7 @@ Agent frameworks such as Pydantic AI and the SDKs' native agent tooling replace 
 
 ## Control (Part IV)
 
-Workflow engines and durable-execution platforms add scheduling, parallelism, persistence across crashes, and human-task queues where this book had folders and a person at a bench. Evaluation matures into dataset-driven evals: fixed case sets, regression gates in CI, judge ensembles with measured agreement. Carry with you: stage outputs you can inspect, goals stated before loops run, and moderation records for every judge. A platform that hides any of the three is a downgrade wearing scale.
+Workflow engines and durable-execution platforms add scheduling, parallelism, persistence across crashes, and human-task queues where this book had folders and a person at a bench. Evaluation matures into dataset-driven evals: fixed case sets, regression gates in CI, judge ensembles with measured agreement. Carry with you: stage outputs you can inspect, goals stated before loops run, and moderation records for every judge. A platform that hides any of the three is a downgrade wearing scale. Typed judgments grow up into structured-output modes in the official SDKs, schema-constrained decoding in local servers such as Ollama (verify the current `format` behaviour before relying on it), and dedicated System One services such as TypeSafe's Jev where calibrated probabilities are worth paying for.
 
 ## The Senses (Part V)
 
@@ -26,4 +26,4 @@ Vision production work adds image pipelines, detection and OCR specialists besid
 
 ## The Model Itself
 
-One door remains if the black box itself is what you want opened. Andrej Karpathy's *Zero to Hero* series and the nanoGPT line of projects build a small language model from first principles, at the cost of the mathematics this book promised to spare you: gradients, tensors, training loops. Nothing in Parts I to V requires it, and most builders of AI systems will rightly never train a model. But the reader who arrived here asking how the call's other side works now knows enough to get full value from the going.
+One door remains if the black box itself is what you want opened. Andrej Karpathy's *Zero to Hero* series builds a small language model from first principles, at the cost of the mathematics Parts I to V promised to spare you: gradients, tensors, training loops. Its codebase line now runs from the deprecated nanoGPT to its successor nanochat, a full pretrain-to-chat pipeline kept deliberately hackable. Part VI is this door opened a crack, with toy training and a LoRA adapter; Karpathy is the same door at full size. Nothing in Parts I to V requires either, and most builders of AI systems will rightly never train a model. But the reader who arrived here asking how the call's other side works now knows enough to get full value from the going.

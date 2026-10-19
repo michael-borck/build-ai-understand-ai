@@ -81,9 +81,13 @@ class ManuscriptChecks(unittest.TestCase):
             "chapters/workflows-as-folders.qmd": ("init_workspace", "{#sec-workflows-as-folders}"),
             "chapters/loops-with-a-goal.qmd": ("run_ratchet", "{#sec-loops-with-a-goal}"),
             "chapters/the-judge.qmd": ("judge(", "{#sec-the-judge}"),
+            "chapters/typed-answers.qmd": ("classify", "{#sec-typed-answers}"),
+            "chapters/the-older-ai.qmd": ("classical_ml.ipynb", "{#sec-the-older-ai}"),
+            "chapters/train-a-tiny-model.qmd": ("train_tiny_model.ipynb", "{#sec-train-a-tiny-model}"),
+            "chapters/teach-it-a-dialect.qmd": ("finetune_adapter_colab.ipynb", "{#sec-teach-it-a-dialect}"),
             "chapters/pictures.qmd": ("describe", "{#sec-pictures}"),
             "chapters/voice.qmd": ("transcribe", "{#sec-voice}"),
-            "chapters/conclusion.qmd": ("five-part shape", "{#sec-conclusion}"),
+            "chapters/conclusion.qmd": ("six drawers", "{#sec-conclusion}"),
             "appendices/just-enough-python.qmd": ("build_payload", "{#sec-just-enough-python .appendix}"),
             "appendices/model-access.qmd": ("HANDS_ON_AI_CACHE", "{#sec-model-access .appendix}"),
             "appendices/project-gallery.qmd": ("Capstones", "{#sec-project-gallery .appendix}"),
@@ -95,7 +99,7 @@ class ManuscriptChecks(unittest.TestCase):
                 self.assertNotIn("## Skeleton", text)
                 minimum = 1000 if name.startswith("chapters/") else 500
                 self.assertGreater(len(text.split()), minimum)
-                if name.startswith("chapters/") and "conclusion" not in name:
+                if name.startswith("chapters/") and "conclusion" not in name and not any(s in name for s in ("typed-answers", "the-older-ai", "train-a-tiny-model", "teach-it-a-dialect")):
                     self.assertIn("hands-on-ai` 0.6.0", text)
                 for marker in markers:
                     self.assertIn(marker, text)
