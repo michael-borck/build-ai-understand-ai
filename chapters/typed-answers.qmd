@@ -1,0 +1,146 @@
+# Typed Answers {#sec-typed-answers}
+
+> Most programs do not need paragraphs from a model. They need one option chosen, one yes or no, one score, one record, in a shape code can trust.
+
+**Package companion:** `hands_on_ai.decide` (`classify`, `decide`, `score_output`, `extract`). Listings checked against the `decide` module on `hands-on-ai` main, after 0.6.0; install from the repository until it ships in a release.
+
+**Misconception this chapter kills:** "The model replies in prose, so my program must parse prose." You can ask for small typed judgments instead, and validate the shape before your code believes a word of it.
+
+**The build:** a support-ticket router and a refund decider, run first on your local model, then on a hosted System One model if you have a key, with marks compared.
+
+**Python you need:** dictionaries and one small class definition for extraction, both met in @sec-just-enough-python. The class here is data-shaped only: field names and types, no behaviour.
+
+## The Concept First
+
+Chapter 11's judge smuggled a new kind of call into the book. It never wanted an essay. It wanted one integer and one sentence, and it dug them out of the reply with a regular expression, hoping the model kept the format. Chapter 7's agent wanted the same kind of smallness: a tool name and an input string, not a meditation. A large share of what programs actually need from models has that shape. Which queue does this ticket belong to? Does this message ask for a refund? How frustrated is this customer, on a stated scale? What are the name, date, and total on this invoice? Questions with small, known answer spaces, asked thousands of times, where a paragraph of prose is not an answer but a parsing problem.
+
+TypeSafe gave a name and a service to this end of the trade: System One models, after Kahneman's fast, intuitive System 1, which return typed decisions and probabilities through three primitives. Choice picks one option from a set you define. Noul answers a yes/no question as a probability. Score rates something along ordered levels you describe. Their flagship model, Jev, does nothing else: no chat, no explanations, just calibrated judgments your code can compose. You do not need their service to learn the pattern, because an ordinary chat model constrained to a schema can play the same role in miniature, which is what the package's `decide` module does. What the hosted model adds, and what this chapter will not let you pretend the local route has, is calibration: probabilities trained to mean what they say across many predictions.
+
+Keep the two routes' difference in one sentence. Schema constraining guarantees the *shape* of the answer. It says nothing about whether the answer, or its self-reported confidence, is right. A local model asked for a confidence will produce a number in range with the same fluency it produces everything else. Chapter 11's moderation habits therefore apply to every number in this chapter: calibrate on cases you marked yourself, or treat the number as decoration.
+
+## Understanding Through Real Life
+
+Think of the difference between asking a colleague to "look into this customer email" and handing them a triage slip. The slip has boxes: department (tick one of three), refund requested (yes or no), urgency (circle 1 to 5), account number (write it here). The slip is not smarter than the conversation. It is more useful to everything downstream, because the routing rule, the queue, and the report at the end of the week all consume boxes, not impressions. Nobody asks the slip to explain the customer's feelings at length; there are other instruments for that, slower ones, reached for when the boxes say this case deserves them.
+
+That escalation pattern is the architecture in one image. Fast typed judgments handle the bulk and the routine. Uncertainty, measured rather than vibes, routes the remainder to a person or to a slower reasoning model, the System 2 end of the shop. Most of this book has been about the slow end. This chapter is about earning the right to be fast: narrow questions, defined answer spaces, and evidence that the fast answers deserve the trust your thresholds place in them.
+
+## The Build: a Router and a Decider
+
+The module's four functions share one interface habit with the rest of the package: they return plain dictionaries and never raise for a model-side failure, putting `None` in the answer fields with an explanation under `error`. Start with Choice, wearing its package name, `classify`:
+
+```python
+# Listing 12.1 of 3: route the ticket (route_ticket.py)
+from hands_on_ai.decide import classify, decide
+
+ticket = "Help! My payouts have been failing for 3 days and I want my money back."
+
+routed = classify(
+    ticket,
+    options=["billing", "technical", "sales"],
+    instructions="Which team should handle this ticket?",
+)
+print(routed["choice"], routed["confidence"], routed["error"])
+
+refund = decide(ticket, "Does this message request a refund?")
+print(refund["answer"], refund["probability"], refund["error"])
+```
+
+Run it on tickets of your own invention, including awkward edge cases: a technical fault that mentions money, a billing question caused by a bug, a message that fits no box at all. Two design facts announce themselves quickly. The option list is a closed world: the function validates the reply against it and hands back `None` rather than an invented department, so an "other" option is yours to include or to live without. And the instructions do the quiet work. "Which team should handle this?" plus three bare labels asks the model to guess your org chart; adding one line of rubric per option, the way TypeSafe's own examples pair each choice with a description, turns guessing into marking. Chapter 2's instruction craft and Chapter 11's rubric craft are the same craft here, applied to a smaller answer.
+
+The extraction primitive has no System One counterpart, because Jev judges rather than transcribes, but it belongs in the same drawer: a typed record out of messy text, validated field by field:
+
+```python
+# Listing 12.2 of 3: a record out of prose (extract_invoice.py)
+from pydantic import BaseModel
+
+from hands_on_ai.decide import extract
+
+
+class Invoice(BaseModel):
+    vendor: str
+    total_dollars: float
+    due_date: str
+
+
+result = extract(
+    "Invoice from Sunrise Catering. Total due: $1,240.50. "
+    "Please pay by 14 November 2026. Thank you for your business.",
+    Invoice,
+)
+print(result["data"])
+print(result["error"])
+```
+
+The `Invoice` class is a schema wearing Python syntax: three field names, three types, nothing else. Underneath, the local backend hands that schema to the model through Instructor's JSON-schema mode, the same machinery Chapter 7's JSON agent format used to validate tool calls before anything ran. What comes back has been checked against the schema by construction, so `total_dollars` is a number your code can add up, not the string `"$1,240.50"` waiting to break a sum. Fields the text cannot support are the interesting failure: try an invoice with no due date and read what the model does with its instruction to leave a field empty rather than invent one. Then decide, as a designer, whether empty, invented, or refused is the failure your system can afford, because the schema guarantees shape only.
+
+## The Same Judgments, Calibrated
+
+Swap the backend and the interface holds while the meaning of the numbers changes. With a TypeSafe key in `TYPESAFE_API_KEY`, the same two calls go to Jev:
+
+```python
+# Listing 12.3 of 3: local beside Jev (compare_backends.py)
+from hands_on_ai.decide import classify, decide
+
+ticket = "Help! My payouts have been failing for 3 days and I want my money back."
+options = ["billing", "technical", "sales"]
+
+for backend in ("local", "jev"):
+    routed = classify(ticket, options, backend=backend)
+    refund = decide(ticket, "Does this message request a refund?", backend=backend)
+    print(backend, "::", routed["choice"], routed["confidence"],
+          "| refund:", refund["answer"], refund["probability"],
+          "| error:", routed["error"] or refund["error"])
+```
+
+Without a key, the Jev row prints its error in plain sight and the local row carries the run, which is the correct classroom default. With one, compare more than the answers. Jev's Choice returns a probability for every option, summing to one, and its Noul probability is the product being sold: trained so that across many predictions, cases scored near 0.8 come out yes about eighty percent of the time. Your local model's confidence is a number it generated because the schema had a slot for one. On a single ticket both may look identical. Across fifty tickets you marked yourself, in Chapter 11's moderation style, the difference becomes measurable: bin each backend's probabilities and check the bins against reality. That exercise, unglamorous as it sounds, is the difference between using confidence as a routing signal and using it as a screensaver.
+
+Cost belongs in the same comparison, because these primitives exist to run at volume. A routed ticket locally is one small call on hardware you own. Jev is priced per input token at rates that make a million triage calls a rounding error next to one misrouted enterprise ticket, and it evaluates many questions against one state in a single request. Neither fact decides the architecture. Together with your calibration table, they might.
+
+::: {.callout-note title="The judge moved house"}
+Chapter 11's `judge` now tries this chapter's typed scorer first and falls back to its old two-line text format only when the structured call cannot produce a score. Its return shape, `{score, reasoning, raw}`, did not change, and Chapter 10's loops never noticed. That is the pattern to copy in your own systems: typed path preferred, text path as the documented fallback, the interface above both untouched.
+:::
+
+## When Fast Is the Wrong Instrument
+
+For every question in this chapter there is a neighbouring question the primitives serve badly, and naming the boundary is part of the skill. Typed judgments do not explain, negotiate, draft, or reason through novelty; a Choice among three departments cannot tell you the ticket describes a fourth problem your org chart lacks. They do not fetch evidence; a refund decision made without the transactions and the policy in the state is Chapter 5's bare question wearing a probability. And their speed creates a specific organisational temptation, to let thresholds quietly become policy: auto-refund below this probability, auto-reject above that score. Thresholds are decisions about who bears the cost of the fast lane's errors. They deserve the same daylight as any other policy, set from your calibration data and revisited when the model or the mix of cases changes.
+
+Used inside their fence, though, typed answers change what the rest of the book's machinery costs. A router decides which retrieval index a question deserves before Chapter 6 spends its tokens. An extractor turns incoming prose into fields Chapter 9's pipeline can file without a model rereading it at every stage. A decider gates Chapter 10's loop with a cheap check before an expensive judge wakes. Small judgments, composed by ordinary code that owns the workflow: that composition, more than any single primitive, is what System One thinking contributes.
+
+## Practice Exercises
+
+**Exercise 12.1 (Level 1).** Route ten tickets you invented, including two that fit no option. Add an "other" option and rerun. Record what changed beyond the two.
+
+**Exercise 12.2 (Level 2).** Extract records from five messy texts of one kind (invoices, event announcements, job ads). Deliberately omit a field from two of them and catalogue what the model does with the gap.
+
+**Exercise 12.3 (Level 3).** Build a calibration set: thirty short cases for one `decide` question, marked by you in advance. Bin the local probabilities and compare each bin with reality. If you have a Jev key, run the same set and place the tables side by side.
+
+**Exercise 12.4 (Level 4).** Compose a cascade: a typed triage that routes easy cases directly and escalates low-confidence ones to Chapter 11's judge or to a human queue file. State your thresholds and the cost of each kind of error at each threshold.
+
+**Exercise 12.5 (Level 5).** Write the threshold policy for a real routing decision in your world: the primitives, the state each needs as evidence, the calibration set that justifies the cutoffs, and the review rhythm when models change. One page, ending with the case type that must never be auto-decided.
+
+## Chapter Summary
+
+- Typed primitives give programs small answers in validated shapes: `classify` picks one option, `decide` returns a yes/no probability, `score_output` rates against criteria, `extract` pulls a typed record from prose.
+- The local backend constrains an ordinary model to a Pydantic schema: shape guaranteed, confidence self-reported and uncalibrated. Jev's hosted System One backend sells calibrated probabilities behind the same interface.
+- Failures arrive as `None` fields with an `error`, never as exceptions or invented options; closed option lists make "other" a design decision.
+- Calibration is a table you build from your own marked cases, per backend, per question. Without it, confidence is decoration and thresholds are policy by accident.
+- Typed answers compose: routers before retrieval, extractors before pipelines, cheap deciders before expensive judges, escalation where uncertainty concentrates.
+
+## Reflection
+
+Before moving on, ensure you:
+
+- [ ] Routed tickets including one that fit no box, and decided your "other" policy
+- [ ] Extracted a record and probed a missing field deliberately
+- [ ] Can state, with at least a small table behind you, how much your local confidence numbers deserve
+- [ ] Know which of your calls would change meaning as well as shape, on the Jev backend
+
+## Your Learning Journal
+
+1. Which question in your own work is secretly a triage slip waiting to be designed?
+2. Where did a confident local number most mislead you, and what bin did it belong in?
+3. What threshold in a system you use do you now suspect was never calibrated by anyone?
+
+## Next Steps
+
+Part IV ends with the fast lane built and fenced. Part V returns to the slower senses, pictures and voice, where the payload grows a new kind of evidence and the clock starts charging rent. Readers headed for the optional Part VI may also proceed there directly; its notebooks assume Parts I and IV, not Part V.

@@ -65,7 +65,7 @@ The `if False` is a scaffolding trick worth keeping: flip it, record your questi
 Now feel the latency. Time one full turn with a stopwatch: question finished, reply audible. Then ask where the seconds went. Transcription of a short clip, the chat call over a transcript that grows every turn (Chapter 3's tax, now audible), synthesis of the whole reply before the first sound plays. The industry's answers are all visible from here: stream the reply in pieces and start speaking the first sentence while the rest generates, keep spoken answers short by instruction, run smaller local models for the translators, and put the servers close. None of those change the shape. They shave the relay.
 
 ::: {.callout-note title="Voice is biometric in a way text is not"}
-A voice recording identifies a person in ways a typed sentence does not, and speech synthesis can be pointed at imitation with enough samples. The consent reflex from Chapter 12 applies in full: record yourself freely, record others with their knowledge, know which server your audio travelled to, and treat cloning a real person's voice as a line that needs their explicit agreement rather than your technical ability. The tools in this chapter synthesise a stock voice. Keep the ethics at stock settings too.
+A voice recording identifies a person in ways a typed sentence does not, and speech synthesis can be pointed at imitation with enough samples. The consent reflex from Chapter 13 applies in full: record yourself freely, record others with their knowledge, know which server your audio travelled to, and treat cloning a real person's voice as a line that needs their explicit agreement rather than your technical ability. The tools in this chapter synthesise a stock voice. Keep the ethics at stock settings too.
 :::
 
 ## Where a Demo Can Mislead You
@@ -74,15 +74,15 @@ Voice demos are staged in quiet rooms with close microphones, short questions, a
 
 ## Practice Exercises
 
-**Exercise 13.1 (Level 1).** Run `voice_pieces.py`, then transcribe a phone recording of the same sentence. Diff the two transcripts and list what the room cost you.
+**Exercise 14.1 (Level 1).** Run `voice_pieces.py`, then transcribe a phone recording of the same sentence. Diff the two transcripts and list what the room cost you.
 
-**Exercise 13.2 (Level 2).** Run the typed voice chat for four turns. Note the first reply that would have been fine on screen and was painful aloud, and adjust the system prompt because of it.
+**Exercise 14.2 (Level 2).** Run the typed voice chat for four turns. Note the first reply that would have been fine on screen and was painful aloud, and adjust the system prompt because of it.
 
-**Exercise 13.3 (Level 3).** Time a full round trip with a recorded question. Attribute the seconds across transcription, thinking, and synthesis as best you can, then shorten the turn by one deliberate change and re-time.
+**Exercise 14.3 (Level 3).** Time a full round trip with a recorded question. Attribute the seconds across transcription, thinking, and synthesis as best you can, then shorten the turn by one deliberate change and re-time.
 
-**Exercise 13.4 (Level 4).** Feed the loop its own transcription errors on purpose: dictate names, numbers, and a homophone-rich sentence. Where did the chat model recover the meaning anyway, and where did it earnestly answer the wrong sentence?
+**Exercise 14.4 (Level 4).** Feed the loop its own transcription errors on purpose: dictate names, numbers, and a homophone-rich sentence. Where did the chat model recover the meaning anyway, and where did it earnestly answer the wrong sentence?
 
-**Exercise 13.5 (Level 5).** Spec a voice front end for your Chapter 6 document bot: input and output paths, latency budget per hop, the spoken style rules, what the user sees when transcription is uncertain, and the consent and retention terms for recordings. One page, ending with the turn length at which you would switch the user back to text.
+**Exercise 14.5 (Level 5).** Spec a voice front end for your Chapter 6 document bot: input and output paths, latency budget per hop, the spoken style rules, what the user sees when transcription is uncertain, and the consent and retention terms for recordings. One page, ending with the turn length at which you would switch the user back to text.
 
 ## Chapter Summary
 

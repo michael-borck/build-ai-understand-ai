@@ -8,11 +8,11 @@ project:
 
 book:
   title: "Build AI, Understand AI"
-  subtitle: "How Modern AI Systems Actually Work, in Small Readable Pieces"
+  subtitle: "How Today's LLM Systems Actually Work, in Small Readable Pieces"
   author: "Michael Borck"
   date: "last-modified"
   license: "CC BY 4.0 International"
-  description: "Build tiny versions of chat, retrieval, agents, workflows and judges, and learn what the AI systems you use every day actually are: one model call wrapped in plain Python."
+  description: "Build tiny versions of chat, retrieval, agents, workflows and judges, and learn what the LLM systems you use every day actually are: one model call wrapped in plain Python. An optional final part opens the wider AI field and the training loop itself."
   site-url: https://michael-borck.github.io/build-ai-understand-ai
   repo-url: https://github.com/michael-borck/build-ai-understand-ai
   repo-branch: main
@@ -39,10 +39,16 @@ book:
         - chapters/workflows-as-folders.qmd
         - chapters/loops-with-a-goal.qmd
         - chapters/the-judge.qmd
+        - chapters/typed-answers.qmd
     - part: "The Senses"
       chapters:
         - chapters/pictures.qmd
         - chapters/voice.qmd
+    - part: "Inside the Box (Optional)"
+      chapters:
+        - chapters/the-older-ai.qmd
+        - chapters/train-a-tiny-model.qmd
+        - chapters/teach-it-a-dialect.qmd
     - part: "Looking Underneath"
       chapters:
         - chapters/conclusion.qmd

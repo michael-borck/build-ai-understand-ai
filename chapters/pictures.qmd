@@ -68,15 +68,15 @@ Vision demos choose photographs the way Chapter 5's demonstrators chose question
 
 ## Practice Exercises
 
-**Exercise 12.1 (Level 1).** Run the talking picture on a photograph of your own. Ask the tour question and two pointed ones, and grade each answer against the picture.
+**Exercise 13.1 (Level 1).** Run the talking picture on a photograph of your own. Ask the tour question and two pointed ones, and grade each answer against the picture.
 
-**Exercise 12.2 (Level 2).** Assemble a five-photograph test set spanning the three piles: a scene, a sign or label, a crowd, a chart or receipt, a near-duplicate pair. Record where your model's pile boundaries actually fall.
+**Exercise 13.2 (Level 2).** Assemble a five-photograph test set spanning the three piles: a scene, a sign or label, a crowd, a chart or receipt, a near-duplicate pair. Record where your model's pile boundaries actually fall.
 
-**Exercise 12.3 (Level 3).** Ask a question the photograph cannot answer (when it was taken, what happened next, who these people are). Record whether the model declines, hedges, or improvises, and compare with Chapter 5's escape-sentence experiment.
+**Exercise 13.3 (Level 3).** Ask a question the photograph cannot answer (when it was taken, what happened next, who these people are). Record whether the model declines, hedges, or improvises, and compare with Chapter 5's escape-sentence experiment.
 
-**Exercise 12.4 (Level 4).** Pair the senses: describe a photograph of a document, save the description, and ask your Chapter 6 RAG bot a question needing both the picture's content and your documents. Where did the hand-off between them lose information?
+**Exercise 13.4 (Level 4).** Pair the senses: describe a photograph of a document, save the description, and ask your Chapter 6 RAG bot a question needing both the picture's content and your documents. Where did the hand-off between them lose information?
 
-**Exercise 12.5 (Level 5).** Write the acceptance test for a vision feature at your workplace: the photograph set, the questions, the accuracy bar per pile, the consent and retention rules. One page, ending with the pile you would refuse to ship at this model's scores.
+**Exercise 13.5 (Level 5).** Write the acceptance test for a vision feature at your workplace: the photograph set, the questions, the accuracy bar per pile, the consent and retention rules. One page, ending with the pile you would refuse to ship at this model's scores.
 
 ## Chapter Summary
 

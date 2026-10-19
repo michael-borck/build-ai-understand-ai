@@ -2,11 +2,13 @@
 
 ## Why This Book Exists
 
-You use AI systems every day. You type into a chat box, upload a document and ask questions about it, watch a tool fetch a web page and reason over it. And if someone asked you what actually happened in there, you would probably say something vague about "the model". That vagueness has a cost: it is exactly where confident nonsense gets past you.
+You use LLM systems every day. You type into a chat box, upload a document and ask questions about it, watch a tool fetch a web page and reason over it. And if someone asked you what actually happened in there, you would probably say something vague about "the model". That vagueness has a cost: it is exactly where confident nonsense gets past you.
 
-Here is the uncomfortable secret this book is built on: the machinery is not that complicated. Strip away the dashboards and the marketing, and every system you use is one call to a model, wrapped in plain Python. A chatbot is that call plus a paragraph of instructions. A document question-answerer is that call plus a search. An agent is that call plus a loop that runs your functions. The package this book pairs with, `hands-on-ai`, makes each of those small enough to read in an afternoon, because when the whole thing fits in your head, the concept becomes visible.
+Here is the uncomfortable secret this book is built on: the machinery is not that complicated. Strip away the dashboards and the marketing, and every LLM system in that first paragraph is one call to a model, wrapped in plain Python. A chatbot is that call plus a paragraph of instructions. A document question-answerer is that call plus a search. An agent is that call plus a loop that runs your functions. The package this book pairs with, `hands-on-ai`, makes each of those small enough to read in an afternoon, because when the whole thing fits in your head, the concept becomes visible.
 
-This book walks those eight builds in a deliberate order. You will write a little Python and read a little more. What you will not do is train anything, install a framework, or take anyone's word for anything. By the end, when a demo answers fluently, you will know which parts of what you saw were the model and which were a harness someone wrote on a Tuesday.
+A note on the title's word, since this book will spend eighteen chapters teaching you to check claims like it: AI is a far wider field than this book. It includes search and symbolic reasoning, the classical machine learning of decision trees, support vector machines, and clustering that has filtered your spam and scored your transactions for decades, and the deep learning that produced both image classifiers and the large language models, LLMs, at this book's centre. Those older branches are not stage scenery; they still run much of the world's consequential automation, often better than an LLM would. This book keeps the umbrella word for its title and earns it narrowly: Parts I to V are about LLM systems, and the optional Part VI opens with the older AI on its own terms before turning to the training loop itself. When any vendor, this book included, says "AI" without saying which branch, you will know to ask.
+
+This book walks those builds in a deliberate order, in five parts that need nothing beyond a model you can call. You will write a little Python and read a little more. What you will not do in those five parts is train anything, install a framework, or take anyone's word for anything. An optional sixth part, clearly fenced, then opens the box a crack: it trains toy models in notebooks, at toy scale, for readers who want to see that side too. By the end, when a demo answers fluently, you will know which parts of what you saw were the model and which were a harness someone wrote on a Tuesday.
 
 ## Who This Book Is For
 
@@ -23,7 +25,7 @@ It is not *Speak Software*. That book puts a department of AI agents at your com
 
 It is not *Ship Python, Orchestrate AI*. You will build workflows, loops and judges here in miniature, to understand them. Production form is that book's job.
 
-And it is not a machine-learning book. No training, no gradients, no maths. The model stays a black box; the book is about everything on your side of its one documented door.
+And it is mostly not a machine-learning book. Parts I to V keep the original promise: no training, no gradients, no maths beyond Appendix A, with the model treated through its one documented door. Part VI breaks that fence deliberately and in the open. It is optional, notebook-based, and simplified rather than production-ready, and it declares its extra prerequisites (PyTorch, and a free Colab GPU for one chapter) before asking anything of you. Skip it and the book is complete without it.
 
 ## How This Book Is Structured
 
@@ -60,3 +62,4 @@ Found an error? Have a suggestion?
 
 - Open an issue: https://github.com/michael-borck/build-ai-understand-ai/issues
 - Email: michael@borck.me
+.me
