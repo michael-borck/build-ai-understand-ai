@@ -135,7 +135,7 @@ One more layer sits underneath the client. The client turns that call into an HT
 So what does the package add, if the bare call takes a dozen lines? Four things you have already benefited from without noticing. It reads the server, model and key from configuration instead of hard-coding them in your script. It supplies the default system message. It tries the call a second time if the first attempt fails. And it can keep a copy of each answer in a local cache, so a classroom can rerun a lesson and get the same replies. @sec-model-access explains the cache. They save you from typing the surrounds while you learn the middle.
 
 ::: {.callout-tip title="The reading habit for this book"}
-Every chapter ends at a function like `get_response` and asks the same question. What does this add to the plain call? The package is small enough to answer that question by reading it. The source of `get_response` is one file, `chat/get_response.py`, in the [package repository](https://github.com/michael-borck/hands-on-ai). Open it once this week. You will not understand every line yet. You will recognise the messages list and the `create` call, and that recognition is the point.
+Every chapter ends at a function like `get_response` and asks the same question. What does this add to the plain call? The package is small enough to answer that question by reading it. The source of `get_response` is one file, `chat/get_response.py`, in the [package repository](https://github.com/michael-borck/hands-on-ai). Open it once this week. You will not understand every line yet. You will recognise the messages list and the `create` call, and that recognition is the first sign you can read the machinery.
 :::
 
 ## What an Answer Costs

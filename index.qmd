@@ -10,6 +10,14 @@ A note on the title's word, since this book will spend eighteen chapters teachin
 
 This book walks those builds in a deliberate order, in five parts that need nothing beyond a model you can call. You will write a little Python and read a little more. What you will not do in those five parts is train anything, install a framework, or take anyone's word for anything. An optional sixth part, clearly fenced, then opens the box a crack: it trains toy models in notebooks, at toy scale, for readers who want to see that side too. By the end, when a demo answers fluently, you will know which parts of what you saw were the model and which were a harness someone wrote on a Tuesday.
 
+## Learn the Tide, Not the Waves
+
+The models will keep changing. The ideas underneath them change more slowly. A retrieval system is still a search step wrapped around a model call. An agent is still a loop with tools and a stopping condition. A judge is still a separate check on an output. Those ideas are older than the current model, and they will outlast it.
+
+So this book builds small versions instead of touring features. A feature list expires with the next release. A mental model of what the feature was doing survives the rename.
+
+The waves are the model launches, the benchmark claims, and the product names. The tide is the set of ideas that keep returning under new labels. Once you can see the tide, a new tool is a new arrangement of parts you already recognise.
+
 ## Who This Book Is For
 
 - Daily users of AI tools who want to know what is underneath them
@@ -36,6 +44,8 @@ Every chapter kills one misconception and leaves one small working build.
 ## The Series
 
 This book is part of a series on modern software development in the AI era.
+
+The series has a trunk: *Conversation, Not Delegation* for method and *The Human Edge* for professional judgement. This book is the branch for understanding the machinery.
 
 | Start with | Continue with | Because |
 |---|---|---|

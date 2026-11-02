@@ -97,7 +97,7 @@ Without a key, the Jev row prints its error in plain sight and the local row car
 Cost belongs in the same comparison, because these primitives exist to run at volume. A routed ticket locally is one small call on hardware you own. Jev is priced per input token at rates that make a million triage calls a rounding error next to one misrouted enterprise ticket, and it evaluates many questions against one state in a single request. Neither fact decides the architecture on its own; together with your calibration table, they might.
 
 ::: {.callout-note title="The judge moved house"}
-Chapter 11's `judge` now tries this chapter's typed scorer first and falls back to its old two-line text format only when the structured call cannot produce a score. Its return shape, `{score, reasoning, raw}`, did not change, and Chapter 10's loops never noticed. That is the pattern to copy in your own systems: typed path preferred, text path as the documented fallback, the interface above both untouched.
+Chapter 11's `judge` now tries this chapter's typed scorer first and falls back to its old two-line text format only when the structured call cannot produce a score. Its return shape, `{score, reasoning, raw}`, did not change, and Chapter 10's loops never noticed. Copy that pattern in your own systems: typed path preferred, text path as the documented fallback, the interface above both untouched.
 :::
 
 ## When Fast Is the Wrong Instrument
