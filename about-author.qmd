@@ -1,0 +1,43 @@
+# About the Author {.unnumbered}
+
+![Photo of Michael Borck](images/author-photo.jpg){fig-alt="Photo of Michael Borck, the author" width=200px fig-align="center"}
+
+**Michael Borck** is a software developer and educator working at the intersection of human expertise and artificial intelligence. He teaches applied AI and AI in business at Curtin University, and runs *The Human Edge* masterclasses through Curtin Executive Education. *Build AI, Understand AI* grew out of a simple classroom observation: students could use AI tools fluently long before they could say what those tools were doing, and the gap closed fastest when they built a tiny version themselves.
+
+His earlier book, *Conversation, Not Delegation*, argues for treating AI as a thinking partner you converse with. *Speak Software* teaches readers to direct agents without writing code. This book opens the box those agents are built on: every chapter reduces one familiar AI system to a single model call wrapped in plain Python, built in miniature so it can be read in one sitting. The doing lives in the companion package, `hands-on-ai` (`pip install hands-on-ai`), whose modules, documentation and project guides this book narrates; neither duplicates the other.
+
+The bet underneath the book is that models change every few months and the ideas underneath them change slowly. A reader who has built chat, retrieval, an agent loop, a workflow and a judge by hand stops being fooled by demos, whatever the next model is called. Michael builds educational software and resources, and writes about the 80/20 principle in learning and professional judgement.
+
+---
+
+\newpage
+
+**Connect**
+
+- [GitHub projects](https://github.com/michael-borck): Software and educational resources
+- [Free book collection](https://books.borck.education): Current online editions and downloads
+- [8020workshop.com](https://8020workshop.com): Passion projects and workshops
+- [LinkedIn](https://linkedin.com/in/michaelborck)
+
+---
+
+**Other Books in This Series**
+
+*Python Track:*
+
+- *Think Python, Direct AI: Computational Thinking for Beginners*
+- *Code Python, Consult AI: Python Fundamentals for the AI Era*: the language this book talks to the machine in
+- *Ship Python, Orchestrate AI: Professional Python in the AI Era*: workflows, loops and judges in production form
+- *Converse Python, Partner AI: The Intentional Prompting Methodology*
+- *Speak Software*: directing agents without code; the natural first book for the never-touch-a-keyboard reader
+
+*AI-Collaboration and Judgement Track:*
+
+- *Conversation, Not Delegation: How to Think With AI, Not Just Use It*: the thinking-with-AI framework behind this series
+- *Prove, Don't Persuade: Why Proof Beats the Demo in Applied AI*
+- *Substantiate, Don't Assume: Why the Auditor's Opinion Matters More Than Ever in the Age of AI*
+- *Partner, Don't Police: AI in the Business Classroom*
+
+*Web Track:*
+
+- *Build Web, Guide AI: Business Web Development with AI*

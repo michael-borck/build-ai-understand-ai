@@ -12,9 +12,9 @@
 
 ## The Concept First
 
-Look back at every script you have written so far. None of them contains a server address. None of them names Ollama, or any company. The most vendor-specific thing in them is a model name you chose in a payload exercise. And yet the calls worked, because something outside your code supplied the address, the model, and the key. That something is the package configuration, and this chapter opens it.
+Look back at every script you have written so far. None contains a server address, and none names Ollama or any company. The most vendor-specific thing in them is a model name you chose in a payload exercise. And yet the calls worked, because something outside your code supplied the address, the model, and the key. That something is the package configuration, and this chapter opens it.
 
-The reason the configuration can stay outside is a piece of industry luck worth understanding. One company's API shape became the common dialect. A request is a `POST` to an address ending in `/v1/chat/completions`, carrying the JSON payload from Chapter 1, with the key sent as a standard authorisation header. Dozens of providers now accept that exact shape, whatever their own models are called. Tools that speak the dialect, including this package, can be pointed at any of them by changing an address and a key. The industry calls such services OpenAI-compatible, after the company whose shape won.
+The configuration can stay outside because one company's API shape became the common dialect. A request is a `POST` to an address ending in `/v1/chat/completions`, carrying the JSON payload from Chapter 1, with the key sent as a standard authorisation header. Dozens of providers now accept that exact shape, whatever their own models are called. Tools that speak the dialect, including this package, can be pointed at any of them by changing an address and a key. The industry calls such services OpenAI-compatible, after the company whose shape won.
 
 Compatibility has limits, and a later section names them. Within those limits, the practical consequence is large: choosing a provider is a settings decision, reversible in a minute, and the code you write against the dialect survives the change.
 
@@ -36,13 +36,13 @@ Environment variables are named settings your terminal hands to every program it
 | `HANDS_ON_AI_MODEL` | Which model answers | `llama3` |
 | `HANDS_ON_AI_API_KEY` | The key, where one is required | unset |
 
-Two small kindnesses in the package are worth knowing. The address does not need the `/v1` ending; the client adds it when it is missing, so addresses copied from provider documentation work either way. And when no key is set, the client still sends a harmless placeholder, because the underlying library insists on a key-shaped string even though your local server ignores it. You met that placeholder in Listing 1.3.
+The address does not need the `/v1` ending; the client adds it when it is missing, so addresses copied from provider documentation work either way. And when no key is set, the client still sends a harmless placeholder, because the underlying library insists on a key-shaped string even though your local server ignores it. You met that placeholder in Listing 1.3.
 
 `handsonai doctor` prints the resolved result of all this: the config file it read, the server and model it will use, and whether a key is configured, shown masked. Whenever you change a setting, run the doctor before you run a script. It reads the same configuration your code will read, in the same order, so an argument with the doctor is an argument you do not have to have with a traceback.
 
 ## The Build: Same Script, Second Provider
 
-You need an account and a key from one hosted provider for this section. @sec-model-access lists routes, including free tiers and local-only alternatives, and explains what a key is and how to guard it. If you have no key and want none, read this section as a worked example and do the two-model variant in Exercise 4.2 instead. The lesson survives on local hardware alone.
+You need an account and a key from one hosted provider for this section. @sec-model-access lists routes, including free tiers and local-only alternatives, and explains what a key is and how to guard it. If you have no key and want none, read this section as a worked example and do the two-model variant in Exercise 4.2 instead.
 
 With `ask.py` from Chapter 1 in front of you, set the three variables for a hosted provider. This example uses OpenAI's own service; the package documentation gives the same three lines for OpenRouter, Groq, Together, and Gemini's compatible endpoint, among others.
 
@@ -58,7 +58,7 @@ python ask.py
 
 The doctor should now report the hosted address, the new model, and a configured key. Then `ask.py` runs, the file untouched since Chapter 1, and a model on another company's computers answers your post-office question. Run `remembering.py` from Chapter 3 next. It works too, transcript and all, because nothing in it ever knew which server would answer.
 
-That is the entire build, and its smallness is the argument. Provider-specific code would have made this section a rewrite. Settings made it four lines in a terminal.
+Provider-specific code would have made this section a rewrite. Settings made it four lines in a terminal.
 
 Notebook users can set the same variables from inside Python, before the first call. The package reads the environment when configuration is loaded, so the timing matters: set first, import after, or set before the first `get_response` call at the latest.
 
@@ -85,9 +85,9 @@ When you are done, return to local runs by unsetting the three variables or open
 
 Local Ollama and a hosted provider are both legitimate places to run this book, and they trade differently. A local model is free per call, works offline, and keeps your prompts on your own machine, which matters for the transcript concerns raised in Chapter 3. Its limits are your hardware's limits: smaller models, slower replies, and a smaller context window than the big hosted offerings. A hosted model reverses the trade. It is stronger and faster, it costs money per token, and every prompt travels to someone else's computers under their retention rules.
 
-Neither choice is the permanent one, which is the point of the chapter. A classroom can run Monday's lesson locally and Friday's on a hosted model for the harder project. A prototype can start where iteration is free and move when quality demands it. What you should not do is let the choice harden into your code by accident, one vendor-specific feature at a time, until moving would mean starting over.
+Neither choice is the permanent one. A classroom can run Monday's lesson locally and Friday's on a hosted model for the harder project. A prototype can start where iteration is free and move when quality demands it. What you should not do is let the choice harden into your code by accident, one vendor-specific feature at a time, until moving would mean starting over.
 
-Compatibility also has edges, and honesty requires naming them. The dialect covers the request and reply shape for chat, which is everything Part I has used. It does not standardise every extra a provider offers. Model names differ and must be exact; `handsonai models` lists what your current server reports, which settles most name disputes. Usage reporting varies, so `usage` can be `None` on one provider and complete on another. And two models given identical payloads will still answer differently, in quality, tone, and how literally they follow your system prompt. Portability moves your code. It does not make the models interchangeable, and Part IV's judge exists partly because of that gap.
+Compatibility also has edges. The dialect covers the request and reply shape for chat, which is everything Part I has used. It does not standardise every extra a provider offers. Model names differ and must be exact; `handsonai models` lists what your current server reports, which settles most name disputes. Usage reporting varies, so `usage` can be `None` on one provider and complete on another. And two models given identical payloads will still answer differently, in quality, tone, and how literally they follow your system prompt. Portability moves your code without making the models interchangeable, and Part IV's judge exists partly because of that gap.
 
 ## The Cache: When Reproducible Beats Fresh
 
@@ -102,7 +102,7 @@ python ask.py
 
 The first run calls the model and stores the reply in a plain text file inside that directory, named by a hash of the three things that define the call: model, system prompt, and question. The second run finds the file and prints the stored reply without contacting any server. You can prove it to yourself by running the second one with Ollama stopped. It still answers, instantly, in the exact words of the first run.
 
-Classrooms love this. A teacher can warm the cache once, then thirty students rerun the lesson offline and see identical output, and nobody's exercise breaks because a model felt whimsical that morning. Chapter 11's judge needs stable material to judge, and the cache is how this book gets it. The costs are the mirror image of the benefits. A cached answer never improves when you switch to a better model, because the model is part of the lookup only as a name in the hash, and a stale cache can confuse you into thinking your new settings changed nothing. Cached replies also arrive with `usage` set to `None`, as Chapter 1 warned, because no tokens were spent. And the cache is one more folder of plain-text transcripts on disk, subject to the same care as the saved chats in Chapter 3. Clearing it is deleting the directory. There is no subtler machinery to learn, which is rather the theme of the book.
+In a classroom, a teacher can warm the cache once, then thirty students rerun the lesson offline and see identical output, and nobody's exercise breaks because a model felt whimsical that morning. Chapter 11's judge needs stable material to judge, and the cache is how this book gets it. The costs are the mirror image of the benefits. A cached answer never improves when you switch to a better model, because the model is part of the lookup only as a name in the hash, and a stale cache can confuse you into thinking your new settings changed nothing. Cached replies also arrive with `usage` set to `None`, as Chapter 1 warned, because no tokens were spent. And the cache is one more folder of plain-text transcripts on disk, subject to the same care as the saved chats in Chapter 3. Clearing it is deleting the directory.
 
 ## Where a Demo Can Mislead You
 

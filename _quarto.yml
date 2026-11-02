@@ -7,6 +7,8 @@ project:
     - LICENSE-CODE.md
 
 book:
+  cover-image: cover.png
+  favicon: favicon.svg
   title: "Build AI, Understand AI"
   subtitle: "How Today's LLM Systems Actually Work, in Small Readable Pieces"
   author: "Michael Borck"
@@ -57,15 +59,32 @@ book:
     - appendices/model-access.qmd
     - appendices/project-gallery.qmd
     - appendices/going-deeper.qmd
+    - acknowledgments.qmd
+    - about-author.qmd
   page-navigation: true
   sidebar:
     style: docked
     search: true
     collapse-level: 2
   other-links:
+    - text: Download PDF
+      icon: file-pdf
+      href: /build-ai-understand-ai.pdf
+    - text: Download EPUB
+      icon: book
+      href: /build-ai-understand-ai.epub
+    - text: Download llm.txt
+      icon: robot
+      href: llm.txt
     - text: The Package (companion)
       icon: package
       href: https://michael-borck.github.io/hands-on-ai/
+    - text: GitHub
+      icon: github
+      href: https://github.com/michael-borck/build-ai-understand-ai
+    - text: DeepWiki
+      icon: search
+      href: https://deepwiki.com/michael-borck/build-ai-understand-ai
     - text: All Books
       icon: collection
       href: https://books.borck.education
@@ -99,8 +118,10 @@ format:
       - top=0.75in
       - bottom=0.75in
   epub:
+    epub-cover-image: cover.png
     toc: true
     toc-depth: 1
+    css: [epub-styles.css, book-design-epub.css]
 
 execute:
   echo: true

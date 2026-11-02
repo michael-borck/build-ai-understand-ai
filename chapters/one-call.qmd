@@ -14,13 +14,13 @@
 
 When you type a question into a chat window and an answer appears, three ordinary things happen. The app takes your text and sends it across the network to a program running a model. The model produces reply text. The app receives that text and shows it to you.
 
-That is the whole event. The window, the typing indicator and the smooth scroll are presentation. Underneath them, text went out and text came back.
+The window, the typing indicator and the smooth scroll are presentation. Underneath them, text went out and text came back.
 
 Once you see the event at that size, a useful question becomes available for every AI product you meet. What did this tool add around the plain call? A chat window adds an instruction at the front and keeps a transcript. A document helper adds a search before the call. An agent adds a loop after it. You will build each of those additions in later chapters. This chapter builds the call they all add to.
 
 ## Understanding Through Real Life
 
-Think of posting a letter to a very well-read stranger who answers questions by return mail.
+Think of posting a letter to a well-read stranger who answers questions by return mail.
 
 Your envelope needs an address. In code, the address is a server URL, such as the Ollama server running on your own machine at `http://localhost:11434`. The envelope also needs a name, because one server can hold several models. The name is a string like `llama3`. Inside the envelope sits the letter itself. The letter is a short list of messages, and each message says who wrote it. One message carries your question.
 
@@ -63,15 +63,15 @@ Run it.
 python ask.py
 ```
 
-The first run prints a short warm-up line while the model loads, then one sentence about a post office. Your sentence will differ from mine, and it will probably differ if you run the script twice. The model writes a fresh reply each time, so this book will not pretend that model output can be quoted word for word. Where output is shown in later chapters, it is one run's output, and yours should be similar in kind. That is all.
+The first run prints a short warm-up line while the model loads, then one sentence about a post office. Your sentence will differ from mine, and it will probably differ if you run the script twice. The model writes a fresh reply each time, so this book will not pretend that model output can be quoted word for word. Where output is shown in later chapters, it is one run's output, and yours should be similar in kind.
 
-Read the listing line by line. The import line takes one function, `get_response`, out of the package's `chat` module and makes it available in your script. The blank line is for your eyes only. Python ignores it. The next line calls the function with one string, your question, and stores whatever comes back in a variable named `answer`. Nothing appears on screen yet. The last line prints the variable. If you delete it, the script will still make the call and still receive a reply. You will just never see the reply, and the run will look like it did nothing. Try that once. It teaches the difference between getting an answer and showing one faster than any explanation here could.
+Read the listing line by line. The import line takes one function, `get_response`, out of the package's `chat` module and makes it available in your script. The blank line is for your eyes only. Python ignores it. The next line calls the function with one string, your question, and stores whatever comes back in a variable named `answer`. Nothing appears on screen yet. The last line prints the variable. If you delete it, the script will still make the call and still receive a reply. You will just never see the reply, and the run will look like it did nothing. Try that once.
 
-Notice what the script does not contain. There is no server address, no model name and no password. `get_response` found those in the package configuration, which `handsonai doctor` printed for you earlier. The defaults point at a local Ollama server. Settings live outside your code so that the code can stay this small. @sec-any-provider opens that configuration up.
+The script contains no server address, no model name and no password. `get_response` found those in the package configuration, which `handsonai doctor` printed for you earlier. The defaults point at a local Ollama server. Settings live outside your code so that the code can stay this small. @sec-any-provider opens that configuration up.
 
 ## Pull Back the Curtain: Print What You Sent
 
-Five lines working is satisfying. It is also where the magic feeling creeps back in, because you cannot see what left your machine. So print it. This script builds the request as data and shows it to you before anything is sent. It runs without a model, without a network, and it prints the same thing every time.
+You still cannot see what left your machine, so print it. This script builds the request as data and shows it to you before anything is sent. It runs without a model, without a network, and it prints the same thing every time.
 
 ```python
 # Listing 1.2 of 4: the request, as data (payload.py)
@@ -105,7 +105,7 @@ print(json.dumps(payload, indent=2))
 
 This is the letter from the analogy, written as JSON. JSON is a text format for structured data, built from names, values, lists in square brackets, and groups in curly braces. You can read this one already. At the top level there are two names. `model` says which model should answer. `messages` holds a list of two messages, and each message is a group with a `role` and a `content`.
 
-The `user` message is yours. It is the question you typed in Listing 1.1, unchanged. The `system` message above it is the interesting one. You did not write it. `get_response` put it there, because its default instruction to the model is the string "You are a helpful assistant." Every call in Listing 1.1 quietly sent two messages, and the first one was an instruction about how to behave. Keep that in mind. @sec-who-the-model-is is entirely about that first message, and about how much of a chatbot's apparent personality is one string in a list.
+The `user` message is yours. It is the question you typed in Listing 1.1, unchanged. The `system` message above it is the interesting one. You did not write it. `get_response` put it there, because its default instruction to the model is the string "You are a helpful assistant." Every call in Listing 1.1 quietly sent two messages, and the first one was an instruction about how to behave. @sec-who-the-model-is is entirely about that first message, and about how much of a chatbot's apparent personality is one string in a list.
 
 The list has room to grow. A conversation is this same list with more messages in it: your turns and the model's replies, in order, resent in full on every call. @sec-no-memory shows why products built on this call go to that trouble.
 
@@ -130,9 +130,9 @@ print(answer)
 
 You do not need to run this. Read it for shape. A client is created with an address and a key. Local Ollama ignores the key, but the client insists on having one, so the package passes a placeholder. The `create` call takes the model name and the same `messages` list you printed in Listing 1.2. What comes back is a response object, and the reply text sits in one specific place inside it: the first choice, its message, its content. One line fishes the string out.
 
-Underneath the client there is one more layer, and then the bottom. The client turns that call into an HTTP request: a `POST` to the address `http://localhost:11434/v1/chat/completions`, with your JSON payload as the body. The server answers with JSON, and the client tidies it into the response object. HTTP requests are how programs ask servers for things all over the web. Your browser made several hundred of them before breakfast. A model call is one of them, with a question in the body.
+One more layer sits underneath the client. The client turns that call into an HTTP request: a `POST` to the address `http://localhost:11434/v1/chat/completions`, with your JSON payload as the body. The server answers with JSON, and the client tidies it into the response object. HTTP requests are how programs ask servers for things all over the web. Your browser made several hundred of them before breakfast. A model call is one of them, with a question in the body.
 
-So what does the package add, if the bare call takes a dozen lines? Four things you have already benefited from without noticing. It reads the server, model and key from configuration instead of hard-coding them in your script. It supplies the default system message. It tries the call a second time if the first attempt fails. And it can keep a copy of each answer in a local cache, so a classroom can rerun a lesson and get the same replies. @sec-model-access explains the cache. None of these additions change what a model call is. They save you from typing the surrounds while you learn the middle.
+So what does the package add, if the bare call takes a dozen lines? Four things you have already benefited from without noticing. It reads the server, model and key from configuration instead of hard-coding them in your script. It supplies the default system message. It tries the call a second time if the first attempt fails. And it can keep a copy of each answer in a local cache, so a classroom can rerun a lesson and get the same replies. @sec-model-access explains the cache. They save you from typing the surrounds while you learn the middle.
 
 ::: {.callout-tip title="The reading habit for this book"}
 Every chapter ends at a function like `get_response` and asks the same question. What does this add to the plain call? The package is small enough to answer that question by reading it. The source of `get_response` is one file, `chat/get_response.py`, in the [package repository](https://github.com/michael-borck/hands-on-ai). Open it once this week. You will not understand every line yet. You will recognise the messages list and the `create` call, and that recognition is the point.
@@ -163,9 +163,9 @@ With `return_usage=True`, the function hands back two values instead of one. You
 {'prompt_tokens': 31, 'completion_tokens': 22, 'total_tokens': 53}
 ```
 
-Your numbers will differ a little. The shape will not. `prompt_tokens` counts everything you sent. That includes the system message you did not write, which is why a ten-word question costs more than ten tokens. `completion_tokens` counts the reply. `total_tokens` adds them.
+Your numbers will differ a little, with the same shape. `prompt_tokens` counts everything you sent. That includes the system message you did not write, which is why a ten-word question costs more than ten tokens. `completion_tokens` counts the reply. `total_tokens` adds them.
 
-Two situations return `None` instead of counts, and both are worth knowing now so they do not look like bugs later. A streamed reply, printed piece by piece as it arrives, comes with no final count from most servers. And an answer served from the local cache was never sent to a model at all, so there is nothing to count. Code that reads `usage` should cope with `None`. For this chapter, printing it is enough.
+Two ordinary situations return `None` instead of counts, so they do not look like bugs later. A streamed reply, printed piece by piece as it arrives, comes with no final count from most servers. And an answer served from the local cache was never sent to a model at all, so there is nothing to count. Code that reads `usage` should cope with `None`. For this chapter, printing it is enough.
 
 ## When the Call Fails
 
@@ -189,7 +189,7 @@ The empty question never leaves your machine. The package checks for blank text 
 ❌ Error: Connection error.
 ```
 
-That message means the request was built and sent, twice, and no server answered. The cause is nearly always one of three settings: the server address is wrong or the server is off, the model name does not exist on that server, or a hosted provider rejected the key. Run `handsonai doctor` and read what it resolves your server and model to before you touch your script. The script is five lines long. It is seldom the problem.
+That message means the request was built and sent, twice, and no server answered. The cause is nearly always one of three settings: the server address is wrong or the server is off, the model name does not exist on that server, or a hosted provider rejected the key. Run `handsonai doctor` and read what it resolves your server and model to before you touch your script. The script is five lines long and seldom the problem.
 
 ::: {.callout-note title="Why return an error as text?"}
 Production code usually signals failure by raising an exception, which stops the program unless the programmer handles it. A teaching package makes a different trade. A string keeps a first lesson moving, and it makes the failure visible in the same place as the success. Later modules in the package keep the same habit. When you graduate to production libraries in @sec-going-deeper, expect exceptions there, and expect to write the handling yourself.
@@ -205,7 +205,7 @@ A product claims its assistant "remembers you". It keeps your earlier messages a
 
 A product claims its assistant "checked the latest figures". Its code fetched those figures first and put them in the prompt, or it gave the model tools to fetch with. The bare call you ran in this chapter can do neither. Left alone, the model answers from training, and training ends at a date. @sec-what-the-model-doesnt-know makes that limit visible with a question the model gets confidently wrong.
 
-None of this makes the products dishonest. The additions are the engineering. Knowing the bare call lets you ask which addition a claim rests on, and what happens to the claim when the addition is removed.
+None of this makes the products dishonest. Knowing the bare call lets you ask which addition a claim rests on, and what happens to the claim when the addition is removed.
 
 ## Practice Exercises
 
@@ -244,4 +244,4 @@ Before moving on, ensure you:
 
 ## Next Steps
 
-The payload you printed had a first message with the role `system`, and Listing 1.1 never mentioned it. In the next chapter you will write that message yourself, twice, and watch one model become two very different assistants.
+The payload you printed had a first message with the role `system`, and Listing 1.1 never mentioned it. In the next chapter you will write that message yourself, twice, and watch one model become two different assistants.

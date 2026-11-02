@@ -2,9 +2,9 @@
 
 > This book uses about a dozen Python constructs. This appendix teaches all of them, and nothing else.
 
-You do not need to read this appendix first. Each chapter names the Python it needs and points back here. Read the section you need, when you need it, and return to the chapter. Every example in this appendix is complete, runs without a model or a network, and prints exactly what is shown beneath it. Type them in rather than pasting. The typing is where the shapes sink in.
+You do not need to read this appendix first. Each chapter names the Python it needs and points back here. Read the section you need, when you need it, and return to the chapter. Every example in this appendix is complete, runs without a model or a network, and prints exactly what is shown beneath it. Type them in rather than pasting.
 
-If you want to learn Python itself, properly and for its own sake, that is a different book: *Code Python, Consult AI* in this series. This appendix has a narrower promise. After it, no listing in this book will contain a construct you have not met.
+If you want to learn Python itself, properly and for its own sake, that is a different book: *Code Python, Consult AI* in this series. After this appendix, no listing in this book will contain a construct you have not met.
 
 ## Running a Script
 
@@ -14,7 +14,7 @@ A Python program in this book is a plain text file whose name ends in `.py`. You
 python ask.py
 ```
 
-Python reads the file from the top, line by line, and does what each line says, in order. When it reaches the end of the file, the program is over. There is no separate compile step and no hidden starting point. The first line is the start.
+Python reads the file from the top, line by line, and does what each line says, in order. When it reaches the end of the file, the program is over. There is no separate compile step; the first line is the start.
 
 Lines beginning with `#` are comments. Python ignores them. Comments are notes for human readers, and in this book they often carry the listing number and the file name to save the code as.
 
@@ -64,7 +64,7 @@ Sam
 32
 ```
 
-A variable can be reassigned, and the old value is gone. A variable can also hold the result of a calculation or, throughout this book, the text a model returned. Names are yours to choose. Choose names that say what the value is: `question`, `answer`, and `usage` carry you through most of Part I.
+A variable can be reassigned, and the old value is gone. A variable can also hold the result of a calculation or, throughout this book, the text a model returned. Choose names that say what the value is: `question`, `answer`, and `usage` carry you through most of Part I.
 
 *First used in @sec-one-call.*
 
@@ -97,7 +97,7 @@ Name: Sam
 Sam used 53 tokens.
 ```
 
-Chapter 6 builds a prompt by assembling strings exactly this way. When you see `f"..."` there, this is all it means.
+Chapter 6 builds a prompt by assembling strings this way; `f"..."` there is an f-string like the one above.
 
 *First used in @sec-one-call. F-strings first used in @sec-chunk-fetch-answer.*
 
@@ -155,7 +155,7 @@ Hello, Sam.
 Welcome back, Sam.
 ```
 
-That example defines a function too, which is the next section. Hold on to the calling pattern, because `get_response(question, system="...")` in Chapter 2 is this exact move: one argument by position, one by name, the rest left at their defaults.
+That example defines a function too, which is the next section. `get_response(question, system="...")` in Chapter 2 uses the same pattern: one argument by position, one by name, the rest left at their defaults.
 
 *First used in @sec-one-call. Named arguments first used in @sec-who-the-model-is.*
 
@@ -174,9 +174,9 @@ print(add_tax(20))
 22.0
 ```
 
-Indentation is not decoration in Python. The four spaces before `return` are how Python knows the line belongs to the function. Most editors insert them for you when you press Tab after a line ending in a colon. If Python complains about indentation, check that every line of the body lines up exactly.
+Indentation matters in Python. The four spaces before `return` are how Python knows the line belongs to the function. Most editors insert them for you when you press Tab after a line ending in a colon. If Python complains about indentation, check that every line of the body lines up exactly.
 
-Chapter 2 wraps a system prompt in a function to make a bot. The function there does no arithmetic: it calls `get_response` and returns whatever came back. Same shape, different contents.
+Chapter 2 wraps a system prompt in a function to make a bot. The function there does no arithmetic: it calls `get_response` and returns whatever came back.
 
 *First used in @sec-who-the-model-is.*
 
@@ -198,7 +198,7 @@ system
 ['system', 'user', 'assistant', 'user']
 ```
 
-Counting positions in a list starts at 0, so `roles[0]` is the first item. That off-by-one surprise catches everyone once. `append` adds one item to the end. The message list in every payload in this book is a list, and `Conversation` in Chapter 3 spends its life appending to one.
+Counting positions in a list starts at 0, so `roles[0]` is the first item. `append` adds one item to the end. The message list in every payload in this book is a list, and `Conversation` in Chapter 3 spends its life appending to one.
 
 *First used in @sec-one-call, where the printed payload's `messages` value is a list.*
 
@@ -263,7 +263,7 @@ Context:
 - beta
 ```
 
-Two details there are worth naming. `\n` inside a string means a newline, the invisible character that ends a line. And `+=` means "add this to the existing value", so `prompt += f"- {chunk}\n"` grows the string a line at a time.
+`\n` inside a string means a newline, the invisible character that ends a line. And `+=` means "add this to the existing value", so `prompt += f"- {chunk}\n"` grows the string a line at a time.
 
 *First used in @sec-chunk-fetch-answer.*
 
@@ -294,7 +294,7 @@ print(counter.total)
 8
 ```
 
-That is a complete, if tiny, class. `Counter` is the template, `counter` is one object made from it, and the object remembers its total between calls because the total lives inside the object. This book never asks you to write a class. It asks you to use two or three written by the package, and this example is the whole idea behind them. The `self` you see repeated is how the object refers to its own stored values; you can read past it safely.
+That is a complete, if tiny, class. `Counter` is the template, `counter` is one object made from it, and the object remembers its total between calls because the total lives inside the object. This book asks you to use two or three classes written by the package. The `self` you see repeated is how the object refers to its own stored values; you can read past it safely.
 
 *First used in @sec-no-memory.*
 
@@ -319,7 +319,7 @@ When a listing checks `if usage:` before reading token counts, it is guarding ag
 
 ## Reading an Error Message
 
-Sooner or later Python will stop and print a traceback: several lines naming the file and line where things failed, ending with the actual complaint. Read tracebacks from the bottom. The last line says what went wrong. The lines above it say where. Three complaints cover most of what beginners meet in this book:
+Sooner or later Python will stop and print a traceback: several lines naming the file and line where things failed, ending with the complaint. Read tracebacks from the bottom. The last line says what went wrong. The lines above it say where. Three complaints cover most of what beginners meet in this book:
 
 | Last line begins | Usually means | First thing to check |
 |---|---|---|

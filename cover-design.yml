@@ -1,0 +1,13 @@
+version: 1
+style: editorial-c
+art: cover-art.png
+family: PROGRAMMING / PYTHON 05
+accent: '#7A4A6B'
+background: '#EFE4EC'
+title_lines:
+- Build AI,
+- Understand AI
+dark: false
+pixel: false
+scene: small-pieces
+art_origin: Locally constructed editable vector illustration.

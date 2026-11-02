@@ -1,6 +1,6 @@
 # Build AI, Understand AI: Prospectus
 
-Date: 2026-10-11. Status: first draft complete including the advanced arc (2026-10-19); fresh-reader pass, live listing run, adapter training run, print build, and cover pending.
+Date: 2026-10-11. Status: first draft complete including the advanced arc (2026-10-19); online edition finished locally 2026-11-02 (cover, standard files, HTML/PDF/EPUB/llm.txt built and validated, not yet pushed); fresh-reader pass, live listing run, and adapter training run pending author time.
 
 The doing lives in the companion package `michael-borck/hands-on-ai`
 (`pip install hands-on-ai`): eight modules, roughly forty documentation
@@ -240,9 +240,10 @@ the LocoLabo notebook with its run explicitly marked author-side.
 Next beyond this plan, in order:
 1. Author fresh-reader pass over the whole draft, including one
    live run of every model-dependent listing.
-2. Print build (PDF/EPUB via the standard pipeline; the audit's
-   print-support files are still missing) and cover design,
-   including registry entries in `book-publisher/design/`.
+2. Done 2026-11-02 (local, unpushed): print build (PDF/EPUB via
+   the standard pipeline, print-support files added) and cover
+   (`small-pieces`, PROGRAMMING / PYTHON 05; author to approve or
+   replace), with registry entries in `book-publisher/design/`.
 3. Listings stay frozen in the book, pinned per chapter (the
    `decide` chapters pin the package version that ships it).
 

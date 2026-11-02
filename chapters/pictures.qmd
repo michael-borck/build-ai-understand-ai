@@ -12,9 +12,9 @@
 
 ## The Concept First
 
-A vision-language model, VLM for short, accepts a payload whose user message carries two parts instead of one string: your text question, and an image. Somewhere inside the server, the image is converted into the same internal currency the model uses for words, tokens, and the machinery from Chapter 1 proceeds as always. Text and picture go in. Text comes out. That is the whole of the new sense at the level this book operates, and the module docstring says it without decoration: seeing is another way of writing a prompt. Note the direction, too. This module describes images. It does not create them; image generation is a different family of models and outside this book.
+A vision-language model, VLM for short, accepts a payload whose user message carries two parts instead of one string: your text question, and an image. Somewhere inside the server, the image is converted into tokens, the same internal units the model uses for words, and the machinery from Chapter 1 proceeds as always. Text and a picture go in, and text comes out. The module docstring puts it plainly: seeing is another way of writing a prompt. This module describes images. It does not create them; image generation is a different family of models and outside this book.
 
-How the image travels is worth one paragraph, because it explains the costs and failures to come. A web address can pass through as a link for the server to fetch. A local file, the normal case for your own photographs, is read by your code and encoded as base64, a text representation of the file's bytes, inlined into the payload as a data URL. Your photograph quite literally becomes a very long string inside the JSON from Chapter 1. Long means long: a phone photograph inflates into hundreds of thousands of characters of payload before the server has done any thinking, which is one reason vision calls are slower and the package allows them a generous timeout.
+How the image travels explains the costs and failures to come. A web address can pass through as a link for the server to fetch. A local file, the normal case for your own photographs, is read by your code and encoded as base64, a text representation of the file's bytes, inlined into the payload as a data URL. Your photograph becomes a long string inside the JSON from Chapter 1: a phone photograph inflates into hundreds of thousands of characters of payload before the server has done any thinking, which is one reason vision calls are slower and the package allows them a generous timeout.
 
 ## Understanding Through Real Life
 
@@ -31,14 +31,14 @@ ollama pull moondream
 handsonai doctor
 ```
 
-The doctor reports the vision model alongside the others. If you point the package at a hosted provider instead, use one of its vision-capable models under the same setting; @sec-model-access gathers the details. Expect the first call to be slow while the model loads, and expect quality to track model size more brutally than chat did. A small local VLM is a wonderful teaching instrument and a mediocre proofreader, and this chapter's exercises lean into both halves of that sentence.
+The doctor reports the vision model alongside the others. If you point the package at a hosted provider instead, use one of its vision-capable models under the same setting; @sec-model-access gathers the details. Expect the first call to be slow while the model loads, and expect quality to track model size more than chat did. A small local VLM teaches well and proofreads poorly.
 
 ## The Build: a Photograph That Answers
 
 The module has one function, and its defaults need no help. Save a photograph of your own beside the script, something with a scene in it rather than a screenshot, and ask it three questions of widening difficulty:
 
 ```python
-# Listing 12.1 of 2: the talking picture (talking_picture.py)
+# Listing 13.1 of 2: the talking picture (talking_picture.py)
 from hands_on_ai.vision import describe
 
 photo = "market.jpg"
@@ -48,15 +48,15 @@ print(describe(photo, "What is the main thing being sold here?"))
 print(describe(photo, "How many people are in this picture? Count carefully."))
 ```
 
-The first call uses the default prompt, "Describe this image.", and gets you the tour. The second shows the real pattern, which is not description for its own sake but questions put to a picture: reading a label, identifying a plant, checking whether a gauge is in the red, asking what is funny here. A picture plus a pointed question is the vision equivalent of Chapter 5's grounded prompt, with the image as the evidence in the room. The third call is the honesty test. Counting is where small vision models go to be humbled, along with small text and precise spatial claims, and seeing your own model produce a crisp number you can refute by looking at the photograph teaches the calibration faster than any warning in this paragraph.
+The first call uses the default prompt, "Describe this image.", and gets you the tour. The second shows the usual pattern: questions put to a picture, such as reading a label, identifying a plant, checking whether a gauge is in the red, or asking what is funny here. A picture plus a pointed question is the vision equivalent of Chapter 5's grounded prompt, with the image as the evidence in the room. The third call is the honesty test. Counting is where small vision models go to be humbled, along with small text and precise spatial claims, and your own model may produce a crisp number you can refute by looking at the photograph.
 
-Underneath, `describe` assembles the two-part user message and sends it through the same `chat_completion` machinery as every chat call in the book, with the longer timeout. One behaviour will look familiar from Chapter 1 by design: point it at a file that does not exist and you get an error string back, `❌ Error: Image file not found: ...`, rather than a crash. Your program can tell failure from description exactly the way it learned to in Part I.
+Underneath, `describe` assembles the two-part user message and sends it through the same `chat_completion` machinery as every chat call in the book, with the longer timeout. One behaviour will look familiar from Chapter 1 by design: point it at a file that does not exist and you get an error string back, `❌ Error: Image file not found: ...`, rather than a crash. Your program can tell failure from description the way it learned to in Part I.
 
 ## What It Can and Cannot See
 
-A useful first hour with a VLM sorts its answers into three piles. Scene gist is strong: what kind of place this is, what is broadly happening, the salient objects and their rough relations. Reading is conditional: signage and labels come back well when they are large, level, and high-contrast, and degrade into plausible invention as they shrink, tilt, or blur. Precision work is weak on small models especially: exact counts, small differences between similar objects, charts read to values, and anything depending on detail the encoding downscaled away. Your mileage will vary with model size, and re-sorting the piles per model is the same moderation exercise Chapter 11 taught, with the photograph as ground truth sitting right there.
+A useful first hour with a VLM sorts its answers into three piles. Scene gist is strong: what kind of place this is, what is broadly happening, the salient objects and their rough relations. Reading is conditional: signage and labels come back well when they are large, level, and high-contrast, and degrade into plausible invention as they shrink, tilt, or blur. Precision work is weak on small models especially: exact counts, small differences between similar objects, charts read to values, and anything depending on detail the encoding downscaled away. Results vary with model size, and re-sorting the piles per model is the same moderation exercise Chapter 11 taught, with the photograph as ground truth sitting right there.
 
-Two fusions with earlier parts are worth seeing before the exercises. Vision output is text, so it can be judged: a description can be scored against criteria, and better, against a human transcript of the same image, by exactly the machinery of Chapter 11. And a picture rarely answers the question behind the question alone. What the sign says comes from the photograph; whether the shop is open now comes from a document or a tool. Systems that pair a VLM's description with retrieval from Chapter 6 or a lookup tool from Chapter 7 are not a new invention. They are this book's parts on one bench, which by now should be a familiar and slightly disappointing revelation.
+Vision output is text, so it can be judged: a description can be scored against criteria, and better, against a human transcript of the same image, by the machinery of Chapter 11. And a picture rarely answers the question behind the question alone. What the sign says comes from the photograph; whether the shop is open now comes from a document or a tool. Systems that pair a VLM's description with retrieval from Chapter 6 or a lookup tool from Chapter 7 combine this book's parts on one bench.
 
 ::: {.callout-warning title="Photographs carry people"}
 Your photographs will be uploaded, encoded, to whatever server your configuration names, and Chapter 3's transcript warning applies with faces in place of words. Local models keep the bytes on your machine; hosted ones are governed by the provider's retention terms. Photographs of other people deserve the consent habit you would want applied to your own likeness, and some workplaces and jurisdictions regulate biometric uses well beyond anything in this chapter. Description for learning is benign. Build the consent reflex anyway, while the stakes are homework.
@@ -64,7 +64,7 @@ Your photographs will be uploaded, encoded, to whatever server your configuratio
 
 ## Where a Demo Can Mislead You
 
-Vision demos choose photographs the way Chapter 5's demonstrators chose questions: big subjects, clean light, legible signs, counts of three. The counter-demo takes a minute to assemble from your own phone. A crowd to count, a receipt to read to the cent, a dashboard at an angle, a shelf where one item differs from its neighbours. Run the product on your photographs and sort its answers into this chapter's three piles. Then ask the vendor's questions: at what resolution is my image downscaled before the model sees it, where do the bytes go and how long are they kept, and show me the runs where the count was wrong. The pile boundaries will move as models grow. The need to draw them yourself, per model, on your material, will not.
+Vision demos choose photographs the way Chapter 5's demonstrators chose questions: big subjects, clean light, legible signs, counts of three. The counter-demo takes a minute to assemble from your own phone. A crowd to count, a receipt to read to the cent, a dashboard at an angle, a shelf where one item differs from its neighbours. Run the product on your photographs and sort its answers into this chapter's three piles. Then ask the vendor's questions: at what resolution is my image downscaled before the model sees it, where do the bytes go and how long are they kept, and show me the runs where the count was wrong. The pile boundaries will move as models grow, so draw them yourself, per model, on your material.
 
 ## Practice Exercises
 

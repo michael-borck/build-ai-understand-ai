@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 700" width="1000" height="700">
+  <!-- Small pieces assembling into one call, a loop, and a judge's tick.
+       Text-free editorial line art in the series idiom. -->
+  <!-- ground line -->
+  <polyline points="75,622 925,622" fill="none" stroke="#202926" stroke-width="2.4" stroke-linecap="round"/>
+  <!-- three loose small pieces (top left) -->
+  <rect x="120" y="150" width="84" height="84" rx="10" fill="#F8F6F0" stroke="#202926" stroke-width="5"/>
+  <rect x="232" y="150" width="84" height="84" rx="10" fill="#EFE4EC" stroke="#202926" stroke-width="5"/>
+  <rect x="344" y="150" width="84" height="84" rx="10" fill="#F8F6F0" stroke="#202926" stroke-width="5"/>
+  <circle cx="162" cy="192" r="12" fill="none" stroke="#202926" stroke-width="4"/>
+  <polyline points="256,204 274,176 292,204" fill="none" stroke="#202926" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="368" y1="176" x2="404" y2="208" stroke="#202926" stroke-width="4" stroke-linecap="round"/>
+  <line x1="404" y1="176" x2="368" y2="208" stroke="#202926" stroke-width="4" stroke-linecap="round"/>
+  <!-- assembly arrow -->
+  <polyline points="456,192 528,192" fill="none" stroke="#7A4A6B" stroke-width="5" stroke-linecap="round"/>
+  <polyline points="514,180 530,192 514,204" fill="none" stroke="#7A4A6B" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- one call: the pieces nested inside a single larger block -->
+  <rect x="556" y="116" width="308" height="152" rx="14" fill="#F8F6F0" stroke="#202926" stroke-width="6"/>
+  <rect x="592" y="156" width="56" height="56" rx="8" fill="#EFE4EC" stroke="#202926" stroke-width="4"/>
+  <rect x="672" y="156" width="56" height="56" rx="8" fill="#EFE4EC" stroke="#202926" stroke-width="4"/>
+  <rect x="752" y="156" width="56" height="56" rx="8" fill="#EFE4EC" stroke="#202926" stroke-width="4"/>
+  <polyline points="592,238 808,238" fill="none" stroke="#202926" stroke-width="3" stroke-linecap="round"/>
+  <!-- drop from the call to the loop -->
+  <polyline points="710,284 710,352" fill="none" stroke="#7A4A6B" stroke-width="5" stroke-linecap="round"/>
+  <polyline points="698,338 710,354 722,338" fill="none" stroke="#7A4A6B" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- the loop: a circular arrow around a small block (bottom left) -->
+  <path d="M 250 386 A 92 92 0 1 1 168 446" fill="none" stroke="#202926" stroke-width="6" stroke-linecap="round"/>
+  <polyline points="148,468 168,444 190,456" fill="none" stroke="#7A4A6B" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="216" y="432" width="76" height="76" rx="10" fill="#EFE4EC" stroke="#202926" stroke-width="5"/>
+  <circle cx="254" cy="470" r="11" fill="none" stroke="#202926" stroke-width="4"/>
+  <!-- from the loop to the judge -->
+  <polyline points="372,470 492,470" fill="none" stroke="#7A4A6B" stroke-width="5" stroke-linecap="round"/>
+  <polyline points="478,458 494,470 478,482" fill="none" stroke="#7A4A6B" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- the judge's card with a tick (bottom right) -->
+  <rect x="520" y="386" width="344" height="168" rx="10" fill="#F8F6F0" stroke="#202926" stroke-width="6"/>
+  <polyline points="520,422 864,422" fill="none" stroke="#202926" stroke-width="3"/>
+  <circle cx="544" cy="404" r="5" fill="#7A4A6B"/>
+  <circle cx="564" cy="404" r="5" fill="#7A4A6B"/>
+  <polyline points="556,452 700,452" fill="none" stroke="#202926" stroke-width="4" stroke-linecap="round"/>
+  <polyline points="556,480 660,480" fill="none" stroke="#202926" stroke-width="4" stroke-linecap="round"/>
+  <polyline points="556,508 684,508" fill="none" stroke="#202926" stroke-width="4" stroke-linecap="round"/>
+  <polyline points="732,492 766,524 828,452" fill="none" stroke="#7A4A6B" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
