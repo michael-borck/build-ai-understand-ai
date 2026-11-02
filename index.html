@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Michael Borck">
-<meta name="dcterms.date" content="2026-11-02">
+<meta name="dcterms.date" content="2026-11-03">
 <meta name="description" content="Build tiny versions of chat, retrieval, agents, workflows and judges, and learn what the LLM systems you use every day actually are: one model call wrapped in plain Python. An optional final part opens the wider AI field and the training loop itself.">
 
 <title>Build AI, Understand AI</title>
@@ -544,6 +544,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#preface" id="toc-preface" class="nav-link active" data-scroll-target="#preface">Preface</a>
   <ul class="collapse">
   <li><a href="#why-this-book-exists" id="toc-why-this-book-exists" class="nav-link" data-scroll-target="#why-this-book-exists">Why This Book Exists</a></li>
+  <li><a href="#learn-the-tide-not-the-waves" id="toc-learn-the-tide-not-the-waves" class="nav-link" data-scroll-target="#learn-the-tide-not-the-waves">Learn the Tide, Not the Waves</a></li>
   <li><a href="#who-this-book-is-for" id="toc-who-this-book-is-for" class="nav-link" data-scroll-target="#who-this-book-is-for">Who This Book Is For</a></li>
   <li><a href="#what-this-book-is-not" id="toc-what-this-book-is-not" class="nav-link" data-scroll-target="#what-this-book-is-not">What This Book Is Not</a></li>
   <li><a href="#how-this-book-is-structured" id="toc-how-this-book-is-structured" class="nav-link" data-scroll-target="#how-this-book-is-structured">How This Book Is Structured</a></li>
@@ -583,7 +584,7 @@ ul.task-list li input[type="checkbox"] {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">November 2, 2026</p>
+      <p class="date">November 3, 2026</p>
     </div>
   </div>
   
@@ -604,6 +605,12 @@ ul.task-list li input[type="checkbox"] {
 <p>The machinery is not that complicated. Strip away the dashboards and the marketing, and every LLM system in that first paragraph is one call to a model, wrapped in plain Python. A chatbot is that call plus a paragraph of instructions. A document question-answerer is that call plus a search. An agent is that call plus a loop that runs your functions. The package this book pairs with, <code>hands-on-ai</code>, makes each of those small enough to read in an afternoon, because when the whole thing fits in your head, the concept becomes visible.</p>
 <p>A note on the title’s word, since this book will spend eighteen chapters teaching you to check claims like it: AI is a wider field than this book. It includes search and symbolic reasoning, the classical machine learning of decision trees, support vector machines, and clustering that has filtered your spam and scored your transactions for decades, and the deep learning that produced both image classifiers and the large language models, LLMs, at this book’s centre. Those older branches still run much of the world’s consequential automation, often better than an LLM would. This book keeps the umbrella word for its title and earns it narrowly: Parts I to V are about LLM systems, and the optional Part VI opens with the older AI on its own terms before turning to the training loop itself. When any vendor, this book included, says “AI” without saying which branch, you will know to ask.</p>
 <p>This book walks those builds in a deliberate order, in five parts that need nothing beyond a model you can call. You will write a little Python and read a little more. What you will not do in those five parts is train anything, install a framework, or take anyone’s word for anything. An optional sixth part, clearly fenced, then opens the box a crack: it trains toy models in notebooks, at toy scale, for readers who want to see that side too. By the end, when a demo answers fluently, you will know which parts of what you saw were the model and which were a harness someone wrote on a Tuesday.</p>
+</section>
+<section id="learn-the-tide-not-the-waves" class="level2">
+<h2 class="anchored" data-anchor-id="learn-the-tide-not-the-waves">Learn the Tide, Not the Waves</h2>
+<p>The models will keep changing. The ideas underneath them change more slowly. A retrieval system is still a search step wrapped around a model call. An agent is still a loop with tools and a stopping condition. A judge is still a separate check on an output. Those ideas are older than the current model, and they will outlast it.</p>
+<p>So this book builds small versions instead of touring features. A feature list expires with the next release. A mental model of what the feature was doing survives the rename.</p>
+<p>The waves are the model launches, the benchmark claims, and the product names. The tide is the set of ideas that keep returning under new labels. Once you can see the tide, a new tool is a new arrangement of parts you already recognise.</p>
 </section>
 <section id="who-this-book-is-for" class="level2">
 <h2 class="anchored" data-anchor-id="who-this-book-is-for">Who This Book Is For</h2>
@@ -629,6 +636,7 @@ ul.task-list li input[type="checkbox"] {
 <section id="the-series" class="level2">
 <h2 class="anchored" data-anchor-id="the-series">The Series</h2>
 <p>This book is part of a series on modern software development in the AI era.</p>
+<p>The series has a trunk: <em>Conversation, Not Delegation</em> for method and <em>The Human Edge</em> for professional judgement. This book is the branch for understanding the machinery.</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 33%">

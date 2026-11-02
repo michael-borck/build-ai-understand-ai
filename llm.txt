@@ -19,6 +19,14 @@ A note on the title's word, since this book will spend eighteen chapters teachin
 
 This book walks those builds in a deliberate order, in five parts that need nothing beyond a model you can call. You will write a little Python and read a little more. What you will not do in those five parts is train anything, install a framework, or take anyone's word for anything. An optional sixth part, clearly fenced, then opens the box a crack: it trains toy models in notebooks, at toy scale, for readers who want to see that side too. By the end, when a demo answers fluently, you will know which parts of what you saw were the model and which were a harness someone wrote on a Tuesday.
 
+## Learn the Tide, Not the Waves
+
+The models will keep changing. The ideas underneath them change more slowly. A retrieval system is still a search step wrapped around a model call. An agent is still a loop with tools and a stopping condition. A judge is still a separate check on an output. Those ideas are older than the current model, and they will outlast it.
+
+So this book builds small versions instead of touring features. A feature list expires with the next release. A mental model of what the feature was doing survives the rename.
+
+The waves are the model launches, the benchmark claims, and the product names. The tide is the set of ideas that keep returning under new labels. Once you can see the tide, a new tool is a new arrangement of parts you already recognise.
+
 ## Who This Book Is For
 
 - Daily users of AI tools who want to know what is underneath them
@@ -45,6 +53,8 @@ Every chapter kills one misconception and leaves one small working build.
 ## The Series
 
 This book is part of a series on modern software development in the AI era.
+
+The series has a trunk: Conversation, Not Delegation for method and The Human Edge for professional judgement. This book is the branch for understanding the machinery.
 
 | Start with | Continue with | Because |
 |---|---|---|
@@ -206,7 +216,7 @@ One more layer sits underneath the client. The client turns that call into an HT
 
 So what does the package add, if the bare call takes a dozen lines? Four things you have already benefited from without noticing. It reads the server, model and key from configuration instead of hard-coding them in your script. It supplies the default system message. It tries the call a second time if the first attempt fails. And it can keep a copy of each answer in a local cache, so a classroom can rerun a lesson and get the same replies.  explains the cache. They save you from typing the surrounds while you learn the middle.
 
-Every chapter ends at a function like `get_response` and asks the same question. What does this add to the plain call? The package is small enough to answer that question by reading it. The source of `get_response` is one file, `chat/get_response.py`, in the package repository. Open it once this week. You will not understand every line yet. You will recognise the messages list and the `create` call, and that recognition is the point.
+Every chapter ends at a function like `get_response` and asks the same question. What does this add to the plain call? The package is small enough to answer that question by reading it. The source of `get_response` is one file, `chat/get_response.py`, in the package repository. Open it once this week. You will not understand every line yet. You will recognise the messages list and the `create` call, and that recognition is the first sign you can read the machinery.
 
 ## What an Answer Costs
 
@@ -1701,7 +1711,7 @@ Without a key, the Jev row prints its error in plain sight and the local row car
 
 Cost belongs in the same comparison, because these primitives exist to run at volume. A routed ticket locally is one small call on hardware you own. Jev is priced per input token at rates that make a million triage calls a rounding error next to one misrouted enterprise ticket, and it evaluates many questions against one state in a single request. Neither fact decides the architecture on its own; together with your calibration table, they might.
 
-Chapter 11's `judge` now tries this chapter's typed scorer first and falls back to its old two-line text format only when the structured call cannot produce a score. Its return shape, `{score, reasoning, raw}`, did not change, and Chapter 10's loops never noticed. That is the pattern to copy in your own systems: typed path preferred, text path as the documented fallback, the interface above both untouched.
+Chapter 11's `judge` now tries this chapter's typed scorer first and falls back to its old two-line text format only when the structured call cannot produce a score. Its return shape, `{score, reasoning, raw}`, did not change, and Chapter 10's loops never noticed. Copy that pattern in your own systems: typed path preferred, text path as the documented fallback, the interface above both untouched.
 
 ## When Fast Is the Wrong Instrument
 

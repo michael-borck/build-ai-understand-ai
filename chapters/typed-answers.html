@@ -696,7 +696,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Chapter 11’s <code>judge</code> now tries this chapter’s typed scorer first and falls back to its old two-line text format only when the structured call cannot produce a score. Its return shape, <code>{score, reasoning, raw}</code>, did not change, and Chapter 10’s loops never noticed. That is the pattern to copy in your own systems: typed path preferred, text path as the documented fallback, the interface above both untouched.</p>
+<p>Chapter 11’s <code>judge</code> now tries this chapter’s typed scorer first and falls back to its old two-line text format only when the structured call cannot produce a score. Its return shape, <code>{score, reasoning, raw}</code>, did not change, and Chapter 10’s loops never noticed. Copy that pattern in your own systems: typed path preferred, text path as the documented fallback, the interface above both untouched.</p>
 </div>
 </div>
 </section>
