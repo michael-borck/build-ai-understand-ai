@@ -62,7 +62,26 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="../site_libs/quarto-nav/quarto-nav.js"></script>
@@ -621,7 +640,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="the-concept-first" class="level2" data-number="9.1">
 <h2 data-number="9.1" class="anchored" data-anchor-id="the-concept-first"><span class="header-section-number">9.1</span> The Concept First</h2>
 <p>Part III chained steps inside one run, at machine speed, in a transcript you had to go looking for. That suits a two-step calculation. It suits a report, a lesson plan, or a grant draft much worse, because the moment you most want is the pause between steps: read what the research stage gathered before the drafting stage builds on it, fix the outline before prose hardens around it, stop the line cheaply. A workflow makes that pause part of the structure.</p>
-<p>The package implements workflows as folders. A workspace holds numbered stage folders. Each stage folder holds a <code>CONTEXT.md</code>, plain-language instructions for that stage, and an <code>output</code> folder. Running a stage means assembling one familiar call: a shared system instruction, the stage’s contract, any reference rules, and the previous stage’s output file as input. The reply is written to <code>output/output.md</code>, and then everything stops until a person has read that file and asked for the next stage. The package calls the method ICM, for Interpretable Context Methodology: the context at every step is a file a person can open, rather than state inside a framework you must take on faith.</p>
+<p>The package implements workflows as folders. A workspace holds numbered stage folders. Each stage folder holds a <code>CONTEXT.md</code>, plain-language instructions for that stage, and an <code>output</code> folder. Running a stage means assembling one familiar call: a shared system instruction, the stage’s contract, any reference rules, and the previous stage’s output file as input. The reply is written to <code>output/output.md</code>, and then everything stops until a person has read that file and asked for the next stage. The package calls the method ICM, for Interpretable Context Methodology. The name and the folder-as-agent architecture come from Jake Van Clief and David McDermott <span class="citation" data-cites="vanclief2026icm">(<a href="#ref-vanclief2026icm" role="doc-biblioref">Van Clief and McDermott 2026</a>)</span>. The context at every step is a file a person can open, rather than state inside a framework you must take on faith.</p>
 <p>There is no scheduler, message queue, graph language, or agent hierarchy. The number in the folder name gives the order, the file system gives the memory (Chapter 3’s saved-transcript trick at a larger grain), and you, with a text editor, do the review. Because the input to each stage is literally the previous output file, your edits become that input word for word.</p>
 </section>
 <section id="understanding-through-real-life" class="level2" data-number="9.2">
@@ -730,6 +749,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>The pipeline repeats across stages, with you as the metronome. The next chapter repeats within one stage: the same improvement step applied again and again to its own output, with the stopping decision handed to a goal you state in advance.</p>
 
 
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-vanclief2026icm" class="csl-entry" role="listitem">
+Van Clief, Jake, and David McDermott. 2026. <em>Interpretable Context Methodology: Folder Structure as Agent Architecture</em>. <a href="https://arxiv.org/html/2603.16021v2">https://arxiv.org/html/2603.16021v2</a>.
+</div>
+</div>
 </section>
 
 </main> <!-- /main -->
