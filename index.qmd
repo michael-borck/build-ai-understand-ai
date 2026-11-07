@@ -18,6 +18,8 @@ So this book builds small versions instead of touring features. A feature list e
 
 The waves are the model launches, the benchmark claims, and the product names. The tide is the set of ideas that keep returning under new labels. Once you can see the tide, a new tool is a new arrangement of parts you already recognise.
 
+The same principle applies to trust. We trust compilers because they are stable, tested and contract-bound. AI has not earned that trust yet. Understanding the layer beneath the black box is how you decide what can be trusted and what still needs a check.
+
 ## Who This Book Is For
 
 - Daily users of AI tools who want to know what is underneath them
