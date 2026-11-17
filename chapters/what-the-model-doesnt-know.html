@@ -8,7 +8,7 @@
 
 <meta name="description" content="Build tiny versions of chat, retrieval, agents, workflows and judges, and learn what the LLM systems you use every day actually are: one model call wrapped in plain Python. An optional final part opens the wider AI field and the training loop itself.">
 
-<title>5&nbsp; What the Model Doesn’t Know – Build AI, Understand AI</title>
+<title>6&nbsp; What the Model Doesn’t Know – Build AI, Understand AI</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -73,7 +73,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
 <link href="../chapters/chunk-fetch-answer.html" rel="next">
-<link href="../chapters/any-provider.html" rel="prev">
+<link href="../chapters/where-your-words-go.html" rel="prev">
 <link href="../favicon.svg" rel="icon" type="image/svg+xml">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -292,7 +292,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/what-the-model-doesnt-know.html">Grounding</a></li><li class="breadcrumb-item"><a href="../chapters/what-the-model-doesnt-know.html"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">What the Model Doesn’t Know</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/what-the-model-doesnt-know.html">Grounding</a></li><li class="breadcrumb-item"><a href="../chapters/what-the-model-doesnt-know.html"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">What the Model Doesn’t Know</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -366,6 +366,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Any Provider Will Do</span></span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/where-your-words-go.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Where Your Words Go</span></span></a>
+  </div>
+</li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
@@ -380,13 +386,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../chapters/what-the-model-doesnt-know.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">What the Model Doesn’t Know</span></span></a>
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">What the Model Doesn’t Know</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../chapters/chunk-fetch-answer.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Chunk, Fetch, Answer</span></span></a>
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Chunk, Fetch, Answer</span></span></a>
   </div>
 </li>
       </ul>
@@ -403,13 +409,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../chapters/giving-the-model-hands.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Giving the Model Hands</span></span></a>
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Giving the Model Hands</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../chapters/the-react-loop.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">The ReAct Loop</span></span></a>
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">The ReAct Loop</span></span></a>
   </div>
 </li>
       </ul>
@@ -426,25 +432,25 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../chapters/workflows-as-folders.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Workflows as Folders</span></span></a>
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Workflows as Folders</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../chapters/loops-with-a-goal.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Loops with a Goal</span></span></a>
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Loops with a Goal</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../chapters/the-judge.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">The Judge</span></span></a>
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">The Judge</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../chapters/typed-answers.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Typed Answers</span></span></a>
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Typed Answers</span></span></a>
   </div>
 </li>
       </ul>
@@ -461,13 +467,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../chapters/pictures.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Pictures</span></span></a>
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Pictures</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../chapters/voice.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Voice</span></span></a>
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Voice</span></span></a>
   </div>
 </li>
       </ul>
@@ -484,19 +490,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../chapters/the-older-ai.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">The Older AI in the Room</span></span></a>
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">The Older AI in the Room</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../chapters/train-a-tiny-model.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Train a Tiny Model</span></span></a>
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Train a Tiny Model</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../chapters/teach-it-a-dialect.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Teach It a Dialect</span></span></a>
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Teach It a Dialect</span></span></a>
   </div>
 </li>
       </ul>
@@ -513,7 +519,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../chapters/conclusion.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">The Shape Underneath</span></span></a>
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">The Shape Underneath</span></span></a>
   </div>
 </li>
       </ul>
@@ -575,17 +581,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#the-concept-first" id="toc-the-concept-first" class="nav-link active" data-scroll-target="#the-concept-first"><span class="header-section-number">5.1</span> The Concept First</a></li>
-  <li><a href="#understanding-through-real-life" id="toc-understanding-through-real-life" class="nav-link" data-scroll-target="#understanding-through-real-life"><span class="header-section-number">5.2</span> Understanding Through Real Life</a></li>
-  <li><a href="#the-build-ask-for-what-it-cannot-have" id="toc-the-build-ask-for-what-it-cannot-have" class="nav-link" data-scroll-target="#the-build-ask-for-what-it-cannot-have"><span class="header-section-number">5.3</span> The Build: Ask for What It Cannot Have</a></li>
-  <li><a href="#the-same-question-with-the-evidence-in-the-room" id="toc-the-same-question-with-the-evidence-in-the-room" class="nav-link" data-scroll-target="#the-same-question-with-the-evidence-in-the-room"><span class="header-section-number">5.4</span> The Same Question, With the Evidence In the Room</a></li>
-  <li><a href="#what-asking-bare-questions-costs" id="toc-what-asking-bare-questions-costs" class="nav-link" data-scroll-target="#what-asking-bare-questions-costs"><span class="header-section-number">5.5</span> What Asking Bare Questions Costs</a></li>
-  <li><a href="#where-a-demo-can-mislead-you" id="toc-where-a-demo-can-mislead-you" class="nav-link" data-scroll-target="#where-a-demo-can-mislead-you"><span class="header-section-number">5.6</span> Where a Demo Can Mislead You</a></li>
-  <li><a href="#practice-exercises" id="toc-practice-exercises" class="nav-link" data-scroll-target="#practice-exercises"><span class="header-section-number">5.7</span> Practice Exercises</a></li>
-  <li><a href="#chapter-summary" id="toc-chapter-summary" class="nav-link" data-scroll-target="#chapter-summary"><span class="header-section-number">5.8</span> Chapter Summary</a></li>
-  <li><a href="#reflection" id="toc-reflection" class="nav-link" data-scroll-target="#reflection"><span class="header-section-number">5.9</span> Reflection</a></li>
-  <li><a href="#your-learning-journal" id="toc-your-learning-journal" class="nav-link" data-scroll-target="#your-learning-journal"><span class="header-section-number">5.10</span> Your Learning Journal</a></li>
-  <li><a href="#next-steps" id="toc-next-steps" class="nav-link" data-scroll-target="#next-steps"><span class="header-section-number">5.11</span> Next Steps</a></li>
+  <li><a href="#the-concept-first" id="toc-the-concept-first" class="nav-link active" data-scroll-target="#the-concept-first"><span class="header-section-number">6.1</span> The Concept First</a></li>
+  <li><a href="#understanding-through-real-life" id="toc-understanding-through-real-life" class="nav-link" data-scroll-target="#understanding-through-real-life"><span class="header-section-number">6.2</span> Understanding Through Real Life</a></li>
+  <li><a href="#the-build-ask-for-what-it-cannot-have" id="toc-the-build-ask-for-what-it-cannot-have" class="nav-link" data-scroll-target="#the-build-ask-for-what-it-cannot-have"><span class="header-section-number">6.3</span> The Build: Ask for What It Cannot Have</a></li>
+  <li><a href="#the-same-question-with-the-evidence-in-the-room" id="toc-the-same-question-with-the-evidence-in-the-room" class="nav-link" data-scroll-target="#the-same-question-with-the-evidence-in-the-room"><span class="header-section-number">6.4</span> The Same Question, With the Evidence In the Room</a></li>
+  <li><a href="#what-asking-bare-questions-costs" id="toc-what-asking-bare-questions-costs" class="nav-link" data-scroll-target="#what-asking-bare-questions-costs"><span class="header-section-number">6.5</span> What Asking Bare Questions Costs</a></li>
+  <li><a href="#where-a-demo-can-mislead-you" id="toc-where-a-demo-can-mislead-you" class="nav-link" data-scroll-target="#where-a-demo-can-mislead-you"><span class="header-section-number">6.6</span> Where a Demo Can Mislead You</a></li>
+  <li><a href="#practice-exercises" id="toc-practice-exercises" class="nav-link" data-scroll-target="#practice-exercises"><span class="header-section-number">6.7</span> Practice Exercises</a></li>
+  <li><a href="#chapter-summary" id="toc-chapter-summary" class="nav-link" data-scroll-target="#chapter-summary"><span class="header-section-number">6.8</span> Chapter Summary</a></li>
+  <li><a href="#reflection" id="toc-reflection" class="nav-link" data-scroll-target="#reflection"><span class="header-section-number">6.9</span> Reflection</a></li>
+  <li><a href="#your-learning-journal" id="toc-your-learning-journal" class="nav-link" data-scroll-target="#your-learning-journal"><span class="header-section-number">6.10</span> Your Learning Journal</a></li>
+  <li><a href="#next-steps" id="toc-next-steps" class="nav-link" data-scroll-target="#next-steps"><span class="header-section-number">6.11</span> Next Steps</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/michael-borck/build-ai-understand-ai/edit/main/chapters/what-the-model-doesnt-know.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/michael-borck/build-ai-understand-ai/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div><div class="quarto-other-links"><h2>Other Links</h2><ul><li><a href="/build-ai-understand-ai.pdf"><i class="bi bi-file-pdf"></i>Download PDF</a></li><li><a href="/build-ai-understand-ai.epub"><i class="bi bi-book"></i>Download EPUB</a></li><li><a href="../llm.txt"><i class="bi bi-robot"></i>Download llm.txt</a></li><li><a href="https://michael-borck.github.io/hands-on-ai/"><i class="bi bi-package"></i>The Package (companion)</a></li><li><a href="https://github.com/michael-borck/build-ai-understand-ai"><i class="bi bi-github"></i>GitHub</a></li><li><a href="https://deepwiki.com/michael-borck/build-ai-understand-ai"><i class="bi bi-search"></i>DeepWiki</a></li><li><a href="https://books.borck.education"><i class="bi bi-collection"></i>All Books</a></li></ul></div></nav>
     </div>
@@ -593,9 +599,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <main class="content" id="quarto-document-content">
 
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/what-the-model-doesnt-know.html">Grounding</a></li><li class="breadcrumb-item"><a href="../chapters/what-the-model-doesnt-know.html"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">What the Model Doesn’t Know</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/what-the-model-doesnt-know.html">Grounding</a></li><li class="breadcrumb-item"><a href="../chapters/what-the-model-doesnt-know.html"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">What the Model Doesn’t Know</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span id="sec-what-the-model-doesnt-know" class="quarto-section-identifier"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">What the Model Doesn’t Know</span></span></h1>
+<h1 class="title"><span id="sec-what-the-model-doesnt-know" class="quarto-section-identifier"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">What the Model Doesn’t Know</span></span></h1>
 </div>
 
 
@@ -619,21 +625,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><strong>Misconception this chapter kills:</strong> “It knows everything.” Training has a cutoff and a domain, and confidence is a style, not a measurement.</p>
 <p><strong>The build:</strong> a question your model cannot possibly answer from training, asked bare, then asked again with the answer pasted into the prompt by hand.</p>
 <p><strong>Python you need:</strong> a multi-line string and an f-string, both in <a href="../appendices/just-enough-python.html" class="quarto-xref"><span>Appendix A</span></a>.</p>
-<section id="the-concept-first" class="level2" data-number="5.1">
-<h2 data-number="5.1" class="anchored" data-anchor-id="the-concept-first"><span class="header-section-number">5.1</span> The Concept First</h2>
+<section id="the-concept-first" class="level2" data-number="6.1">
+<h2 data-number="6.1" class="anchored" data-anchor-id="the-concept-first"><span class="header-section-number">6.1</span> The Concept First</h2>
 <p>Every answer in Part I came from one of two places. The model was trained, once, on a large collection of text, and that training ended on a particular date with a particular coverage. Call that everything the model learned at school. The second source is your payload: the system instruction, the transcript, and your question. There is no third source. The bare call you have been making cannot look anything up, cannot check today’s news, and cannot read your documents unless you put them in the request.</p>
 <p>Trouble starts because the model does not experience the boundary between those sources as a wall. Its job is to produce a plausible continuation of the conversation, and it does that job with the same fluency whether the material under it is solid training knowledge, your supplied text, or nothing at all. Given a question it cannot answer from either source, it will often still answer, composing something that sounds like the kind of reply such a question usually gets. The industry calls an invented answer of that kind a hallucination. The word suggests a malfunction, and that suggestion misleads: the machinery did what it always does, in a place where it had nothing true to work with. Hallucination is a property of the setup, best managed by changing the setup.</p>
 <p>If invented answers are what a model produces when the payload lacks the facts, then the fix is to put the facts in the payload and instruct the model to stay inside them. This chapter does that by hand, with copy and paste. The next chapter automates it.</p>
 </section>
-<section id="understanding-through-real-life" class="level2" data-number="5.2">
-<h2 data-number="5.2" class="anchored" data-anchor-id="understanding-through-real-life"><span class="header-section-number">5.2</span> Understanding Through Real Life</h2>
+<section id="understanding-through-real-life" class="level2" data-number="6.2">
+<h2 data-number="6.2" class="anchored" data-anchor-id="understanding-through-real-life"><span class="header-section-number">6.2</span> Understanding Through Real Life</h2>
 <p>Think of a brilliant, well-read colleague who joined your organisation this morning. Ask her how double-entry bookkeeping works and you will get a superb answer: she learned it long before she met you. Ask her what your team’s refund limit is, and a careful person says she does not know yet and asks where the policy lives. A model, asked the same question in the same bare way, frequently produces a number. The number will be formatted like a policy. It may even be a sensible number. It will not be your limit, because your limit is written in a document she has never seen, and no amount of general brilliance substitutes for reading it.</p>
 <p>The failure sits with the request: somebody asked for an internal fact without handing over the internal document, and accepted fluency as a substitute for the hand-over. Organisations run on facts of the kind no training set contains: this term’s timetable, your pricing, your house rules, what was decided in Tuesday’s meeting. Every one of those questions needs the document in the room.</p>
 </section>
-<section id="the-build-ask-for-what-it-cannot-have" class="level2" data-number="5.3">
-<h2 data-number="5.3" class="anchored" data-anchor-id="the-build-ask-for-what-it-cannot-have"><span class="header-section-number">5.3</span> The Build: Ask for What It Cannot Have</h2>
+<section id="the-build-ask-for-what-it-cannot-have" class="level2" data-number="6.3">
+<h2 data-number="6.3" class="anchored" data-anchor-id="the-build-ask-for-what-it-cannot-have"><span class="header-section-number">6.3</span> The Build: Ask for What It Cannot Have</h2>
 <p>You need a fact the model cannot have from training. The surest supply is a small organisation of your own invention. This listing asks about one.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Listing 5.1 of 2: a question with no source (cannot_know.py)</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Listing 6.1 of 2: a question with no source (cannot_know.py)</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> hands_on_ai.chat <span class="im">import</span> get_response</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>question <span class="op">=</span> (</span>
@@ -647,10 +653,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Two features of the reply recur everywhere. The first is borrowed confidence. The answer’s tone matches the tone it uses for bookkeeping, where it is usually right. Tone is generated along with everything else and tracks the style of the question, not the quality of the evidence. The second is plausible specificity. Invented answers tend to arrive with numbers, names, and structure, because real answers have those things and the model has read a great many real answers. Specificity is cheap to produce and expensive to check, which is why invented policies, invented citations, and invented product features slip past busy readers.</p>
 <p>Try a second family of unknowable questions while you are here: the very recent past. Ask who won a match played yesterday, or what a public figure said this morning. Training ended before those events, so a bare local model has no way to know. Some hosted products answer such questions well, and Chapter 4 taught you how to read that: something around the call fetched the news first. Your bare call has no such addition, so it guesses, hedges, or answers from stale training while sounding current. The cutoff is true of every model on the day it ships.</p>
 </section>
-<section id="the-same-question-with-the-evidence-in-the-room" class="level2" data-number="5.4">
-<h2 data-number="5.4" class="anchored" data-anchor-id="the-same-question-with-the-evidence-in-the-room"><span class="header-section-number">5.4</span> The Same Question, With the Evidence In the Room</h2>
+<section id="the-same-question-with-the-evidence-in-the-room" class="level2" data-number="6.4">
+<h2 data-number="6.4" class="anchored" data-anchor-id="the-same-question-with-the-evidence-in-the-room"><span class="header-section-number">6.4</span> The Same Question, With the Evidence In the Room</h2>
 <p>Now write the rules yourself, put them in the prompt, and ask again.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Listing 5.2 of 2: grounding by hand (grounded_by_hand.py)</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Listing 6.2 of 2: grounding by hand (grounded_by_hand.py)</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> hands_on_ai.chat <span class="im">import</span> get_response</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>rules <span class="op">=</span> <span class="st">"""</span></span>
@@ -675,11 +681,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>           <span class="st">"If the text does not say, reply that the rules do not say."</span>,</span>
 <span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The reply now has somewhere true to stand, and you can check it against the four lines you wrote. Three changes did the work. The evidence is inside the payload, as part of the prompt string. The question tells the model to base its answer on that text. And the system prompt, the standing instruction from Chapter 2, gives it a permitted way to decline: if the text does not say, say so. A model with no graceful exit will usually improvise one, and giving it the exact sentence to use when the evidence runs out is a small, repeatable defence.</p>
-<p>Test the exit. Add a second question your rules never address, about guest passes or meeting nights, and watch whether the reply uses your escape sentence or quietly invents a policy anyway. Models differ in obedience here, and instruction alone is a soft guardrail: it lowers invention, it does not abolish it. Chapter 11 returns to measuring how often such instructions hold. Record what yours did.</p>
-<p>You selected relevant text. You pasted it into the prompt ahead of the question. You instructed the model to answer from the text and to say when the text runs out. The only part you did personally, by hand, with copy and paste, is the part Chapter 6 hands to code.</p>
+<p>Test the exit. Add a second question your rules never address, about guest passes or meeting nights, and watch whether the reply uses your escape sentence or quietly invents a policy anyway. Models differ in obedience here, and instruction alone is a soft guardrail: it lowers invention, it does not abolish it. Chapter 12 returns to measuring how often such instructions hold. Record what yours did.</p>
+<p>You selected relevant text. You pasted it into the prompt ahead of the question. You instructed the model to answer from the text and to say when the text runs out. The only part you did personally, by hand, with copy and paste, is the part Chapter 7 hands to code.</p>
 </section>
-<section id="what-asking-bare-questions-costs" class="level2" data-number="5.5">
-<h2 data-number="5.5" class="anchored" data-anchor-id="what-asking-bare-questions-costs"><span class="header-section-number">5.5</span> What Asking Bare Questions Costs</h2>
+<section id="what-asking-bare-questions-costs" class="level2" data-number="6.5">
+<h2 data-number="6.5" class="anchored" data-anchor-id="what-asking-bare-questions-costs"><span class="header-section-number">6.5</span> What Asking Bare Questions Costs</h2>
 <p>A bare question about general knowledge is cheap and often fine. A bare question about your documents, your customers, or last week costs you a check you probably will not do, because the answer arrives formatted as though the check already happened. The expensive moment is the decision made from a fluent invention by someone who had no reason to suspect it.</p>
 <p>Three questions sort most requests before you send them. Could the model have learned this in training, from public text written before its cutoff? Is the fact stable, or could it have changed since? And if the answer were invented, who would find out, and when? A question that fails the first two tests and embarrasses you on the third does not need a better model. It needs its evidence in the payload, which from the next chapter onward your code will supply.</p>
 <div class="callout callout-style-default callout-note callout-titled" title="Confidence is not a dial you can read">
@@ -696,20 +702,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </section>
-<section id="where-a-demo-can-mislead-you" class="level2" data-number="5.6">
-<h2 data-number="5.6" class="anchored" data-anchor-id="where-a-demo-can-mislead-you"><span class="header-section-number">5.6</span> Where a Demo Can Mislead You</h2>
+<section id="where-a-demo-can-mislead-you" class="level2" data-number="6.6">
+<h2 data-number="6.6" class="anchored" data-anchor-id="where-a-demo-can-mislead-you"><span class="header-section-number">6.6</span> Where a Demo Can Mislead You</h2>
 <p>A demo question is chosen by the demonstrator, and demonstrators instinctively choose questions training covers well. The model shines, and the audience generalises the shine to their own questions, which live in documents training has never seen. When you watch any AI demo from here on, keep one question of your own ready: a fact from your world, recent or internal, that you can verify on the spot. Watch what the system does with that question, and whether it can show you its source.</p>
 </section>
-<section id="practice-exercises" class="level2" data-number="5.7">
-<h2 data-number="5.7" class="anchored" data-anchor-id="practice-exercises"><span class="header-section-number">5.7</span> Practice Exercises</h2>
-<p><strong>Exercise 5.1 (Level 1).</strong> Run <code>cannot_know.py</code> three times. Note whether the invented numbers stay the same across runs. What does their stability, or lack of it, tell you?</p>
-<p><strong>Exercise 5.2 (Level 2).</strong> Ask your bare model about an event from the last seven days and one from five years ago, both of which you can check. Record accuracy and tone for each. Which answer sounded more confident, and was it the right one?</p>
-<p><strong>Exercise 5.3 (Level 3).</strong> Replace the book club rules with a short real document of yours: a timetable, a price list, a policy page. Ask two questions the document answers and one it does not. Check all three replies against the document, line by line.</p>
-<p><strong>Exercise 5.4 (Level 4).</strong> Weaken Listing 5.2 in stages: remove the system prompt’s escape sentence, then remove “based only on the rules above” from the question. Re-ask the unanswerable question at each stage. Which removal cost you more honesty?</p>
-<p><strong>Exercise 5.5 (Level 5).</strong> Write a five-question trap set for a bare model: one internal fact, one recent event, one stable public fact, one question about a document only you have, one trick with a false premise. Predict the outcome of each in writing before you run them. Score your predictions as well as the model.</p>
+<section id="practice-exercises" class="level2" data-number="6.7">
+<h2 data-number="6.7" class="anchored" data-anchor-id="practice-exercises"><span class="header-section-number">6.7</span> Practice Exercises</h2>
+<p><strong>Exercise 6.1 (Level 1).</strong> Run <code>cannot_know.py</code> three times. Note whether the invented numbers stay the same across runs. What does their stability, or lack of it, tell you?</p>
+<p><strong>Exercise 6.2 (Level 2).</strong> Ask your bare model about an event from the last seven days and one from five years ago, both of which you can check. Record accuracy and tone for each. Which answer sounded more confident, and was it the right one?</p>
+<p><strong>Exercise 6.3 (Level 3).</strong> Replace the book club rules with a short real document of yours: a timetable, a price list, a policy page. Ask two questions the document answers and one it does not. Check all three replies against the document, line by line.</p>
+<p><strong>Exercise 6.4 (Level 4).</strong> Weaken Listing 6.2 in stages: remove the system prompt’s escape sentence, then remove “based only on the rules above” from the question. Re-ask the unanswerable question at each stage. Which removal cost you more honesty?</p>
+<p><strong>Exercise 6.5 (Level 5).</strong> Write a five-question trap set for a bare model: one internal fact, one recent event, one stable public fact, one question about a document only you have, one trick with a false premise. Predict the outcome of each in writing before you run them. Score your predictions as well as the model.</p>
 </section>
-<section id="chapter-summary" class="level2" data-number="5.8">
-<h2 data-number="5.8" class="anchored" data-anchor-id="chapter-summary"><span class="header-section-number">5.8</span> Chapter Summary</h2>
+<section id="chapter-summary" class="level2" data-number="6.8">
+<h2 data-number="6.8" class="anchored" data-anchor-id="chapter-summary"><span class="header-section-number">6.8</span> Chapter Summary</h2>
 <ul>
 <li>A bare model answers from training and from your payload. There is no third source, and training has a cutoff and a coverage limit.</li>
 <li>Given a question neither source can answer, the model often improvises in the same fluent voice. Hallucination is a property of that setup, not a malfunction.</li>
@@ -718,8 +724,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>Before asking, sort the question: could training know it, is it stable, and who catches an invention?</li>
 </ul>
 </section>
-<section id="reflection" class="level2" data-number="5.9">
-<h2 data-number="5.9" class="anchored" data-anchor-id="reflection"><span class="header-section-number">5.9</span> Reflection</h2>
+<section id="reflection" class="level2" data-number="6.9">
+<h2 data-number="6.9" class="anchored" data-anchor-id="reflection"><span class="header-section-number">6.9</span> Reflection</h2>
 <p>Before moving on, ensure you:</p>
 <ul class="task-list">
 <li><label><input type="checkbox">Collected one answer your model could not have sourced, and can say why</label></li>
@@ -728,16 +734,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><label><input type="checkbox">Can explain a training cutoff without saying the model is broken</label></li>
 </ul>
 </section>
-<section id="your-learning-journal" class="level2" data-number="5.10">
-<h2 data-number="5.10" class="anchored" data-anchor-id="your-learning-journal"><span class="header-section-number">5.10</span> Your Learning Journal</h2>
+<section id="your-learning-journal" class="level2" data-number="6.10">
+<h2 data-number="6.10" class="anchored" data-anchor-id="your-learning-journal"><span class="header-section-number">6.10</span> Your Learning Journal</h2>
 <ol type="1">
 <li>Which invented detail in your bare answer was most believable, and what made it so?</li>
 <li>Where in your own work are people asking bare questions about internal facts?</li>
 <li>What escape sentence would you want every AI tool in your organisation to use?</li>
 </ol>
 </section>
-<section id="next-steps" class="level2" data-number="5.11">
-<h2 data-number="5.11" class="anchored" data-anchor-id="next-steps"><span class="header-section-number">5.11</span> Next Steps</h2>
+<section id="next-steps" class="level2" data-number="6.11">
+<h2 data-number="6.11" class="anchored" data-anchor-id="next-steps"><span class="header-section-number">6.11</span> Next Steps</h2>
 <p>Grounding by hand works for four lines of rules. It fails for four hundred pages of documents, because the context window from Chapter 3 will not hold them and your paste hand will tire. The next chapter keeps the shape and replaces your hand with code: split the documents into chunks, fetch the chunks a question needs, and assemble the prompt you built manually here.</p>
 
 
@@ -1159,13 +1165,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../chapters/any-provider.html" class="pagination-link" aria-label="Any Provider Will Do">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Any Provider Will Do</span></span>
+      <a href="../chapters/where-your-words-go.html" class="pagination-link" aria-label="Where Your Words Go">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Where Your Words Go</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
       <a href="../chapters/chunk-fetch-answer.html" class="pagination-link" aria-label="Chunk, Fetch, Answer">
-        <span class="nav-page-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Chunk, Fetch, Answer</span></span> <i class="bi bi-arrow-right-short"></i>
+        <span class="nav-page-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Chunk, Fetch, Answer</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

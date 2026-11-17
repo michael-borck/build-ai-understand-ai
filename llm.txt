@@ -15,7 +15,7 @@ You use LLM systems every day. You type into a chat box, upload a document and a
 
 The machinery is not that complicated. Strip away the dashboards and the marketing, and every LLM system in that first paragraph is one call to a model, wrapped in plain Python. A chatbot is that call plus a paragraph of instructions. A document question-answerer is that call plus a search. An agent is that call plus a loop that runs your functions. The package this book pairs with, `hands-on-ai`, makes each of those small enough to read in an afternoon, because when the whole thing fits in your head, the concept becomes visible.
 
-A note on the title's word, since this book will spend eighteen chapters teaching you to check claims like it: AI is a wider field than this book. It includes search and symbolic reasoning, the classical machine learning of decision trees, support vector machines, and clustering that has filtered your spam and scored your transactions for decades, and the deep learning that produced both image classifiers and the large language models, LLMs, at this book's centre. Those older branches still run much of the world's consequential automation, often better than an LLM would. This book keeps the umbrella word for its title and earns it narrowly: Parts I to V are about LLM systems, and the optional Part VI opens with the older AI on its own terms before turning to the training loop itself. When any vendor, this book included, says "AI" without saying which branch, you will know to ask.
+A note on the title's word, since this book will spend nineteen chapters teaching you to check claims like it: AI is a wider field than this book. It includes search and symbolic reasoning, the classical machine learning of decision trees, support vector machines, and clustering that has filtered your spam and scored your transactions for decades, and the deep learning that produced both image classifiers and the large language models, LLMs, at this book's centre. Those older branches still run much of the world's consequential automation, often better than an LLM would. This book keeps the umbrella word for its title and earns it narrowly: Parts I to V are about LLM systems, and the optional Part VI opens with the older AI on its own terms before turning to the training loop itself. When any vendor, this book included, says "AI" without saying which branch, you will know to ask.
 
 This book walks those builds in a deliberate order, in five parts that need nothing beyond a model you can call. You will write a little Python and read a little more. What you will not do in those five parts is train anything, install a framework, or take anyone's word for anything. An optional sixth part, clearly fenced, then opens the box a crack: it trains toy models in notebooks, at toy scale, for readers who want to see that side too. By the end, when a demo answers fluently, you will know which parts of what you saw were the model and which were a harness someone wrote on a Tuesday.
 
@@ -48,7 +48,7 @@ And it is mostly not a machine-learning book. Parts I to V keep the original pro
 
 ## How This Book Is Structured
 
-Part I: The Model: one call, the system prompt, statelessness, and providers. Part II: Grounding: what the model does not know, and retrieval that fixes it. Part III: Action: tools and the reasoning loop. Part IV: Control: workflows as folders, loops with a goal, and the judge. Part V: The Senses: pictures and voice. A short conclusion names the shape you will have seen five times.
+Part I: The Model: one call, the system prompt, statelessness, providers, and where your words go. Part II: Grounding: what the model does not know, and retrieval that fixes it. Part III: Action: tools and the reasoning loop. Part IV: Control: workflows as folders, loops with a goal, and the judge. Part V: The Senses: pictures and voice. A short conclusion names the shape you will have seen five times.
 
 Every chapter kills one misconception and leaves one small working build.
 
@@ -693,7 +693,7 @@ One more setting belongs in this chapter because it changes where answers come f
 
 The first run calls the model and stores the reply in a plain text file inside that directory, named by a hash of the three things that define the call: model, system prompt, and question. The second run finds the file and prints the stored reply without contacting any server. You can prove it to yourself by running the second one with Ollama stopped. It still answers, instantly, in the exact words of the first run.
 
-In a classroom, a teacher can warm the cache once, then thirty students rerun the lesson offline and see identical output, and nobody's exercise breaks because a model felt whimsical that morning. Chapter 11's judge needs stable material to judge, and the cache is how this book gets it. The costs are the mirror image of the benefits. A cached answer never improves when you switch to a better model, because the model is part of the lookup only as a name in the hash, and a stale cache can confuse you into thinking your new settings changed nothing. Cached replies also arrive with `usage` set to `None`, as Chapter 1 warned, because no tokens were spent. And the cache is one more folder of plain-text transcripts on disk, subject to the same care as the saved chats in Chapter 3. Clearing it is deleting the directory.
+In a classroom, a teacher can warm the cache once, then thirty students rerun the lesson offline and see identical output, and nobody's exercise breaks because a model felt whimsical that morning. Chapter 12's judge needs stable material to judge, and the cache is how this book gets it. The costs are the mirror image of the benefits. A cached answer never improves when you switch to a better model, because the model is part of the lookup only as a name in the hash, and a stale cache can confuse you into thinking your new settings changed nothing. Cached replies also arrive with `usage` set to `None`, as Chapter 1 warned, because no tokens were spent. And the cache is one more folder of plain-text transcripts on disk, subject to the same care as the saved chats in Chapter 3. Clearing it is deleting the directory.
 
 ## Where a Demo Can Mislead You
 
@@ -736,7 +736,133 @@ Before moving on, ensure you:
 
 ## Next Steps
 
-Part I is complete. You can make the call, instruct the model, keep the transcript, and choose who answers. Every reply so far, though, came from whatever the model happened to learn during training, and training stopped on a date. Part II begins with a question your model gets confidently wrong, and then builds the fix: putting evidence into the payload yourself.
+Choosing who answers is now a settings decision, reversible in a minute. The last chapter of Part I reads that same setting a second time: when the words travel, who receives them, under whose rules, and how to prove it where proof is possible.
+
+============================================================
+SOURCE: chapters/where-your-words-go.qmd
+============================================================
+
+# Where Your Words Go 
+
+> The transmission is the event. Everything after it is policy.
+
+Package companion: nothing new. The doctor and the three settings from Chapter 4 do the work; this chapter reads the same machinery as a privacy decision. Listings checked against `hands-on-ai` 0.6.0.
+
+Misconception this chapter kills: "What happens to my prompts is decided by policies I cannot see."
+
+The build: a short script that names the kind of place your words are heading, the same walk up a four-rung ladder with `ask.py` unchanged, and one proof performed with the wifi off.
+
+Python you need: reading an environment variable and string matching on a web address. Nothing new.
+
+## The Concept First
+
+Every answer in this book starts with what you type. Chapter 4 showed that the destination of those words is a setting: `HANDS_ON_AI_SERVER` decided whether your call landed on your own machine or on somebody else's, and `ask.py` never noticed the difference. That setting deserves a second reading. Before it is a convenience, it is a privacy decision, and this chapter is about making it deliberately.
+
+The words can arrive at three kinds of place:
+
+| Kind of place | What happens | What governs it |
+|---|---|---|
+| Your machine | No transmission occurs | Nothing, because there is nothing to govern |
+| A server someone runs | Your words sit on their machine | The operator's rules, which you can ask about |
+| A cloud provider | Your words reach their systems | Their terms: retention, training use, jurisdiction |
+
+The rows differ at the moment of sending, and the difference is transmission. On your machine no transmission occurs, so there is no policy to have an opinion about. "We anonymise it" and "we do not store it" answer questions that only exist once words travel. A server someone runs gives your words a home with rules, and the person who set the rules can tell you what they are, which makes the useful question direct: what is your log policy, and who can read the logs? A cloud provider puts your words under a document you did not write, in a jurisdiction you may not share, with a retention period you did not choose. Read the terms, or assume the worst and act accordingly.
+
+That ordering of knowledge gives this chapter its rule of evidence: prove what can be proved, ask what can be asked, read what can be read, and assume the worst where none of the three is available. Proof outranks a promise. The build produces one.
+
+## Understanding Through Real Life
+
+Say a thing in your kitchen. Nobody receives it. There is no copy to keep, no handler to trust, and no rule to consult, because nothing moved. Say the same thing in someone's office. A person now holds your words, in a room with a door, under house rules you can ask about: does anyone take minutes, who reads them, how long are they kept. Write it on a postcard instead. The postcard travels through hands you did not choose, every one of them able to read it, kept or discarded by other people's habits, inside a postal system whose rules you inherited rather than wrote.
+
+Most people sense those three physics without naming them, and AI prompts carry the same three. A prompt typed at a local model is the kitchen: the words are assembled, used, and, if you save them, filed by you, under your roof. A prompt sent to a campus server is the office. A prompt sent to a cloud provider is the postcard, written at typing speed, one per question. Chapter 4's cache warning applies here too: replies can become files on your disk, so even the kitchen accumulates paper, and the paper is yours to keep or burn.
+
+## The Ladder, Four Rungs
+
+Cost and setup effort sort the places AI can live into four rungs, and the tooling of this book stands on all of them, because every rung speaks the same OpenAI-shaped dialect from Chapter 4:
+
+| Rung | Lives on | Your words | Your key | Worked example |
+|---|---|---|---|---|
+| 1 | Your laptop | Stay on the machine | None exists | mochila: Ollama + Pi |
+| 2 | Cloud, direct | Go to one provider | Held by that provider | Any hosted account |
+| 3 | Cloud, proxied | Go to free providers | Stay local, in your router | frugal: 9Router + free-best |
+| 4 | A shared server | Go to a machine your institution runs | Issued by the operator | puente: locopuente.org |
+
+Rung 1 is where this book has lived since Chapter 1. The Ollama server at `localhost:11434` answered every call without a network, a key, or an account. The mochila kit packages that rung for daily use: Ollama as the engine, Pi as a terminal agent that reads your files and follows your instructions, skills written as plain markdown folders, all of it running with the wifi off.
+
+Rung 2 is Chapter 4's hosted provider: one account, one key, one bill, and your words under one company's terms. The key is a password that spends money, as that chapter warned, and the terms deserve one careful read before you send anything you would not pin to a noticeboard.
+
+Rung 3 splits two ledgers that rungs 1 and 2 keep together. frugal configures a local router, 9Router, and hands it your provider keys; the keys stay on your machine. The words, though, travel on to whichever free provider answers, and the fallback strategy means different calls can land at different providers under different terms. Free tiers charge nothing in money and commonly take more in terms of service: broader retention, training on your inputs, fewer guarantees. The trade can be entirely right for classwork. It should be made with both ledgers read.
+
+Rung 4 returns to rung 1's physics and adds a stranger. A puente server runs the full local stack, chat, documents, images, speech, on hardware your institution owns, so your words may never reach the internet at all. They do land on a machine other people administer, and logs become possible there. The operator's rules replace the provider's terms, and they are askable in a hallway, which a page of legal text is not.
+
+One caution about the drawing itself. The ladder is ordered by cost and setup effort, and privacy does not climb with it. A campus box at rung 4 can be more private than a free cloud at rung 3: rung 4 is the kitchen with an operator in the room, rung 3 is the post office with the postage waived. Keep the two orderings apart, cost on the ladder and trust in the first table, and the drawing stops misleading anyone.
+
+## The Build: Name the Rung
+
+The classification needs fifteen lines. This script reads the same variable Chapter 4 set, takes an address from the command line when one is given, and names the kind of place the first hop lands:
+
+bash
+# Listing 5.2 of 3: demonstrate the absence of a transmission (terminal)
+# 1. Turn the wifi off, or unplug the network cable. Ollama does not need it.
+python ask.py
+# 2. Read the answer. Turn the network back on.
+
+The answer arrives with every path out of the machine closed. No policy document can add anything to that demonstration, because the event the policies govern did not occur and could not have occurred. Run it once, and the rung's property stops being something you were told. A network monitor can show the same fact from the other side: the only connection `ask.py` opens is to `localhost`.
+
+Rungs above the first do not offer proof, which is why the evidence rule ranks demonstration first and reading last. What they offer instead is the ladder table, and questions.
+
+## The Questions Worth Asking
+
+At rung 1, one question remains, and it is about your own machine. Chapter 3's transcripts and Chapter 4's cache are plain-text copies on your disk. Your kitchen accumulates paper, and you are its operator: decide what you keep, where, and for how long, then apply the rule the way you would like an operator to.
+
+At rungs 2 and 3, read. Three terms decide most of the answer. Retention: how long the words are kept, and whether you can delete them. Use: whether what you type trains future models. Jurisdiction: which country's law applies when something goes wrong.  lists routes, including free tiers, and the same three questions apply at rung 3 to every provider the fallback chain can reach, because a week of classwork can touch several terms documents.
+
+At rung 4, ask. The questions are short, and a good operator enjoys them. What is the log policy? Who can read the logs? How long are they kept? Does anything leave this machine, and if so, under which terms? An operator who cannot answer is telling you something. So is one who answers before you finish asking.
+
+## Where a Demo Can Mislead You
+
+"Private and secure" on a chatbox's landing page is the demo to slow down. Apply Chapter 4's checklist to it: which server address does the product use, and is the address local? A polished app can present a local interface while sending every prompt to a hosted model, and "runs on your machine" marketing sometimes means the interface runs there while the thinking does not. where.py exists for this check, and the product's documentation or a network monitor will confirm what the address resolves to.
+
+The inverse is also a demo. An app that demands an account before it will start is announcing a transmission regardless of where the model lives, because an account is how someone other than you associates words with a person. And "we do not store your data" invites the Chapter 4 cache question in reverse: something, somewhere, was enough to answer you, so the useful follow-up is what was kept, where, for how long, and under whose rules.
+
+## Practice Exercises
+
+Exercise 5.1 (Level 1). Run `handsonai doctor`, then run where.py with no arguments. Name the kind of place your words are heading, who sets the rules there, and the one question you would want answered before typing something you would not pin to a noticeboard.
+
+Exercise 5.2 (Level 2). No network or key required. Perform Listing 5.2's demonstration, then inventory your kitchen: find the transcripts Chapter 3's scripts saved and the cache directory Chapter 4 created, and write one sentence per location naming who can read it and how long you intend to keep it. You have just written a retention policy.
+
+Exercise 5.3 (Level 3). No call needed. Choose a hosted provider from , find its terms, and quote the sentences that answer the three reading questions: retention, use of your inputs, jurisdiction. Note anything the terms leave silent, and decide what you will assume about a silence.
+
+Exercise 5.4 (Level 4). With a hosted key, run Chapter 3's remembering script against the provider, unchanged. List every place your words now exist: your screen, your transcript file, the provider's systems under its retention rule, and anywhere its terms send copies. Compare the list with the same script run at rung 1, and identify what changed because of transmission alone. If you have no key, build both lists from terms documents instead of from runs.
+
+Exercise 5.5 (Level 5). Extend Exercise 4.5's school plan with a privacy table: for each of the four rungs, where the words go, where the keys go, what happens past the first hop, and the question you would ask or the document you would read before choosing that rung for two hundred students. End with the rung you would deploy, and the condition under which you would move one rung in either direction.
+
+## Chapter Summary
+
+- The words can arrive at three kinds of place: your machine, a server someone runs, a cloud provider. Transmission is the event; everything after it is policy.
+- Four rungs sort the options by cost and setup: local (mochila), cloud direct, cloud proxied (frugal, with keys local and words in free tiers), and a shared campus server (puente). The ladder measures cost, and trust is a separate axis.
+- where.py classifies the first hop from the address alone, and its two blind spots are lessons: a local router fronting the cloud, and an operator no substring test can see.
+- Rung 1 admits proof. The wifi-off demonstration outranks any promise about logs or retention.
+- Above rung 1, evidence comes from reading terms (retention, use, jurisdiction) or asking an operator (logs, readers, keeping, egress). Your own machine accumulates transcripts and cache, so you hold a retention policy too.
+
+## Reflection
+
+Before moving on, ensure you:
+
+- [ ] Ran the doctor and where.py, and can say what each one answers
+- [ ] Performed the wifi-off demonstration once, and can say what it proves
+- [ ] Know where your own copies live (transcripts, cache) and your rule for them
+- [ ] Can name the three terms to read at rungs 2 and 3, and the four questions to ask at rung 4
+
+## Your Learning Journal
+
+1. Which rung are you on for most of your AI use, and did you choose it or inherit it?
+2. What is the most private thing you would type at your current rung? What would have to be true of one rung lower before you sent it there?
+3. mochila's promise is that trust is not required, because there is nothing to trust. Name one situation where trusting an operator at rung 4 serves you better than proving a negative at rung 1.
+
+## Next Steps
+
+Part I is complete. You can make the call, instruct the model, keep the transcript, choose who answers, and say where the words went and under whose rules. Every reply so far came from whatever the model learned during training, and training stopped on a date. Part II begins with a question your model gets confidently wrong, and then builds the fix: putting evidence into the payload yourself.
 
 ============================================================
 SOURCE: chapters/what-the-model-doesnt-know.qmd
@@ -773,7 +899,7 @@ The failure sits with the request: somebody asked for an internal fact without h
 You need a fact the model cannot have from training. The surest supply is a small organisation of your own invention. This listing asks about one.
 
 python
-# Listing 5.2 of 2: grounding by hand (grounded_by_hand.py)
+# Listing 6.2 of 2: grounding by hand (grounded_by_hand.py)
 from hands_on_ai.chat import get_response
 
 rules = """
@@ -800,9 +926,9 @@ print(get_response(
 
 The reply now has somewhere true to stand, and you can check it against the four lines you wrote. Three changes did the work. The evidence is inside the payload, as part of the prompt string. The question tells the model to base its answer on that text. And the system prompt, the standing instruction from Chapter 2, gives it a permitted way to decline: if the text does not say, say so. A model with no graceful exit will usually improvise one, and giving it the exact sentence to use when the evidence runs out is a small, repeatable defence.
 
-Test the exit. Add a second question your rules never address, about guest passes or meeting nights, and watch whether the reply uses your escape sentence or quietly invents a policy anyway. Models differ in obedience here, and instruction alone is a soft guardrail: it lowers invention, it does not abolish it. Chapter 11 returns to measuring how often such instructions hold. Record what yours did.
+Test the exit. Add a second question your rules never address, about guest passes or meeting nights, and watch whether the reply uses your escape sentence or quietly invents a policy anyway. Models differ in obedience here, and instruction alone is a soft guardrail: it lowers invention, it does not abolish it. Chapter 12 returns to measuring how often such instructions hold. Record what yours did.
 
-You selected relevant text. You pasted it into the prompt ahead of the question. You instructed the model to answer from the text and to say when the text runs out. The only part you did personally, by hand, with copy and paste, is the part Chapter 6 hands to code.
+You selected relevant text. You pasted it into the prompt ahead of the question. You instructed the model to answer from the text and to say when the text runs out. The only part you did personally, by hand, with copy and paste, is the part Chapter 7 hands to code.
 
 ## What Asking Bare Questions Costs
 
@@ -818,15 +944,15 @@ A demo question is chosen by the demonstrator, and demonstrators instinctively c
 
 ## Practice Exercises
 
-Exercise 5.1 (Level 1). Run `cannot_know.py` three times. Note whether the invented numbers stay the same across runs. What does their stability, or lack of it, tell you?
+Exercise 6.1 (Level 1). Run `cannot_know.py` three times. Note whether the invented numbers stay the same across runs. What does their stability, or lack of it, tell you?
 
-Exercise 5.2 (Level 2). Ask your bare model about an event from the last seven days and one from five years ago, both of which you can check. Record accuracy and tone for each. Which answer sounded more confident, and was it the right one?
+Exercise 6.2 (Level 2). Ask your bare model about an event from the last seven days and one from five years ago, both of which you can check. Record accuracy and tone for each. Which answer sounded more confident, and was it the right one?
 
-Exercise 5.3 (Level 3). Replace the book club rules with a short real document of yours: a timetable, a price list, a policy page. Ask two questions the document answers and one it does not. Check all three replies against the document, line by line.
+Exercise 6.3 (Level 3). Replace the book club rules with a short real document of yours: a timetable, a price list, a policy page. Ask two questions the document answers and one it does not. Check all three replies against the document, line by line.
 
-Exercise 5.4 (Level 4). Weaken Listing 5.2 in stages: remove the system prompt's escape sentence, then remove "based only on the rules above" from the question. Re-ask the unanswerable question at each stage. Which removal cost you more honesty?
+Exercise 6.4 (Level 4). Weaken Listing 6.2 in stages: remove the system prompt's escape sentence, then remove "based only on the rules above" from the question. Re-ask the unanswerable question at each stage. Which removal cost you more honesty?
 
-Exercise 5.5 (Level 5). Write a five-question trap set for a bare model: one internal fact, one recent event, one stable public fact, one question about a document only you have, one trick with a false premise. Predict the outcome of each in writing before you run them. Score your predictions as well as the model.
+Exercise 6.5 (Level 5). Write a five-question trap set for a bare model: one internal fact, one recent event, one stable public fact, one question about a document only you have, one trick with a false premise. Predict the outcome of each in writing before you run them. Score your predictions as well as the model.
 
 ## Chapter Summary
 
@@ -861,7 +987,7 @@ SOURCE: chapters/chunk-fetch-answer.qmd
 
 # Chunk, Fetch, Answer 
 
-> Retrieval-augmented generation is the paste you did by hand in Chapter 5, with code doing the searching and the pasting.
+> Retrieval-augmented generation is the paste you did by hand in Chapter 6, with code doing the searching and the pasting.
 
 Package companion: `hands_on_ai.rag`, plus the `rag` command-line tool. Listings checked against `hands-on-ai` 0.6.0.
 
@@ -873,7 +999,7 @@ Python you need: loops, lists, dictionaries, and f-strings building a long strin
 
 ## The Concept First
 
-Chapter 5 ended with a shape: select relevant text, paste it into the prompt ahead of the question, instruct the model to answer from the text. The technique has a name in the research literature, retrieval-augmented generation, from the paper that popularised it [@lewis2020rag], and the industry shortens it to RAG. The name sounds like a product category, but nothing has changed about the call. The model still receives one payload and returns text. What changed is who does the selecting and the pasting: code, in the seconds before the call.
+Chapter 6 ended with a shape: select relevant text, paste it into the prompt ahead of the question, instruct the model to answer from the text. The technique has a name in the research literature, retrieval-augmented generation, from the paper that popularised it [@lewis2020rag], and the industry shortens it to RAG. The name sounds like a product category, but nothing has changed about the call. The model still receives one payload and returns text. What changed is who does the selecting and the pasting: code, in the seconds before the call.
 
 The work splits into two phases that happen at different times. Indexing happens once, before any question is asked: load the documents, cut them into chunks, turn each chunk into numbers a search can compare, and save the lot to a file. Answering happens per question: turn the question into numbers the same way, fetch the chunks whose numbers sit closest, assemble them into a prompt of exactly the shape you built by hand, and make the familiar call. Every concept in this chapter lives in one of those two phases, and keeping them apart in your head prevents most confusion about RAG systems, including expensive commercial ones.
 
@@ -888,7 +1014,7 @@ Two details of the card system carry over. The codes were designed so that passa
 The codes on the cards are produced by an embedding model. An embedding model is a relative of the chat models you have used so far, with a narrower job: it reads a piece of text and returns a long list of numbers, called an embedding or a vector, that captures what the text is about. Texts about similar things produce lists that point in similar directions, and comparing directions is arithmetic your code can do quickly. The package configuration names an embedding model separately from the chat model, defaulting to `nomic-embed-text`. Pull it the same way you pulled your chat model:
 
 python
-# Listing 6.1 of 4: get the sample documents (get_docs.py)
+# Listing 7.1 of 4: get the sample documents (get_docs.py)
 from hands_on_ai.rag import copy_sample_docs, list_sample_docs
 
 print(list_sample_docs())
@@ -920,10 +1046,10 @@ Similarity search has two limits. Closeness is about topic, not about truth or i
 
 ## Answer: Assemble the Prompt You Already Know
 
-The package's own `rag ask` command builds the prompt by listing the fetched chunks under a "Context:" heading, appends an instruction to answer from the context and to say so when the context lacks the answer, sets a system prompt demanding answers based only on the provided context, and calls `get_response`. It is Listing 5.2 with the paste automated. This listing does the same job in your own code, printing the sources so you can check them:
+The package's own `rag ask` command builds the prompt by listing the fetched chunks under a "Context:" heading, appends an instruction to answer from the context and to say so when the context lacks the answer, sets a system prompt demanding answers based only on the provided context, and calls `get_response`. It is Listing 6.2 with the paste automated. This listing does the same job in your own code, printing the sources so you can check them:
 
 ```python
-# Listing 6.3 of 4: fetch, assemble, answer (ask_docs.py)
+# Listing 7.3 of 4: fetch, assemble, answer (ask_docs.py)
 from hands_on_ai.chat import get_response
 from hands_on_ai.rag import get_top_k
 
@@ -952,13 +1078,13 @@ for chunk, source in results:
 Before this can run, an index must exist. The command-line tool builds one from a folder in a single step, which is how the package's `first-rag-bot` project starts:
 
 ```bash
-# Listing 6.4 of 4: index once, ask with receipts (terminal)
+# Listing 7.4 of 4: index once, ask with receipts (terminal)
 rag index sample_docs --force
 rag ask "What does TCP do?" --context --scores
 
 By default the index lands at `~/.hands-on-ai/index.npz`, where `rag ask` looks for it, and `--force` permits rebuilding over an older index. The two flags on the question are the chapter's debugging instruments. `--context` shows the chunks the fetch chose, and `--scores` shows how close each one scored. When an answer disappoints, look there before you touch the prompt. Most bad RAG answers are faithful summaries of the wrong chunks, and no instruction to the model can repair evidence that was never fetched.
 
-Run both routes on the networking samples. Ask what TCP does, how HTTP works, and what distinguishes TCP from UDP, the starter questions from the project guide. Then ask something the documents cannot answer, about book club fines, say, and watch the escape instruction do the job you wrote it for in Chapter 5. Finally, repeat the grounded exercise with documents of your own: a course outline, a policy, a manual.
+Run both routes on the networking samples. Ask what TCP does, how HTTP works, and what distinguishes TCP from UDP, the starter questions from the project guide. Then ask something the documents cannot answer, about book club fines, say, and watch the escape instruction do the job you wrote it for in Chapter 6. Finally, repeat the grounded exercise with documents of your own: a course outline, a policy, a manual.
 
 Indexing reads the documents as they were at indexing time. Edit a document afterwards and the bot keeps answering from the old text, confidently and with citations, until somebody rebuilds the index. Stale indexes are the quietest failure in RAG systems because nothing errors: the fetch works, the answer is fluent, the source file exists. Only the content moved. Any team running RAG in earnest needs a rebuild habit tied to how its documents change, and now you know why that sentence belongs in their design rather than their apologies.
 
@@ -968,19 +1094,19 @@ Indexing reads the documents as they were at indexing time. Edit a document afte
 
 ## Practice Exercises
 
-Exercise 6.1 (Level 1). Copy the sample documents, build the index, and ask the three starter questions with `--context`. For one answer, open the named source file and find the sentence the answer rests on.
+Exercise 7.1 (Level 1). Copy the sample documents, build the index, and ask the three starter questions with `--context`. For one answer, open the named source file and find the sentence the answer rests on.
 
-Exercise 6.2 (Level 2). Rebuild the index at a chunk size of 50 words, then at 500. Ask the same five questions against each and keep score: answered well, answered from the wrong chunk, or declined. Which size served your questions better, and what did it cost?
+Exercise 7.2 (Level 2). Rebuild the index at a chunk size of 50 words, then at 500. Ask the same five questions against each and keep score: answered well, answered from the wrong chunk, or declined. Which size served your questions better, and what did it cost?
 
-Exercise 6.3 (Level 3). Index a document of your own choosing, at least a few pages. Write three questions it answers and two it does not. Run all five with `--scores` and record whether the unanswerable ones declined gracefully.
+Exercise 7.3 (Level 3). Index a document of your own choosing, at least a few pages. Write three questions it answers and two it does not. Run all five with `--scores` and record whether the unanswerable ones declined gracefully.
 
-Exercise 6.4 (Level 4). Engineer a severed fact. Write a two-sentence document where a small chunk size must cut between a rule and its number, index it at that size, and ask for the number. Then fix the failure twice: once with chunk size, once with question wording. Which fix generalises?
+Exercise 7.4 (Level 4). Engineer a severed fact. Write a two-sentence document where a small chunk size must cut between a rule and its number, index it at that size, and ask for the number. Then fix the failure twice: once with chunk size, once with question wording. Which fix generalises?
 
-Exercise 6.5 (Level 5). Take a RAG product or pitch you can access, demo pages included. Write the four questions from "Where a Demo Can Mislead You" against it, answer each from public material where you can, and mark the ones the vendor leaves unanswerable. Conclude with what you would pilot before paying.
+Exercise 7.5 (Level 5). Take a RAG product or pitch you can access, demo pages included. Write the four questions from "Where a Demo Can Mislead You" against it, answer each from public material where you can, and mark the ones the vendor leaves unanswerable. Conclude with what you would pilot before paying.
 
 ## Chapter Summary
 
-- RAG automates Chapter 5's manual paste: index once, then per question, fetch relevant chunks, assemble a context prompt, and make the ordinary call.
+- RAG automates Chapter 6's manual paste: index once, then per question, fetch relevant chunks, assemble a context prompt, and make the ordinary call.
 - Indexing loads files (`.txt`, `.md`, `.docx`, `.pdf`), cuts text into word-count chunks with no overlap, embeds each chunk, and saves vectors, chunks, and source paths in one `index.npz` file.
 - An embedding model turns text into numbers whose direction encodes topic. `get_top_k` embeds the question, scores every chunk by cosine similarity, and returns the best few with their sources.
 - Chunk size trades precision against intact context and token cost. Retrieval closeness measures topic, not truth, and question wording steers the fetch.
@@ -1040,7 +1166,7 @@ The voice on the phone can be brilliant and can also ask for the wrong tool, the
 The package ships a calculator tool, and registering it takes one call. Registration adds an entry to the registry table: a name, a description for the model to read, and the function itself.
 
 ```python
-# Listing 7.1 of 3: a model that may ask for a calculator (first_tool.py)
+# Listing 8.1 of 3: a model that may ask for a calculator (first_tool.py)
 from hands_on_ai.agent import list_tools, register_calculator_tool, run_agent
 
 register_calculator_tool()
@@ -1048,16 +1174,16 @@ print(list_tools())
 
 answer = run_agent("What is 25 * 3?")
 print(answer)
-The `list_tools()` line prints the registry as the model will effectively meet it: a list of names with descriptions. Run the script and read that output before the answer arrives. Then watch what the run returns. Somewhere between your question and the printed answer, the model asked for the calculator with the input `25 * 3`, your side of the program evaluated it, and the result rode back into the conversation. Chapter 8 slows that exchange down until every hop is visible.
+The `list_tools()` line prints the registry as the model will effectively meet it: a list of names with descriptions. Run the script and read that output before the answer arrives. Then watch what the run returns. Somewhere between your question and the printed answer, the model asked for the calculator with the input `25 * 3`, your side of the program evaluated it, and the result rode back into the conversation. Chapter 9 slows that exchange down until every hop is visible.
 
-You will not see the request itself in this run. By default, `run_agent` chooses how the model should phrase its requests based on the model you configured. Capable models get a readable text format, the subject of Chapter 8. Small local models, including the default from Part I, get routed to a stricter JSON format, where the request arrives as structured data naming a thought, a tool, and an input, validated before anything runs. Either way, what reaches your registry is a name and a string.
+You will not see the request itself in this run. By default, `run_agent` chooses how the model should phrase its requests based on the model you configured. Capable models get a readable text format, the subject of Chapter 9. Small local models, including the default from Part I, get routed to a stricter JSON format, where the request arrives as structured data naming a thought, a tool, and an input, validated before anything runs. Either way, what reaches your registry is a name and a string.
 
 ## Call the Tool Yourself First
 
 Take the model out of the loop entirely to understand a tool. The calculator is a Python function, and you can call it the way you called every function in Appendix A:
 
 ```python
-# Listing 7.2 of 3: the tool, no model involved (tool_directly.py)
+# Listing 8.2 of 3: the tool, no model involved (tool_directly.py)
 from hands_on_ai.agent.tools.calculator import calculator
 
 print(calculator("2 + 2 * 10"))
@@ -1066,7 +1192,7 @@ print(calculator("{'expression': '2 + 2 * 10'}"))
 Result: 22
 Error: Could not evaluate expression. Dict is not allowed
 
-The first line is the tool working as intended. The second line fails. Look back at the description `list_tools()` printed in Listing 7.1: its example input is written as `{'expression': '2 + 2 * 10'}`, dictionary-style. The function, however, receives one string and evaluates the expression inside it, so a model that follows the description's example literally will send the dictionary text and get an error in return. The failure sits in the interface between them: one sentence of description.
+The first line is the tool working as intended. The second line fails. Look back at the description `list_tools()` printed in Listing 8.1: its example input is written as `{'expression': '2 + 2 * 10'}`, dictionary-style. The function, however, receives one string and evaluates the expression inside it, so a model that follows the description's example literally will send the dictionary text and get an error in return. The failure sits in the interface between them: one sentence of description.
 
 When a tool fails inside an agent run, the failure does not stop the program. The error text becomes the observation sent back to the model, which gets a chance to read it and try again with a corrected input. The same happens when the model invents a tool name: the reply from your side reads `Error: Tool 'nonexistent' not found.` It is a forgiving design for learning, and a design whose risks the safety section below takes seriously, because a model that can retry can also be steered by whatever text a tool returns.
 
@@ -1078,7 +1204,7 @@ A tool of yours needs three things the calculator already showed you: a function
 
 One line in that listing does something new. The third argument to `register_tool` is `count_words` with no parentheses after it. That hands the function itself to the registry without calling it, so the registry can call it later when a request arrives. Parentheses would run it immediately, with no input, and register the resulting text instead, which fails in ways worth seeing once in the exercises.
 
-The description earns its keep by preventing the failure you just studied. It names the input's exact shape, including what not to add around it. When you write descriptions of your own, write the example input as the literal string the function should receive, then test the description the way Listing 7.2 tested the calculator's: feed the tool exactly what its description tells the model to send. If that string errors, the description is wrong, whatever the function does with well-formed input.
+The description earns its keep by preventing the failure you just studied. It names the input's exact shape, including what not to add around it. When you write descriptions of your own, write the example input as the literal string the function should receive, then test the description the way Listing 8.2 tested the calculator's: feed the tool exactly what its description tells the model to send. If that string errors, the description is wrong, whatever the function does with well-formed input.
 
 ## The Bench Rules: Safety Lives on Your Side
 
@@ -1086,9 +1212,9 @@ Everything in this section follows from one fact: text produced by a model, infl
 
 Stock the bench narrowly. A calculator that accepts arithmetic only, a word counter, a lookup that reads one file: each tool should do one small thing, take one plainly shaped input, and have no side effects you would mind explaining. The dangerous tool is the general one, a `run_command` or `evaluate_code` that turns model text into machine instructions. The package's own calculator shows the alternative pattern: parse the input, walk an allowlist, reject everything else wholesale.
 
-Check what each tool actually returns before you trust it in a chain. The package is honest about its teaching tools, and reading two of them is a useful exercise in professional suspicion. Its weather tool is labelled simulated and returns random conditions. Its search tool is also simulated, answering from a small set of canned passages. An agent using them will produce fluent answers grounded in theatre, and nothing in the final answer warns the reader. Tools are evidence sources like the chunks in Chapter 6, and they deserve the same question: where does this text actually come from?
+Check what each tool actually returns before you trust it in a chain. The package is honest about its teaching tools, and reading two of them is a useful exercise in professional suspicion. Its weather tool is labelled simulated and returns random conditions. Its search tool is also simulated, answering from a small set of canned passages. An agent using them will produce fluent answers grounded in theatre, and nothing in the final answer warns the reader. Tools are evidence sources like the chunks in Chapter 7, and they deserve the same question: where does this text actually come from?
 
-The model can ask, repeatedly and creatively, and the error-as-observation design means it gets feedback and retries. Your registry is the complete list of what asking can achieve. A function that is not registered cannot be called, whatever the prompt says, and a registered function should be safe when called with the worst string a model can produce, as well as the strings you imagined. Chapter 10 adds stopping rules and budgets around the asking.
+The model can ask, repeatedly and creatively, and the error-as-observation design means it gets feedback and retries. Your registry is the complete list of what asking can achieve. A function that is not registered cannot be called, whatever the prompt says, and a registered function should be safe when called with the worst string a model can produce, as well as the strings you imagined. Chapter 11 adds stopping rules and budgets around the asking.
 
 The tool descriptions ride inside the system prompt the agent sends on every call, so they cost prompt tokens on every iteration, exactly as Chapter 2's standing instructions do. They also compete with each other: two tools with overlapping descriptions will be confused with each other, and the fix is usually in the wording, not the model. When an agent picks the wrong tool, read the bench card before blaming the voice on the phone.
 
@@ -1098,15 +1224,15 @@ Agent demos love the moment the system "does something" in the real world: sends
 
 ## Practice Exercises
 
-Exercise 7.1 (Level 1). Run `first_tool.py`. Then change the question to one needing no tool at all, and one the calculator cannot help with. Record what the agent does in each case.
+Exercise 8.1 (Level 1). Run `first_tool.py`. Then change the question to one needing no tool at all, and one the calculator cannot help with. Record what the agent does in each case.
 
-Exercise 7.2 (Level 2). Using Listing 7.2, test the calculator with five inputs: a valid expression, the dictionary-style example, a word, an empty string, and an attempt to reach beyond arithmetic. Tabulate which returned results and which returned errors.
+Exercise 8.2 (Level 2). Using Listing 8.2, test the calculator with five inputs: a valid expression, the dictionary-style example, a word, an empty string, and an attempt to reach beyond arithmetic. Tabulate which returned results and which returned errors.
 
-Exercise 7.3 (Level 3). Write and register a tool of your own that does one verifiable thing: count sentences, look up a word in a small dictionary you define, or convert a temperature. Test it directly first, including with the exact example string from your own description.
+Exercise 8.3 (Level 3). Write and register a tool of your own that does one verifiable thing: count sentences, look up a word in a small dictionary you define, or convert a temperature. Test it directly first, including with the exact example string from your own description.
 
-Exercise 7.4 (Level 4). Deliberately register your Exercise 7.3 tool with a misleading description, then ask the agent a question that needs it. Record the failure. Rewrite only the description and ask again. What does the comparison teach you about where agent bugs live?
+Exercise 8.4 (Level 4). Deliberately register your Exercise 8.3 tool with a misleading description, then ask the agent a question that needs it. Record the failure. Rewrite only the description and ask again. What does the comparison teach you about where agent bugs live?
 
-Exercise 7.5 (Level 5). Audit a bench. List every tool the package's `agent ask` command registers (read its command source), classify each as reads-the-world or changes-something and as real or simulated, and write the one-sentence bench rule you would impose before connecting it to a system that mattered.
+Exercise 8.5 (Level 5). Audit a bench. List every tool the package's `agent ask` command registers (read its command source), classify each as reads-the-world or changes-something and as real or simulated, and write the one-sentence bench rule you would impose before connecting it to a system that mattered.
 
 ## Chapter Summary
 
@@ -1153,7 +1279,7 @@ Python you need: the loop idea from  at reading level. The one new pattern, reas
 
 ## The Concept First
 
-Chapter 7 gave the model one move: request a function, receive the result. Most interesting tasks need the move repeated with judgement about what to do next. ReAct, short for reason and act, is the pattern that organises the repetition [@yao2023react]. The model writes its reasoning as text labelled `Thought:`, follows it with a requested `Action:` and `Action Input:`, your code appends the result as an `Observation:`, and the model reads the growing transcript and writes the next thought. When it judges the question answered, it writes `Final Answer:` instead. The transcript of an agent run is Chapter 3's message list wearing name tags.
+Chapter 8 gave the model one move: request a function, receive the result. Most interesting tasks need the move repeated with judgement about what to do next. ReAct, short for reason and act, is the pattern that organises the repetition [@yao2023react]. The model writes its reasoning as text labelled `Thought:`, follows it with a requested `Action:` and `Action Input:`, your code appends the result as an `Observation:`, and the model reads the growing transcript and writes the next thought. When it judges the question answered, it writes `Final Answer:` instead. The transcript of an agent run is Chapter 3's message list wearing name tags.
 
 The reasoning is ordinary model output, produced the same way as any paragraph in this book, which means you can read it, save it, argue with it, and catch it in an error before the error becomes an action. The loop that drives it is a short Python `for` loop in the package: call the model, scan the reply for an action or a final answer, run any requested tool, append the observation, go around again. An agent, at this size, is a loop and a labelling convention around the call from Chapter 1.
 
@@ -1165,7 +1291,7 @@ The notebook is doing quiet work in that scene. Because each step was written, y
 
 ## The Build: Two Tools, One Question Each Cannot Finish
 
-Register the calculator beside your word counter from Chapter 7, then ask a question that needs both, in sequence. To watch the steps in their readable form, this listing asks for the ReAct text format explicitly:
+Register the calculator beside your word counter from Chapter 8, then ask a question that needs both, in sequence. To watch the steps in their readable form, this listing asks for the ReAct text format explicitly:
 
 text
 Question: How many words are in the sentence 'the model proposes and
@@ -1182,15 +1308,15 @@ Observation: Result: 49
 Thought: I have both numbers.
 Final Answer: The sentence has 7 words, and 7 squared is 49.
 
-Read the transcript as a work record. The first thought decomposes the question into an order of operations. The first action's input respects the description you wrote in Chapter 7: the text itself, no labels. The observation is your function's return value, word for word, entering the transcript where the model can use it. The second thought plans from a fact it did not have one turn earlier, supplied by your code rather than its training and carried by Chapter 3's resent list. Both numbers in the final answer came from tools whose work you can inspect.
+Read the transcript as a work record. The first thought decomposes the question into an order of operations. The first action's input respects the description you wrote in Chapter 8: the text itself, no labels. The observation is your function's return value, word for word, entering the transcript where the model can use it. The second thought plans from a fact it did not have one turn earlier, supplied by your code rather than its training and carried by Chapter 3's resent list. Both numbers in the final answer came from tools whose work you can inspect.
 
-The readable format is the demanding one. The model must keep the labels exact while reasoning, and small local models often drop a colon, rename a label, or answer inside a thought. That is why `run_agent` defaults to choosing the format for you, routing smaller models to the JSON format from Chapter 7 where a schema validates each reply before anything runs. Forcing `format="react"` on a small model is a fine experiment and a common first failure. Second, `verbose=True` routes the steps through the package's logging, which stays quiet at its default level. To see the steps live, run with the environment variable `HANDS_ON_AI_LOG=debug` set, the same debugging switch the configuration chapter prepared you for.
+The readable format is the demanding one. The model must keep the labels exact while reasoning, and small local models often drop a colon, rename a label, or answer inside a thought. That is why `run_agent` defaults to choosing the format for you, routing smaller models to the JSON format from Chapter 8 where a schema validates each reply before anything runs. Forcing `format="react"` on a small model is a fine experiment and a common first failure. Second, `verbose=True` routes the steps through the package's logging, which stays quiet at its default level. To see the steps live, run with the environment variable `HANDS_ON_AI_LOG=debug` set, the same debugging switch the configuration chapter prepared you for.
 
 ## Read the Loop
 
 The package's ReAct loop fits on a screen, and reading it in `agent/core.py` is this chapter's version of Chapter 1's payload print. In spirit, stripped of its logging and fallback handling, it does this:
 
-# Listing 8.2 of 2: the loop's skeleton, simplified from agent/core.py
+# Listing 9.2 of 2: the loop's skeleton, simplified from agent/core.py
 messages = [system_message_with_tools, your_question]
 
 for i in range(max_iterations):
@@ -1209,7 +1335,7 @@ for i in range(max_iterations):
 
 return a_partial_answer_or_an_admission
 
-The system message is Chapter 2's instruction card, here carrying the format rules and the tool descriptions from Chapter 7. The transcript resent on every iteration is Chapter 3's list, which means each turn of the loop is a full model call at full token cost, a fact Part IV's budgets take seriously. The parser is unglamorous text matching: lines beginning `Action:` and `Action Input:` are paired up in order, which is as fragile as it sounds and explains the JSON alternative. Execution is Chapter 7's registry check, including the error-string behaviour for unknown names and failed tools, fed back as the next observation. If someone describes an agent framework to you in terms that cannot be mapped onto this skeleton plus better furniture, ask which line of the skeleton their feature replaces.
+The system message is Chapter 2's instruction card, here carrying the format rules and the tool descriptions from Chapter 8. The transcript resent on every iteration is Chapter 3's list, which means each turn of the loop is a full model call at full token cost, a fact Part IV's budgets take seriously. The parser is unglamorous text matching: lines beginning `Action:` and `Action Input:` are paired up in order, which is as fragile as it sounds and explains the JSON alternative. Execution is Chapter 8's registry check, including the error-string behaviour for unknown names and failed tools, fed back as the next observation. If someone describes an agent framework to you in terms that cannot be mapped onto this skeleton plus better furniture, ask which line of the skeleton their feature replaces.
 
 ## What Makes It Stop
 
@@ -1217,9 +1343,9 @@ A loop that can always take one more step will, on some question, take all of th
 
 The intended exit is the model's own verdict: a `Final Answer:` line, whose text `run_agent` extracts and returns. The second exit is quieter. If a reply contains no tool request and no final answer, the loop treats the reply itself as a direct answer and returns it. That covers questions needing no tools, and also covers a model that lost the format mid-run, which matters when you debug: a plausible-looking reply may be a formatting failure wearing an answer's clothes. The third exit is the budget: `max_iterations`, five by default. When the loop exhausts it, the package tries to salvage the last thought into a partial report, beginning along the lines of "I've been working on this but haven't reached a final answer", and otherwise admits it reached the maximum number of tool calls.
 
-Each exit has a misuse to watch. A model can declare a final answer early, from training, without calling the tools you stocked for exactly that question; the trace exposes it, which is one more reason to keep traces. A model can also circle: request the same tool with the same input, receive the same observation, and think the same thought again until the budget ends. And because every iteration resends the transcript, a looping agent's turns get dearer as they get less useful. Chapter 10 puts goals and ratchets around repetition. Before running any agent, including one in a product, ask what its three exits are and which one fired.
+Each exit has a misuse to watch. A model can declare a final answer early, from training, without calling the tools you stocked for exactly that question; the trace exposes it, which is one more reason to keep traces. A model can also circle: request the same tool with the same input, receive the same observation, and think the same thought again until the budget ends. And because every iteration resends the transcript, a looping agent's turns get dearer as they get less useful. Chapter 11 puts goals and ratchets around repetition. Before running any agent, including one in a product, ask what its three exits are and which one fired.
 
-Take a run that produced a correct final answer and reread its thoughts critically. A right answer can travel through a wrong reason ("squaring counts the words twice") rescued by a tool computing correctly anyway. The answer grades well and the reasoning would fail the next question. Traces let you mark the reasoning, which is the part that generalises, and Chapter 11's judge automates a version of exactly that marking.
+Take a run that produced a correct final answer and reread its thoughts critically. A right answer can travel through a wrong reason ("squaring counts the words twice") rescued by a tool computing correctly anyway. The answer grades well and the reasoning would fail the next question. Traces let you mark the reasoning, which is the part that generalises, and Chapter 12's judge automates a version of exactly that marking.
 
 ## Where a Demo Can Mislead You
 
@@ -1227,15 +1353,15 @@ Agent demos are edited like cooking shows: a question goes in, a flurry of impre
 
 ## Practice Exercises
 
-Exercise 8.1 (Level 1). Run the two-tool build with debug logging on. Save the full trace. Mark each line with its author: model, tool, or loop.
+Exercise 9.1 (Level 1). Run the two-tool build with debug logging on. Save the full trace. Mark each line with its author: model, tool, or loop.
 
-Exercise 8.2 (Level 2). Ask the same agent a question needing only the second tool, then one needing neither. Identify which loop exit ended each run, from the trace.
+Exercise 9.2 (Level 2). Ask the same agent a question needing only the second tool, then one needing neither. Identify which loop exit ended each run, from the trace.
 
-Exercise 8.3 (Level 3). Set `max_iterations=1` and ask the two-step question again. Record exactly what comes back. Then raise the budget until the run completes, and note the smallest budget that suffices.
+Exercise 9.3 (Level 3). Set `max_iterations=1` and ask the two-step question again. Record exactly what comes back. Then raise the budget until the run completes, and note the smallest budget that suffices.
 
-Exercise 8.4 (Level 4). Induce a circle: describe one of your tools so vaguely that the model keeps calling it with unhelpful inputs. Capture the trace, find the first repeated action, and fix the description rather than raising the budget. Compare traces.
+Exercise 9.4 (Level 4). Induce a circle: describe one of your tools so vaguely that the model keeps calling it with unhelpful inputs. Capture the trace, find the first repeated action, and fix the description rather than raising the budget. Compare traces.
 
-Exercise 8.5 (Level 5). Write the trace policy for a fictional workplace agent: what is logged, who may read traces, how long they are kept, and what a weekly review of a sample of traces looks for. One page, ending with the failure your policy exists to catch.
+Exercise 9.5 (Level 5). Write the trace policy for a fictional workplace agent: what is logged, who may read traces, how long they are kept, and what a weekly review of a sample of traces looks for. One page, ending with the failure your policy exists to catch.
 
 ## Chapter Summary
 
@@ -1292,7 +1418,7 @@ There is no scheduler, message queue, graph language, or agent hierarchy. The nu
 
 Think of a production line with inspection benches between stations. Work arrives at a station with its job card, gets transformed, and sits in the out-tray until an inspector passes it to the next station. The inspector can send a piece back, correct a small flaw by hand and pass it on, or stop the whole line when a station's job card turns out to be wrong. Nobody confuses the line with magic because you can walk it, bench by bench, and see the state of every piece at a glance.
 
-The folder workspace is that line. Stage folders are stations, `CONTEXT.md` files are job cards, `output.md` in the out-tray is the work so far, and `status()` is the glance down the line. The contrast with Chapter 8's loop is deliberate: the ReAct loop optimises for a machine deciding its own next step quickly; the pipeline optimises for a person deciding whether the last step deserves a next one. Most work worth doing with AI has a cheapest point of intervention, and it is usually between stages, before an error gets three stages of polish applied to it.
+The folder workspace is that line. Stage folders are stations, `CONTEXT.md` files are job cards, `output.md` in the out-tray is the work so far, and `status()` is the glance down the line. The contrast with Chapter 9's loop is deliberate: the ReAct loop optimises for a machine deciding its own next step quickly; the pipeline optimises for a person deciding whether the last step deserves a next one. Most work worth doing with AI has a cheapest point of intervention, and it is usually between stages, before an error gets three stages of polish applied to it.
 
 ## The Build: Three Stages, Two Pauses
 
@@ -1306,7 +1432,7 @@ text
 
 Open the workspace in your file browser and look at what was made. A top-level `CONTEXT.md` holds the shared instruction, which becomes the system prompt for every stage, as Chapter 2's card did for one call. Under `stages/`, each numbered folder holds its own `CONTEXT.md`, created as a stub asking you to describe the stage's job, and an empty `output` folder. A `references/` folder waits at the top level for stable rules, house style, a marking rubric, anything every stage should obey; the runner folds every markdown file in it into each stage's prompt under a references heading. The package calls that folder the factory, by which it means the part of the setup you tune once while the workpieces flow through.
 
-Your job before any model runs is to write the three job cards. In `01_research/CONTEXT.md`, describe the gathering job: the topic, what counts as a useful finding, and the shape to return, perhaps five findings each with a one-line implication. In `02_outline`, ask for an outline built only from the research output, with a named section per decision the board must make. In `03_draft`, ask for prose following the outline, at a stated length, introducing no fact the research stage did not supply. Writing those cards is Chapter 2's instruction craft and Chapter 5's grounding discipline, applied per stage. Vague cards produce vague stations, and no pipeline design rescues them. A `CONTEXT.md` job card is a skill in embryo: a reusable instruction file an agent loads when a task matches. When the same card survives a second run, it can become a reusable skill file. Build Web, Guide AI, "The Agent-Ready Repo and Handover", shows that progression.
+Your job before any model runs is to write the three job cards. In `01_research/CONTEXT.md`, describe the gathering job: the topic, what counts as a useful finding, and the shape to return, perhaps five findings each with a one-line implication. In `02_outline`, ask for an outline built only from the research output, with a named section per decision the board must make. In `03_draft`, ask for prose following the outline, at a stated length, introducing no fact the research stage did not supply. Writing those cards is Chapter 2's instruction craft and Chapter 6's grounding discipline, applied per stage. Vague cards produce vague stations, and no pipeline design rescues them. A `CONTEXT.md` job card is a skill in embryo: a reusable instruction file an agent loads when a task matches. When the same card survives a second run, it can become a reusable skill file. Build Web, Guide AI, "The Agent-Ready Repo and Handover", shows that progression.
 
 Then run the line, one station at a time:
 
@@ -1320,7 +1446,7 @@ Two consequences follow. Stage boundaries are context boundaries: the drafting s
 
 The runner also offers `run_all`, which fires the remaining stages in sequence with no pause, bounded by a generous step limit. The package documentation is blunt that it is for pipelines you already trust. Treat your first run of any new line as untrusted by definition. Use `run_all` only after the cards have survived a few inspected runs. Even then, the saved files mean a bad run can be rewound stage by stage rather than rerun from a blank prompt.
 
-When a pipeline disappoints, the fix almost never lives in the runner, which only assembles and files. It lives in a job card: the research card did not say what a finding looks like, the outline card did not forbid new facts, the draft card never named its reader. Iterate on `CONTEXT.md` files the way Chapter 7 taught you to iterate on tool descriptions, by feeding the stage exactly what its card requests and reading what the card, as written, actually asked for.
+When a pipeline disappoints, the fix almost never lives in the runner, which only assembles and files. It lives in a job card: the research card did not say what a finding looks like, the outline card did not forbid new facts, the draft card never named its reader. Iterate on `CONTEXT.md` files the way Chapter 8 taught you to iterate on tool descriptions, by feeding the stage exactly what its card requests and reading what the card, as written, actually asked for.
 
 ## Where a Demo Can Mislead You
 
@@ -1328,15 +1454,15 @@ When a pipeline disappoints, the fix almost never lives in the runner, which onl
 
 ## Practice Exercises
 
-Exercise 9.1 (Level 1). Build the three-stage workspace, write the cards for a topic you know well, and run the research stage only. Read `output.md` and mark every claim you could not verify from your own knowledge.
+Exercise 10.1 (Level 1). Build the three-stage workspace, write the cards for a topic you know well, and run the research stage only. Read `output.md` and mark every claim you could not verify from your own knowledge.
 
-Exercise 9.2 (Level 2). Edit the research output by hand: correct one claim, delete the weakest finding, add one finding of your own. Run the outline stage and trace which of your edits visibly shaped it.
+Exercise 10.2 (Level 2). Edit the research output by hand: correct one claim, delete the weakest finding, add one finding of your own. Run the outline stage and trace which of your edits visibly shaped it.
 
-Exercise 9.3 (Level 3). Add a `references/style.md` with three rules for the draft stage, reset the workspace, and rerun. Compare the two drafts. Which rule was obeyed most literally, and which needed rewording?
+Exercise 10.3 (Level 3). Add a `references/style.md` with three rules for the draft stage, reset the workspace, and rerun. Compare the two drafts. Which rule was obeyed most literally, and which needed rewording?
 
-Exercise 9.4 (Level 4). Sabotage the line: empty the middle stage's output file without deleting it, then call `run_next`. Then write an error sentence into it by hand and call `run_next` again. Record how the runner's definition of done handled each case, and what your review habit must therefore include.
+Exercise 10.4 (Level 4). Sabotage the line: empty the middle stage's output file without deleting it, then call `run_next`. Then write an error sentence into it by hand and call `run_next` again. Record how the runner's definition of done handled each case, and what your review habit must therefore include.
 
-Exercise 9.5 (Level 5). Design a four-stage pipeline for a real recurring job: meeting notes to decisions, lesson material to quiz, incident log to board brief. Write all four cards without running anything. For each boundary, state what the output must carry so the next stage needs nothing upstream.
+Exercise 10.5 (Level 5). Design a four-stage pipeline for a real recurring job: meeting notes to decisions, lesson material to quiz, incident log to board brief. Write all four cards without running anything. For each boundary, state what the output must carry so the next stage needs nothing upstream.
 
 ## Chapter Summary
 
@@ -1383,7 +1509,7 @@ Python you need: passing a function as an argument, first met in , and the one-l
 
 ## The Concept First
 
-Chapter 8's agent loop repeated until the model declared an answer. This chapter's loop is the same shape with the roles clarified and handed to you. A `step` function does one piece of work to the current state. A `goal` function inspects the new state and returns `True` when it is good enough. The runner alternates them, keeping a history, until the goal fires or a budget of iterations runs out. Do, check, repeat, with the check written down before the doing starts.
+Chapter 9's agent loop repeated until the model declared an answer. This chapter's loop is the same shape with the roles clarified and handed to you. A `step` function does one piece of work to the current state. A `goal` function inspects the new state and returns `True` when it is good enough. The runner alternates them, keeping a history, until the goal fires or a budget of iterations runs out. Do, check, repeat, with the check written down before the doing starts.
 
 Without a stated goal, a loop around a model will happily polish for as many iterations as you fund, including the iterations where the text gets longer, greasier, and worse, because nothing in "improve this" contains a stopping point or a direction of improvement that two readers would agree on. With a goal, two honest outcomes become possible: the loop can report that it met the standard in this many iterations, or that it spent its budget without meeting it. A loop that always returns its last attempt gives you neither report.
 
@@ -1404,16 +1530,16 @@ start word word word
 3 True
 ['start word', 'start word word', 'start word word word']
 
-Read the return value as a small report, because it is the same report your model versions will give you. `result` is the final state. `iterations` counts the steps that actually ran. `met_goal` tells you which exit fired: the goal's `True`, or the budget running out first. `history` holds every intermediate state in order, the loop's equivalent of Chapter 8's trace, and it is where you will later watch quality rise, stall, or decay. The `lambda` in the listing is Python's way of writing a tiny unnamed function in one line: `lambda text: ...` defines a function taking `text` and returning the value after the colon. Chapter 7 handed named functions to a registry; loops take one-line functions so often that the shorthand earns its place here.
+Read the return value as a small report, because it is the same report your model versions will give you. `result` is the final state. `iterations` counts the steps that actually ran. `met_goal` tells you which exit fired: the goal's `True`, or the budget running out first. `history` holds every intermediate state in order, the loop's equivalent of Chapter 9's trace, and it is where you will later watch quality rise, stall, or decay. The `lambda` in the listing is Python's way of writing a tiny unnamed function in one line: `lambda text: ...` defines a function taking `text` and returning the value after the colon. Chapter 8 handed named functions to a registry; loops take one-line functions so often that the shorthand earns its place here.
 
 Set `max_iters=2` and run it again in your head: the same step, the same goal, and the report changes to three words, two iterations, `met_goal` false. Nothing failed; the loop tells the truth about a budget too small for its goal, and hands the decision back to you.
 
 ## The Build, With a Model and a Stated Standard
 
-Now the step becomes a model call and the goal becomes a judgement. The package's `judged` helper wraps next chapter's judge into a goal function: give it criteria in words and a threshold score, and it returns the `goal(state)` check `run_loop` wants. Reading Chapter 11 first is allowed and even sensible; the wiring makes sense on contact either way.
+Now the step becomes a model call and the goal becomes a judgement. The package's `judged` helper wraps next chapter's judge into a goal function: give it criteria in words and a threshold score, and it returns the `goal(state)` check `run_loop` wants. Reading Chapter 12 first is allowed and even sensible; the wiring makes sense on contact either way.
 
 ```python
-# Listing 10.2 of 3: improve until good enough (improve_paragraph.py)
+# Listing 11.2 of 3: improve until good enough (improve_paragraph.py)
 from hands_on_ai.chat import get_response
 from hands_on_ai.loop import judged, run_loop
 
@@ -1437,7 +1563,7 @@ Read the printed history with a marker in hand. A draft may reach the threshold 
 `run_ratchet` changes what the loop remembers. Each iteration, the step proposes one change to the current best. A `score` function rates the proposal, and the proposal replaces the best only if it scores strictly higher. Otherwise it is discarded, the way a mechanical ratchet refuses to slip backward, and the loop logs every proposal's score and whether it was kept. The package nicknames it the Ralph Wiggum technique, and the loop it describes is a classroom-sized relative of how optimisation harnesses grind on a problem overnight.
 
 ```python
-# Listing 10.3 of 3: only improvements survive (ratchet_paragraph.py)
+# Listing 11.3 of 3: only improvements survive (ratchet_paragraph.py)
 from hands_on_ai.chat import get_response
 from hands_on_ai.eval import judge
 from hands_on_ai.loop import run_ratchet
@@ -1462,7 +1588,7 @@ Each row of the log is one proposal: its iteration number, its score, and whethe
 
 The two shapes differ in what a mediocre run hands back. `run_loop` pursues a stated standard and returns wherever it stopped, with the history as evidence. `run_ratchet` guarantees the returned text is at least as good, by your score, as where you started, and pays for the guarantee with a scoring call per proposal and a step that must be kept to small changes. For a paragraph, the ratchet's guarantee is worth it. For reaching a format or passing a test, the plain loop reports failure faster.
 
-A step and a goal that are each slightly wrong do not cancel out in a loop. They compound. A step that pads text and a goal that rewards thorough-sounding criteria will march a paragraph away from its reader a few confident iterations at a time, logging progress at every step. Read histories and logs, especially early on, the way Chapter 9 taught you to read stage outputs. The budget you set is also a statement about how far you trust the amplifier unsupervised.
+A step and a goal that are each slightly wrong do not cancel out in a loop. They compound. A step that pads text and a goal that rewards thorough-sounding criteria will march a paragraph away from its reader a few confident iterations at a time, logging progress at every step. Read histories and logs, especially early on, the way Chapter 10 taught you to read stage outputs. The budget you set is also a statement about how far you trust the amplifier unsupervised.
 
 ## Where a Demo Can Mislead You
 
@@ -1470,15 +1596,15 @@ A step and a goal that are each slightly wrong do not cancel out in a loop. They
 
 ## Practice Exercises
 
-Exercise 10.1 (Level 1). Run `loop_shape.py`, then change only the goal to demand six words and only the budget to three iterations, one at a time. Predict the full report dictionary before each run.
+Exercise 11.1 (Level 1). Run `loop_shape.py`, then change only the goal to demand six words and only the budget to three iterations, one at a time. Predict the full report dictionary before each run.
 
-Exercise 10.2 (Level 2). Run the paragraph improver on a rough paragraph of your own writing. Read the history aloud. Mark the first iteration you would have stopped at, and compare it with where the loop stopped.
+Exercise 11.2 (Level 2). Run the paragraph improver on a rough paragraph of your own writing. Read the history aloud. Mark the first iteration you would have stopped at, and compare it with where the loop stopped.
 
-Exercise 10.3 (Level 3). Add "keeps the original meaning" to the criteria in Listing 10.2, then remove it, running on the same start text both times. Where does the criterion change the outcome, and where does the loop simply not notice?
+Exercise 11.3 (Level 3). Add "keeps the original meaning" to the criteria in Listing 11.2, then remove it, running on the same start text both times. Where does the criterion change the outcome, and where does the loop simply not notice?
 
-Exercise 10.4 (Level 4). Run the ratchet with a deliberately crude step that rewrites the whole paragraph each time instead of one small change. Read the log. Why does the ratchet's logic prefer small proposals, and what did whole rewrites do to the keep rate?
+Exercise 11.4 (Level 4). Run the ratchet with a deliberately crude step that rewrites the whole paragraph each time instead of one small change. Read the log. Why does the ratchet's logic prefer small proposals, and what did whole rewrites do to the keep rate?
 
-Exercise 10.5 (Level 5). Design a loop for a real task (quiz questions until they meet a rubric, summaries until they fit a limit with facts intact). Spec sheet only: start state, one-paragraph step prompt, goal criteria written to be checkable, threshold, budget in iterations and estimated calls, and the exact sentence the loop should hand back when the goal is not met.
+Exercise 11.5 (Level 5). Design a loop for a real task (quiz questions until they meet a rubric, summaries until they fit a limit with facts intact). Spec sheet only: start state, one-paragraph step prompt, goal criteria written to be checkable, threshold, budget in iterations and estimated calls, and the exact sentence the loop should hand back when the goal is not met.
 
 ## Chapter Summary
 
@@ -1515,7 +1641,7 @@ SOURCE: chapters/the-judge.qmd
 
 > When output is cheap and plentiful, the scarce skill is telling good from fluent, at a scale your eyes cannot cover alone.
 
-Package companion: `hands_on_ai.eval`, the `judge` function behind Chapter 10's goals. Listings checked against `hands-on-ai` 0.6.0.
+Package companion: `hands_on_ai.eval`, the `judge` function behind Chapter 11's goals. Listings checked against `hands-on-ai` 0.6.0.
 
 Misconception this chapter kills: "I can eyeball quality." At scale you cannot, the demo is not a test, and a score is a signal to calibrate rather than a verdict to obey.
 
@@ -1525,7 +1651,7 @@ Python you need: dictionaries and loops from .
 
 ## The Concept First
 
-Every chapter since Chapter 5 has widened the gap this one addresses. Production is now the cheap direction: a call produces an answer, a pipeline produces a draft, a loop produces five drafts and a log. Evaluation is where the cost now sits: somebody, or something, has to read all of that output and separate the sound from the merely fluent, and a human reader does not scale past a few dozen items a day with their attention intact. The industry's working answer is the pattern this chapter takes apart: LLM-as-judge, in which a model is asked to score an output against criteria you state, returning a number and a reason your code can act on, as Chapter 10's goals already did.
+Every chapter since Chapter 6 has widened the gap this one addresses. Production is now the cheap direction: a call produces an answer, a pipeline produces a draft, a loop produces five drafts and a log. Evaluation is where the cost now sits: somebody, or something, has to read all of that output and separate the sound from the merely fluent, and a human reader does not scale past a few dozen items a day with their attention intact. The industry's working answer is the pattern this chapter takes apart: LLM-as-judge, in which a model is asked to score an output against criteria you state, returning a number and a reason your code can act on, as Chapter 11's goals already did.
 
 The judge is the smallest build in the book. It is one call, with a system prompt casting the model as a strict but fair evaluator and demanding exactly two lines back, a score and a reasoning, followed by a small parser that extracts the number and clamps it into the scale. There is no special evaluation engine, which is why calibration matters more than the mechanism: a judge is a model producing text about text, with a model's failure modes, and the craft is in knowing how far its numbers track your own judgement on work you have actually read.
 
@@ -1542,7 +1668,7 @@ An LLM judge joins your marking team as an indefatigable new marker who reads at
 Start with a single verdict, printed in full, so every part of the return value is visible:
 
 ```python
-# Listing 11.1 of 2: one verdict, all its parts (one_verdict.py)
+# Listing 12.1 of 2: one verdict, all its parts (one_verdict.py)
 from hands_on_ai.eval import judge
 
 verdict = judge(
@@ -1560,10 +1686,10 @@ Run the listing a few times on the same answer, and treat the wobble as data. Sc
 
 ## The Moderation Meeting: Judge Your Bot
 
-Now the project the package names `judge-your-bot`. Take a small set of answers from a bot you have built, a personality bot from Chapter 2 or your RAG bot from Chapter 6 answering questions you chose, and mark them twice: once yourself, once with the judge, against the same written criteria.
+Now the project the package names `judge-your-bot`. Take a small set of answers from a bot you have built, a personality bot from Chapter 2 or your RAG bot from Chapter 7 answering questions you chose, and mark them twice: once yourself, once with the judge, against the same written criteria.
 
 ```python
-# Listing 11.2 of 2: your marks beside the judge's (judge_your_bot.py)
+# Listing 12.2 of 2: your marks beside the judge's (judge_your_bot.py)
 from hands_on_ai.eval import judge
 
 CRITERIA = "accurate, based only on the provided documents, and concise"
@@ -1582,11 +1708,11 @@ Write your scores into the listing before you run it, from your own reading, as 
 
 ## Writing Criteria a Judge Can Use
 
-Rubric writing for a model follows the instruction rules from earlier chapters. Criteria should name checkable properties rather than vibes: "states the borrowing limit as a number" can be marked against a document; "high quality" cannot be marked against anything. Where correctness matters, give the judge something to be correct against: the question, the source chunk, the expected fact. A judge asked to score accuracy from its own training is a second opinion from the same well the first answer was drawn from, and Chapter 5 already told you what that well contains. Keep the scale honest about the discrimination you verified in moderation: if your judge reliably separates poor, adequate, and strong, a 1-to-3 scale collects the information without pretending to five points of it. And separate criteria that pull against each other into separate judgements when the trade-off matters, because a single score for "accurate and entertaining" hides which one failed, as Chapter 2's contradictory system prompts hid which instruction the model disobeyed.
+Rubric writing for a model follows the instruction rules from earlier chapters. Criteria should name checkable properties rather than vibes: "states the borrowing limit as a number" can be marked against a document; "high quality" cannot be marked against anything. Where correctness matters, give the judge something to be correct against: the question, the source chunk, the expected fact. A judge asked to score accuracy from its own training is a second opinion from the same well the first answer was drawn from, and Chapter 6 already told you what that well contains. Keep the scale honest about the discrimination you verified in moderation: if your judge reliably separates poor, adequate, and strong, a 1-to-3 scale collects the information without pretending to five points of it. And separate criteria that pull against each other into separate judgements when the trade-off matters, because a single score for "accurate and entertaining" hides which one failed, as Chapter 2's contradictory system prompts hid which instruction the model disobeyed.
 
-The parser clamps and fails visibly, by design. A judge that replies with a score off the scale has it clamped to the nearest end. A judge whose reply contains no `SCORE:` line yields `None`, which Chapter 10's goal treats as not good enough and the ratchet treats as never an improvement. Neither behaviour fixes a confused judge, but both keep one from silently passing work.
+The parser clamps and fails visibly, by design. A judge that replies with a score off the scale has it clamped to the nearest end. A judge whose reply contains no `SCORE:` line yields `None`, which Chapter 11's goal treats as not good enough and the ratchet treats as never an improvement. Neither behaviour fixes a confused judge, but both keep one from silently passing work.
 
-A judge reads the output it is marking, and that output is model-generated text, which can contain sentences addressed to the marker: flattery, instructions, a forged `SCORE: 5` line of its own. The parser takes the first score it finds in the judge's reply, and a small model quoted its input often enough for this to matter in adversarial settings. In your classroom builds the risk is mostly accidental, but the bench rule from Chapter 7 applies with roles reversed: treat the marked text as untrusted input to the marking process, and be suspicious of perfect scores on work you have not sampled.
+A judge reads the output it is marking, and that output is model-generated text, which can contain sentences addressed to the marker: flattery, instructions, a forged `SCORE: 5` line of its own. The parser takes the first score it finds in the judge's reply, and a small model quoted its input often enough for this to matter in adversarial settings. In your classroom builds the risk is mostly accidental, but the bench rule from Chapter 8 applies with roles reversed: treat the marked text as untrusted input to the marking process, and be suspicious of perfect scores on work you have not sampled.
 
 ## Where a Demo Can Mislead You
 
@@ -1594,15 +1720,15 @@ Ask the moderation questions of any evaluation claim, however scientific its per
 
 ## Practice Exercises
 
-Exercise 11.1 (Level 1). Run one verdict five times on the same answer and record the scores and reasonings. Report the range, and state what decisions you would and would not base on this judge at this stability.
+Exercise 12.1 (Level 1). Run one verdict five times on the same answer and record the scores and reasonings. Report the range, and state what decisions you would and would not base on this judge at this stability.
 
-Exercise 11.2 (Level 2). Build a case list of eight answers from your own earlier chapters, at least two of which are fluent and wrong. Mark them yourself, run the judge, and sort every disagreement into rubric, my mark, or judge error.
+Exercise 12.2 (Level 2). Build a case list of eight answers from your own earlier chapters, at least two of which are fluent and wrong. Mark them yourself, run the judge, and sort every disagreement into rubric, my mark, or judge error.
 
-Exercise 11.3 (Level 3). Rewrite your criteria to repair the largest rubric-caused disagreement, rerun the same cases, and report what moved and what stubbornly did not.
+Exercise 12.3 (Level 3). Rewrite your criteria to repair the largest rubric-caused disagreement, rerun the same cases, and report what moved and what stubbornly did not.
 
-Exercise 11.4 (Level 4). Probe the judge's soft spots with paired answers: same content at two lengths, same content in confident and hedged tones, a correct refusal against a fluent invention. Which dimension moved the score most, and was it one your criteria mentioned?
+Exercise 12.4 (Level 4). Probe the judge's soft spots with paired answers: same content at two lengths, same content in confident and hedged tones, a correct refusal against a fluent invention. Which dimension moved the score most, and was it one your criteria mentioned?
 
-Exercise 11.5 (Level 5). Write the moderation protocol for a course team adopting this judge for feedback drafts: sampling rate, who marks the sample, what disagreement rate suspends the judge, and when recalibration is mandatory. One page, ending with the decision this judge is never allowed to make alone.
+Exercise 12.5 (Level 5). Write the moderation protocol for a course team adopting this judge for feedback drafts: sampling rate, who marks the sample, what disagreement rate suspends the judge, and when recalibration is mandatory. One page, ending with the decision this judge is never allowed to make alone.
 
 ## Chapter Summary
 
@@ -1649,11 +1775,11 @@ Python you need: dictionaries and one small class definition for extraction, bot
 
 ## The Concept First
 
-Chapter 11's judge smuggled a new kind of call into the book. It wanted one integer and one sentence, and dug them out of the reply with a regular expression, hoping the model kept the format. Chapter 7's agent wanted the same kind of smallness: a tool name and an input string, not a meditation. A large share of what programs actually need from models has that shape. Which queue does this ticket belong to? Does this message ask for a refund? How frustrated is this customer, on a stated scale? What are the name, date, and total on this invoice? Questions with small, known answer spaces, asked thousands of times, where a paragraph of prose becomes a parsing problem.
+Chapter 12's judge smuggled a new kind of call into the book. It wanted one integer and one sentence, and dug them out of the reply with a regular expression, hoping the model kept the format. Chapter 8's agent wanted the same kind of smallness: a tool name and an input string, not a meditation. A large share of what programs actually need from models has that shape. Which queue does this ticket belong to? Does this message ask for a refund? How frustrated is this customer, on a stated scale? What are the name, date, and total on this invoice? Questions with small, known answer spaces, asked thousands of times, where a paragraph of prose becomes a parsing problem.
 
 TypeSafe gave a name and a service to this end of the trade: System One models, after Kahneman's fast, intuitive System 1, which return typed decisions and probabilities through three primitives. Choice picks one option from a set you define. Noul answers a yes/no question as a probability. Score rates something along ordered levels you describe. Their model, Jev, returns calibrated judgments your code can compose, without chat or explanations. You do not need their service to learn the pattern, because an ordinary chat model constrained to a schema can play the same role in miniature, which is what the package's `decide` module does. What the hosted model adds is calibration: probabilities trained to mean what they say across many predictions.
 
-Schema constraining guarantees the shape of the answer. It says nothing about whether the answer, or its self-reported confidence, is right. A local model asked for a confidence will produce a number in range with the same fluency it produces everything else. Chapter 11's moderation habits therefore apply to every number in this chapter: calibrate on cases you marked yourself, or treat the number as decoration.
+Schema constraining guarantees the shape of the answer. It says nothing about whether the answer, or its self-reported confidence, is right. A local model asked for a confidence will produce a number in range with the same fluency it produces everything else. Chapter 12's moderation habits therefore apply to every number in this chapter: calibrate on cases you marked yourself, or treat the number as decoration.
 
 ## Understanding Through Real Life
 
@@ -1666,7 +1792,7 @@ Fast typed judgments handle the bulk and the routine. Measured uncertainty route
 The module's four functions share one interface habit with the rest of the package: they return plain dictionaries and never raise for a model-side failure, putting `None` in the answer fields with an explanation under `error`. Start with Choice, wearing its package name, `classify`:
 
 ```python
-# Listing 12.1 of 3: route the ticket (route_ticket.py)
+# Listing 13.1 of 3: route the ticket (route_ticket.py)
 from hands_on_ai.decide import classify, decide
 
 ticket = "Help! My payouts have been failing for 3 days and I want my money back."
@@ -1680,12 +1806,12 @@ print(routed["choice"], routed["confidence"], routed["error"])
 
 refund = decide(ticket, "Does this message request a refund?")
 print(refund["answer"], refund["probability"], refund["error"])
-Run it on tickets of your own invention, including awkward edge cases: a technical fault that mentions money, a billing question caused by a bug, a message that fits no box at all. The option list is a closed world: the function validates the reply against it and hands back `None` rather than an invented department, so an "other" option is yours to include or to live without. "Which team should handle this?" plus three bare labels asks the model to guess your org chart; adding one line of rubric per option, the way TypeSafe's own examples pair each choice with a description, turns guessing into marking. Chapter 2's instruction craft and Chapter 11's rubric craft are the same craft here, applied to a smaller answer.
+Run it on tickets of your own invention, including awkward edge cases: a technical fault that mentions money, a billing question caused by a bug, a message that fits no box at all. The option list is a closed world: the function validates the reply against it and hands back `None` rather than an invented department, so an "other" option is yours to include or to live without. "Which team should handle this?" plus three bare labels asks the model to guess your org chart; adding one line of rubric per option, the way TypeSafe's own examples pair each choice with a description, turns guessing into marking. Chapter 2's instruction craft and Chapter 12's rubric craft are the same craft here, applied to a smaller answer.
 
 The extraction primitive has no System One counterpart, because Jev judges rather than transcribes, but it belongs in the same drawer: a typed record out of messy text, validated field by field:
 
 ```python
-# Listing 12.2 of 3: a record out of prose (extract_invoice.py)
+# Listing 13.2 of 3: a record out of prose (extract_invoice.py)
 from pydantic import BaseModel
 
 from hands_on_ai.decide import extract
@@ -1703,35 +1829,35 @@ result = extract(
 print(result["data"])
 print(result["error"])
 
-The `Invoice` class is a schema in Python syntax, with three field names and three types. Underneath, the local backend hands that schema to the model through Instructor's JSON-schema mode, the same machinery Chapter 7's JSON agent format used to validate tool calls before anything ran. What comes back has been checked against the schema by construction, so `total_dollars` is a number your code can add up, not the string `"$1,240.50"` waiting to break a sum. Fields the text cannot support are the interesting failure: try an invoice with no due date and read what the model does with its instruction to leave a field empty rather than invent one. Then decide, as a designer, whether empty, invented, or refused is the failure your system can afford, because the schema guarantees shape only.
+The `Invoice` class is a schema in Python syntax, with three field names and three types. Underneath, the local backend hands that schema to the model through Instructor's JSON-schema mode, the same machinery Chapter 8's JSON agent format used to validate tool calls before anything ran. What comes back has been checked against the schema by construction, so `total_dollars` is a number your code can add up, not the string `"$1,240.50"` waiting to break a sum. Fields the text cannot support are the interesting failure: try an invoice with no due date and read what the model does with its instruction to leave a field empty rather than invent one. Then decide, as a designer, whether empty, invented, or refused is the failure your system can afford, because the schema guarantees shape only.
 
 ## The Same Judgments, Calibrated
 
 Swap the backend and the interface holds while the meaning of the numbers changes. With a TypeSafe key in `TYPESAFE_API_KEY`, the same two calls go to Jev:
 
-Without a key, the Jev row prints its error in plain sight and the local row carries the run, which is the correct classroom default. With one, compare more than the answers. Jev's Choice returns a probability for every option, summing to one, and its Noul probability is the product being sold: trained so that across many predictions, cases scored near 0.8 come out yes about eighty percent of the time. Your local model's confidence is a number it generated because the schema had a slot for one. On a single ticket both may look identical. Across fifty tickets you marked yourself, in Chapter 11's moderation style, the difference becomes measurable: bin each backend's probabilities and check the bins against reality.
+Without a key, the Jev row prints its error in plain sight and the local row carries the run, which is the correct classroom default. With one, compare more than the answers. Jev's Choice returns a probability for every option, summing to one, and its Noul probability is the product being sold: trained so that across many predictions, cases scored near 0.8 come out yes about eighty percent of the time. Your local model's confidence is a number it generated because the schema had a slot for one. On a single ticket both may look identical. Across fifty tickets you marked yourself, in Chapter 12's moderation style, the difference becomes measurable: bin each backend's probabilities and check the bins against reality.
 
 Cost belongs in the same comparison, because these primitives exist to run at volume. A routed ticket locally is one small call on hardware you own. Jev is priced per input token at rates that make a million triage calls a rounding error next to one misrouted enterprise ticket, and it evaluates many questions against one state in a single request. Neither fact decides the architecture on its own; together with your calibration table, they might.
 
-Chapter 11's `judge` now tries this chapter's typed scorer first and falls back to its old two-line text format only when the structured call cannot produce a score. Its return shape, `{score, reasoning, raw}`, did not change, and Chapter 10's loops never noticed. Copy that pattern in your own systems: typed path preferred, text path as the documented fallback, the interface above both untouched.
+Chapter 12's `judge` now tries this chapter's typed scorer first and falls back to its old two-line text format only when the structured call cannot produce a score. Its return shape, `{score, reasoning, raw}`, did not change, and Chapter 11's loops never noticed. Copy that pattern in your own systems: typed path preferred, text path as the documented fallback, the interface above both untouched.
 
 ## When Fast Is the Wrong Instrument
 
-For every question in this chapter there is a neighbouring question the primitives serve badly. Typed judgments do not explain, negotiate, draft, or reason through novelty; a Choice among three departments cannot tell you the ticket describes a fourth problem your org chart lacks. They do not fetch evidence; a refund decision made without the transactions and the policy in the state is a bare question from Chapter 5 with a probability attached. And their speed creates a specific organisational temptation, to let thresholds quietly become policy: auto-refund below this probability, auto-reject above that score. Thresholds are decisions about who bears the cost of the fast lane's errors. They deserve the same daylight as any other policy, set from your calibration data and revisited when the model or the mix of cases changes.
+For every question in this chapter there is a neighbouring question the primitives serve badly. Typed judgments do not explain, negotiate, draft, or reason through novelty; a Choice among three departments cannot tell you the ticket describes a fourth problem your org chart lacks. They do not fetch evidence; a refund decision made without the transactions and the policy in the state is a bare question from Chapter 6 with a probability attached. And their speed creates a specific organisational temptation, to let thresholds quietly become policy: auto-refund below this probability, auto-reject above that score. Thresholds are decisions about who bears the cost of the fast lane's errors. They deserve the same daylight as any other policy, set from your calibration data and revisited when the model or the mix of cases changes.
 
-Used inside their fence, though, typed answers change what the rest of the book's machinery costs. A router decides which retrieval index a question deserves before Chapter 6 spends its tokens. An extractor turns incoming prose into fields Chapter 9's pipeline can file without a model rereading it at every stage. A decider gates Chapter 10's loop with a cheap check before an expensive judge wakes.
+Used inside their fence, though, typed answers change what the rest of the book's machinery costs. A router decides which retrieval index a question deserves before Chapter 7 spends its tokens. An extractor turns incoming prose into fields Chapter 10's pipeline can file without a model rereading it at every stage. A decider gates Chapter 11's loop with a cheap check before an expensive judge wakes.
 
 ## Practice Exercises
 
-Exercise 12.1 (Level 1). Route ten tickets you invented, including two that fit no option. Add an "other" option and rerun. Record what changed beyond the two.
+Exercise 13.1 (Level 1). Route ten tickets you invented, including two that fit no option. Add an "other" option and rerun. Record what changed beyond the two.
 
-Exercise 12.2 (Level 2). Extract records from five messy texts of one kind (invoices, event announcements, job ads). Deliberately omit a field from two of them and catalogue what the model does with the gap.
+Exercise 13.2 (Level 2). Extract records from five messy texts of one kind (invoices, event announcements, job ads). Deliberately omit a field from two of them and catalogue what the model does with the gap.
 
-Exercise 12.3 (Level 3). Build a calibration set: thirty short cases for one `decide` question, marked by you in advance. Bin the local probabilities and compare each bin with reality. If you have a Jev key, run the same set and place the tables side by side.
+Exercise 13.3 (Level 3). Build a calibration set: thirty short cases for one `decide` question, marked by you in advance. Bin the local probabilities and compare each bin with reality. If you have a Jev key, run the same set and place the tables side by side.
 
-Exercise 12.4 (Level 4). Compose a cascade: a typed triage that routes easy cases directly and escalates low-confidence ones to Chapter 11's judge or to a human queue file. State your thresholds and the cost of each kind of error at each threshold.
+Exercise 13.4 (Level 4). Compose a cascade: a typed triage that routes easy cases directly and escalates low-confidence ones to Chapter 12's judge or to a human queue file. State your thresholds and the cost of each kind of error at each threshold.
 
-Exercise 12.5 (Level 5). Write the threshold policy for a real routing decision in your world: the primitives, the state each needs as evidence, the calibration set that justifies the cutoffs, and the review rhythm when models change. One page, ending with the case type that must never be auto-decided.
+Exercise 13.5 (Level 5). Write the threshold policy for a real routing decision in your world: the primitives, the state each needs as evidence, the calibration set that justifies the cutoffs, and the review rhythm when models change. One page, ending with the case type that must never be auto-decided.
 
 ## Chapter Summary
 
@@ -1786,14 +1912,14 @@ How the image travels explains the costs and failures to come. A web address can
 
 Think of describing a scene over the phone to someone who has never seen your street. The description is a translation, and like every translation it is shaped by the question asked. "What is happening in this photo?" earns a story about the scene. "How many people are wearing hats?" earns a count the describer may or may not have performed carefully. "What does the sign say?" earns a reading, accurate where the sign is legible and confabulated where it is not, unless the describer is the rare sort who says the text is too small to read.
 
-A VLM is that describer with two exaggerations. It has seen vastly more photographs in training than any person, and its scene sense is correspondingly strong. And it shares the language model's reluctance to say it cannot tell: fine print, exact counts, small text, spatial relations like left-of versus behind, and anything the downscaled encoding smeared away may all come back rendered in fluent certainty. Chapter 5's rule applies unchanged, with pixels added: separate what the image could show from what this call could recover, and check the parts that matter against the picture yourself.
+A VLM is that describer with two exaggerations. It has seen vastly more photographs in training than any person, and its scene sense is correspondingly strong. And it shares the language model's reluctance to say it cannot tell: fine print, exact counts, small text, spatial relations like left-of versus behind, and anything the downscaled encoding smeared away may all come back rendered in fluent certainty. Chapter 6's rule applies unchanged, with pixels added: separate what the image could show from what this call could recover, and check the parts that matter against the picture yourself.
 
 ## Connect a Vision Model Before You Build
 
-Vision needs a model that accepts images, configured separately from your chat model, the way Chapter 6 added an embedding model. The default is `moondream`, a small vision model, changeable through the `vision_model` setting or `HANDS_ON_AI_VISION_MODEL`:
+Vision needs a model that accepts images, configured separately from your chat model, the way Chapter 7 added an embedding model. The default is `moondream`, a small vision model, changeable through the `vision_model` setting or `HANDS_ON_AI_VISION_MODEL`:
 
 python
-# Listing 13.1 of 2: the talking picture (talking_picture.py)
+# Listing 14.1 of 2: the talking picture (talking_picture.py)
 from hands_on_ai.vision import describe
 
 photo = "market.jpg"
@@ -1802,33 +1928,33 @@ print(describe(photo))
 print(describe(photo, "What is the main thing being sold here?"))
 print(describe(photo, "How many people are in this picture? Count carefully."))
 
-The first call uses the default prompt, "Describe this image.", and gets you the tour. The second shows the usual pattern: questions put to a picture, such as reading a label, identifying a plant, checking whether a gauge is in the red, or asking what is funny here. A picture plus a pointed question is the vision equivalent of Chapter 5's grounded prompt, with the image as the evidence in the room. The third call is the honesty test. Counting is where small vision models go to be humbled, along with small text and precise spatial claims, and your own model may produce a crisp number you can refute by looking at the photograph.
+The first call uses the default prompt, "Describe this image.", and gets you the tour. The second shows the usual pattern: questions put to a picture, such as reading a label, identifying a plant, checking whether a gauge is in the red, or asking what is funny here. A picture plus a pointed question is the vision equivalent of Chapter 6's grounded prompt, with the image as the evidence in the room. The third call is the honesty test. Counting is where small vision models go to be humbled, along with small text and precise spatial claims, and your own model may produce a crisp number you can refute by looking at the photograph.
 
 Underneath, `describe` assembles the two-part user message and sends it through the same `chat_completion` machinery as every chat call in the book, with the longer timeout. One behaviour will look familiar from Chapter 1 by design: point it at a file that does not exist and you get an error string back, `❌ Error: Image file not found: ...`, rather than a crash. Your program can tell failure from description the way it learned to in Part I.
 
 ## What It Can and Cannot See
 
-A useful first hour with a VLM sorts its answers into three piles. Scene gist is strong: what kind of place this is, what is broadly happening, the salient objects and their rough relations. Reading is conditional: signage and labels come back well when they are large, level, and high-contrast, and degrade into plausible invention as they shrink, tilt, or blur. Precision work is weak on small models especially: exact counts, small differences between similar objects, charts read to values, and anything depending on detail the encoding downscaled away. Results vary with model size, and re-sorting the piles per model is the same moderation exercise Chapter 11 taught, with the photograph as ground truth sitting right there.
+A useful first hour with a VLM sorts its answers into three piles. Scene gist is strong: what kind of place this is, what is broadly happening, the salient objects and their rough relations. Reading is conditional: signage and labels come back well when they are large, level, and high-contrast, and degrade into plausible invention as they shrink, tilt, or blur. Precision work is weak on small models especially: exact counts, small differences between similar objects, charts read to values, and anything depending on detail the encoding downscaled away. Results vary with model size, and re-sorting the piles per model is the same moderation exercise Chapter 12 taught, with the photograph as ground truth sitting right there.
 
-Vision output is text, so it can be judged: a description can be scored against criteria, and better, against a human transcript of the same image, by the machinery of Chapter 11. And a picture rarely answers the question behind the question alone. What the sign says comes from the photograph; whether the shop is open now comes from a document or a tool. Systems that pair a VLM's description with retrieval from Chapter 6 or a lookup tool from Chapter 7 combine this book's parts on one bench.
+Vision output is text, so it can be judged: a description can be scored against criteria, and better, against a human transcript of the same image, by the machinery of Chapter 12. And a picture rarely answers the question behind the question alone. What the sign says comes from the photograph; whether the shop is open now comes from a document or a tool. Systems that pair a VLM's description with retrieval from Chapter 7 or a lookup tool from Chapter 8 combine this book's parts on one bench.
 
 Your photographs will be uploaded, encoded, to whatever server your configuration names, and Chapter 3's transcript warning applies with faces in place of words. Local models keep the bytes on your machine; hosted ones are governed by the provider's retention terms. Photographs of other people deserve the consent habit you would want applied to your own likeness, and some workplaces and jurisdictions regulate biometric uses well beyond anything in this chapter. Description for learning is benign. Build the consent reflex anyway, while the stakes are homework.
 
 ## Where a Demo Can Mislead You
 
-Vision demos choose photographs the way Chapter 5's demonstrators chose questions: big subjects, clean light, legible signs, counts of three. The counter-demo takes a minute to assemble from your own phone. A crowd to count, a receipt to read to the cent, a dashboard at an angle, a shelf where one item differs from its neighbours. Run the product on your photographs and sort its answers into this chapter's three piles. Then ask the vendor's questions: at what resolution is my image downscaled before the model sees it, where do the bytes go and how long are they kept, and show me the runs where the count was wrong. The pile boundaries will move as models grow, so draw them yourself, per model, on your material.
+Vision demos choose photographs the way Chapter 6's demonstrators chose questions: big subjects, clean light, legible signs, counts of three. The counter-demo takes a minute to assemble from your own phone. A crowd to count, a receipt to read to the cent, a dashboard at an angle, a shelf where one item differs from its neighbours. Run the product on your photographs and sort its answers into this chapter's three piles. Then ask the vendor's questions: at what resolution is my image downscaled before the model sees it, where do the bytes go and how long are they kept, and show me the runs where the count was wrong. The pile boundaries will move as models grow, so draw them yourself, per model, on your material.
 
 ## Practice Exercises
 
-Exercise 13.1 (Level 1). Run the talking picture on a photograph of your own. Ask the tour question and two pointed ones, and grade each answer against the picture.
+Exercise 14.1 (Level 1). Run the talking picture on a photograph of your own. Ask the tour question and two pointed ones, and grade each answer against the picture.
 
-Exercise 13.2 (Level 2). Assemble a five-photograph test set spanning the three piles: a scene, a sign or label, a crowd, a chart or receipt, a near-duplicate pair. Record where your model's pile boundaries actually fall.
+Exercise 14.2 (Level 2). Assemble a five-photograph test set spanning the three piles: a scene, a sign or label, a crowd, a chart or receipt, a near-duplicate pair. Record where your model's pile boundaries actually fall.
 
-Exercise 13.3 (Level 3). Ask a question the photograph cannot answer (when it was taken, what happened next, who these people are). Record whether the model declines, hedges, or improvises, and compare with Chapter 5's escape-sentence experiment.
+Exercise 14.3 (Level 3). Ask a question the photograph cannot answer (when it was taken, what happened next, who these people are). Record whether the model declines, hedges, or improvises, and compare with Chapter 6's escape-sentence experiment.
 
-Exercise 13.4 (Level 4). Pair the senses: describe a photograph of a document, save the description, and ask your Chapter 6 RAG bot a question needing both the picture's content and your documents. Where did the hand-off between them lose information?
+Exercise 14.4 (Level 4). Pair the senses: describe a photograph of a document, save the description, and ask your Chapter 7 RAG bot a question needing both the picture's content and your documents. Where did the hand-off between them lose information?
 
-Exercise 13.5 (Level 5). Write the acceptance test for a vision feature at your workplace: the photograph set, the questions, the accuracy bar per pile, the consent and retention rules. One page, ending with the pile you would refuse to ship at this model's scores.
+Exercise 14.5 (Level 5). Write the acceptance test for a vision feature at your workplace: the photograph set, the questions, the accuracy bar per pile, the consent and retention rules. One page, ending with the pile you would refuse to ship at this model's scores.
 
 ## Chapter Summary
 
@@ -1875,7 +2001,7 @@ Python you need: function calls and the `Conversation` object. The new material 
 
 ## The Concept First
 
-The thinking in a voice system is the text machinery of Parts I to IV, unchanged, with two translators at the edges. A speech-to-text model, STT, takes an audio file and returns the words as text. That text enters the chat loop you built in Chapter 3 and receives a reply in text. A text-to-speech model, TTS, takes the reply and returns an audio file. That gives the loop: transcribe, think, speak. Each translator is a model call to an OpenAI-compatible endpoint under `/v1/audio/`, made with the same client patterns as Chapter 1 and Chapter 6's embeddings. Voice adds senses the way pictures did: by converting to and from the text the system already runs on.
+The thinking in a voice system is the text machinery of Parts I to IV, unchanged, with two translators at the edges. A speech-to-text model, STT, takes an audio file and returns the words as text. That text enters the chat loop you built in Chapter 3 and receives a reply in text. A text-to-speech model, TTS, takes the reply and returns an audio file. That gives the loop: transcribe, think, speak. Each translator is a model call to an OpenAI-compatible endpoint under `/v1/audio/`, made with the same client patterns as Chapter 1 and Chapter 7's embeddings. Voice adds senses the way pictures did: by converting to and from the text the system already runs on.
 
 What changes is the constraint. Text chats tolerate a slow reply gracefully; the words appear when they appear. Spoken conversation runs on human turn-taking clock, where a pause of two seconds already feels like the other party has wandered off. Every hop in the chain spends from that budget: recording and uploading the audio, transcribing it, thinking over a growing transcript, synthesising the reply, downloading and playing it. Latency, the total time from the end of your sentence to the start of the reply, is the engineering problem of voice systems.
 
@@ -1889,10 +2015,10 @@ Transcription errors propagate inward disguised as the user's own words, and the
 
 Audio models usually do not live on the chat server. A plain Ollama install serves chat, embeddings, and vision, but speech typically comes from a separate local server that speaks the same `/v1/audio/` dialect: tools such as speaches or whisper.cpp serving Whisper models for transcription, and Kokoro or Piper for synthesis. The package therefore carries separate settings, `HANDS_ON_AI_STT_SERVER` and `HANDS_ON_AI_TTS_SERVER`, which default to your main server, and separate model settings defaulting to `whisper-1` for transcription and `kokoro` for speech. A hosted provider with audio endpoints collapses all of this back to one address and one key, at hosted prices and with your voice recordings travelling to it.
 
-Before building anything, point those settings at servers you actually have, local or hosted, and confirm with the doctor habits from Chapter 4.  collects the variables in one table. Then test the two translators in isolation, in the spirit of Chapter 7's call-the-tool-yourself rule:
+Before building anything, point those settings at servers you actually have, local or hosted, and confirm with the doctor habits from Chapter 4.  collects the variables in one table. Then test the two translators in isolation, in the spirit of Chapter 8's call-the-tool-yourself rule:
 
 ```python
-# Listing 14.1 of 2: the ears and the mouth, separately (voice_pieces.py)
+# Listing 15.1 of 2: the ears and the mouth, separately (voice_pieces.py)
 from hands_on_ai.voice import speak, transcribe
 
 print(speak("The loop is transcribe, think, and speak.", out_path="hello.wav"))
@@ -1904,7 +2030,7 @@ print(transcribe("hello.wav"))
 The package's own interactive voice loop starts with a sensible cheat: you type what you would say, and only the reply is spoken. Microphone capture is platform plumbing, left as an extension exercise. In your own code it is Chapter 3's `Conversation` with one added line, plus a system prompt that knows its output will be heard rather than read:
 
 ```python
-# Listing 14.2 of 2: typed question, spoken answer (voice_chat.py)
+# Listing 15.2 of 2: typed question, spoken answer (voice_chat.py)
 from hands_on_ai.chat import Conversation
 from hands_on_ai.voice import speak
 
@@ -1924,7 +2050,7 @@ Flip the `if False`, record your question as a WAV file by whatever tool your ma
 
 Time one full turn with a stopwatch: question finished, reply audible. Then ask where the seconds went. Transcription of a short clip, the chat call over a transcript that grows every turn (Chapter 3's tax, now audible), synthesis of the whole reply before the first sound plays. The industry's answers are all visible from here: stream the reply in pieces and start speaking the first sentence while the rest generates, keep spoken answers short by instruction, run smaller local models for the translators, and put the servers close. None of those change the shape; they shorten the relay.
 
-A voice recording identifies a person in ways a typed sentence does not, and speech synthesis can be pointed at imitation with enough samples. The consent reflex from Chapter 13 applies in full: record yourself freely, record others with their knowledge, know which server your audio travelled to, and treat cloning a real person's voice as a line that needs their explicit agreement rather than your technical ability. The tools in this chapter synthesise a stock voice. Keep the ethics at stock settings too.
+A voice recording identifies a person in ways a typed sentence does not, and speech synthesis can be pointed at imitation with enough samples. The consent reflex from Chapter 14 applies in full: record yourself freely, record others with their knowledge, know which server your audio travelled to, and treat cloning a real person's voice as a line that needs their explicit agreement rather than your technical ability. The tools in this chapter synthesise a stock voice. Keep the ethics at stock settings too.
 
 ## Where a Demo Can Mislead You
 
@@ -1932,15 +2058,15 @@ Voice demos are staged in quiet rooms with close microphones, short questions, a
 
 ## Practice Exercises
 
-Exercise 14.1 (Level 1). Run `voice_pieces.py`, then transcribe a phone recording of the same sentence. Diff the two transcripts and list what the room cost you.
+Exercise 15.1 (Level 1). Run `voice_pieces.py`, then transcribe a phone recording of the same sentence. Diff the two transcripts and list what the room cost you.
 
-Exercise 14.2 (Level 2). Run the typed voice chat for four turns. Note the first reply that would have been fine on screen and was painful aloud, and adjust the system prompt because of it.
+Exercise 15.2 (Level 2). Run the typed voice chat for four turns. Note the first reply that would have been fine on screen and was painful aloud, and adjust the system prompt because of it.
 
-Exercise 14.3 (Level 3). Time a full round trip with a recorded question. Attribute the seconds across transcription, thinking, and synthesis as best you can, then shorten the turn by one deliberate change and re-time.
+Exercise 15.3 (Level 3). Time a full round trip with a recorded question. Attribute the seconds across transcription, thinking, and synthesis as best you can, then shorten the turn by one deliberate change and re-time.
 
-Exercise 14.4 (Level 4). Feed the loop its own transcription errors on purpose: dictate names, numbers, and a homophone-rich sentence. Where did the chat model recover the meaning anyway, and where did it earnestly answer the wrong sentence?
+Exercise 15.4 (Level 4). Feed the loop its own transcription errors on purpose: dictate names, numbers, and a homophone-rich sentence. Where did the chat model recover the meaning anyway, and where did it earnestly answer the wrong sentence?
 
-Exercise 14.5 (Level 5). Spec a voice front end for your Chapter 6 document bot: input and output paths, latency budget per hop, the spoken style rules, what the user sees when transcription is uncertain, and the consent and retention terms for recordings. One page, ending with the turn length at which you would switch the user back to text.
+Exercise 15.5 (Level 5). Spec a voice front end for your Chapter 7 document bot: input and output paths, latency budget per hop, the spoken style rules, what the user sees when transcription is uncertain, and the consent and retention terms for recordings. One page, ending with the turn length at which you would switch the user back to text.
 
 ## Chapter Summary
 
@@ -1999,13 +2125,13 @@ Think of a botanist's field key, the printed kind that walks you through a plant
 
 Open `classical_ml.ipynb` and run it top to bottom; this section narrates what to look at. The dataset is the iris table that ships inside scikit-learn, so nothing downloads: 150 flowers, four measurements each, three species in equal numbers. Thirty percent of rows are sealed away stratified by species, leaving 105 training rows and 45 test rows. Fitting is one line, `DecisionTreeClassifier(...).fit(X_train, y_train)`, and it is over before you can look up. After five parts of server round trips, token budgets, and timeouts, a model that trains in milliseconds on your own CPU and needs no account, key, or network is a useful reminder that "AI" did not always imply a data centre.
 
-Then print the model. The learned key opens with the same observation a botanist would, that petal length alone separates setosa cleanly (`petal length (cm) <= 2.45`), and resolves the harder two species through a handful of further width thresholds, eight leaves deep at most. Every prediction the tree ever makes can be traced down those branches by a person with a ruler. Scored on the sealed rows, the run captured for this draft (seed fixed, so yours should match) reaches 0.933 accuracy: 42 of 45 correct, with all three mistakes calling borderline versicolor flowers virginica. Read the mistakes individually, as the notebook does. Their measurements sit where the two species genuinely overlap, which is a property of flowers rather than a scandal in the model, and deciding whether those three errors matter is a judgement no accuracy number makes for you, as Chapter 11's moderation sessions also show.
+Then print the model. The learned key opens with the same observation a botanist would, that petal length alone separates setosa cleanly (`petal length (cm) <= 2.45`), and resolves the harder two species through a handful of further width thresholds, eight leaves deep at most. Every prediction the tree ever makes can be traced down those branches by a person with a ruler. Scored on the sealed rows, the run captured for this draft (seed fixed, so yours should match) reaches 0.933 accuracy: 42 of 45 correct, with all three mistakes calling borderline versicolor flowers virginica. Read the mistakes individually, as the notebook does. Their measurements sit where the two species genuinely overlap, which is a property of flowers rather than a scandal in the model, and deciding whether those three errors matter is a judgement no accuracy number makes for you, as Chapter 12's moderation sessions also show.
 
 The second build deletes the answer key. K-means is asked for three clusters in the same measurement space, knowing nothing of species: pick three centres, assign each flower to the nearest, move each centre to the middle of its assignees, repeat until settled. Against the true species it scores an adjusted Rand index of 0.73 in the captured run, where 1.0 is perfect agreement and 0 is chance. The composition table explains the decimal: one cluster is purely setosa, all fifty, the geometry having found unaided what the tree's first threshold found with labels; the other two clusters split the versicolor and virginica ranges untidily between them, because those species really do blur into each other in these measurements. Unsupervised evaluation argues from structure and usefulness rather than from a withheld answer key, a softer standard that the next chapter's sealed losses will stiffen again.
 
 ## What Each Branch Is For
 
-The visit teaches a routing skill, of the same kind Chapter 12 fenced around typed judgments: given a problem, which branch of the family earns the first attempt?
+The visit teaches a routing skill, of the same kind Chapter 13 fenced around typed judgments: given a problem, which branch of the family earns the first attempt?
 
 | Your material looks like | Reach first for | Because |
 |---|---|---|
@@ -2022,15 +2148,15 @@ Two symmetrical cons run in this territory. The first relabels: a logistic regre
 
 ## Practice Exercises
 
-Exercise 15.1 (Level 1). Run the notebook untouched. From the printed tree alone, classify a made-up flower with petal length 5.0 and width 1.8, then check your hand-trace against `tree.predict`.
+Exercise 16.1 (Level 1). Run the notebook untouched. From the printed tree alone, classify a made-up flower with petal length 5.0 and width 1.8, then check your hand-trace against `tree.predict`.
 
-Exercise 15.2 (Level 2). Limit the tree to depth 2 and rerun the split. Record the accuracy and readability trade in one sentence each, in both directions.
+Exercise 16.2 (Level 2). Limit the tree to depth 2 and rerun the split. Record the accuracy and readability trade in one sentence each, in both directions.
 
-Exercise 15.3 (Level 3). Swap the classifier for `SVC` on identical splits. Compare held-out accuracy and the confusion pattern with the tree's. Which mistakes moved, and what does that say about the boundary's shape?
+Exercise 16.3 (Level 3). Swap the classifier for `SVC` on identical splits. Compare held-out accuracy and the confusion pattern with the tree's. Which mistakes moved, and what does that say about the boundary's shape?
 
-Exercise 15.4 (Level 4). Run k-means with two and with five clusters. Using the composition tables, argue which count the data itself prefers, and state what evidence would change your mind.
+Exercise 16.4 (Level 4). Run k-means with two and with five clusters. Using the composition tables, argue which count the data itself prefers, and state what evidence would change your mind.
 
-Exercise 15.5 (Level 5). Take a classification your workplace currently sends to an LLM (or does by hand). Spec the classical baseline: the table, the features, the label, the sealed split, the acceptance bar that would make the LLM unnecessary. Build it if the data is yours to touch.
+Exercise 16.5 (Level 5). Take a classification your workplace currently sends to an LLM (or does by hand). Spec the classical baseline: the table, the features, the label, the sealed split, the acceptance bar that would make the LLM unnecessary. Build it if the data is yours to touch.
 
 ## Chapter Summary
 
@@ -2079,7 +2205,7 @@ The build: a character-level model of 38,874 parameters, trained on ten sentence
 
 Strip a language model to its training loop and four moves remain. Represent text as numbers, because arithmetic needs numbers: here, one integer per distinct character, the smallest workable tokenisation. Guess the next token everywhere in a batch of examples, with the current weights. Measure how wrong the guesses were with a loss, a single number that falls as guesses improve, computed here as cross-entropy, which you can read as average surprise at the true next character. Then nudge every weight a small step in the direction that would have reduced that loss on this batch, which is all gradient descent means here: follow the slope downhill, in small steps, many thousands of times.
 
-Frontier training runs are those four moves at far larger scale, on trillions of tokens, with engineering beyond this book's scope. But scale changes the behaviour that emerges, not the identity of the moves. A model that has only ever done this, whose entire education is guessing the next character slightly less badly each step, is the same kind of object whose call you have been making since Chapter 1. When a large model answers from its training in Chapter 5's sense, this loop, on that text, is all the contact it ever had with the material.
+Frontier training runs are those four moves at far larger scale, on trillions of tokens, with engineering beyond this book's scope. But scale changes the behaviour that emerges, not the identity of the moves. A model that has only ever done this, whose entire education is guessing the next character slightly less badly each step, is the same kind of object whose call you have been making since Chapter 1. When a large model answers from its training in Chapter 6's sense, this loop, on that text, is all the contact it ever had with the material.
 
 ## Understanding Through Real Life
 
@@ -2121,15 +2247,15 @@ A one-layer, 38,874-parameter character model teaches the loop, not the capabili
 
 ## Practice Exercises
 
-Exercise 16.1 (Level 1). Run the notebook untouched. Save the before-training sample, the loss table, and both temperature samples. Explain the validation column to an imaginary colleague in three sentences.
+Exercise 17.1 (Level 1). Run the notebook untouched. Save the before-training sample, the loss table, and both temperature samples. Explain the validation column to an imaginary colleague in three sentences.
 
-Exercise 16.2 (Level 2). Repeat with the leakage split the notebook warns about (one repeated text, cut at a character offset). Compare validation behaviour and state, in writing, which split you would trust for a result you intended to publish.
+Exercise 17.2 (Level 2). Repeat with the leakage split the notebook warns about (one repeated text, cut at a character offset). Compare validation behaviour and state, in writing, which split you would trust for a result you intended to publish.
 
-Exercise 16.3 (Level 3). Swap in your own small text, commit messages, a poem, your meeting openings. Hold out a sensible sealed slice for that genre and defend the split. What does the trained model capture, and what does it plainly not?
+Exercise 17.3 (Level 3). Swap in your own small text, commit messages, a poem, your meeting openings. Hold out a sensible sealed slice for that genre and defend the split. What does the trained model capture, and what does it plainly not?
 
-Exercise 16.4 (Level 4). Vary one setting at a time (model width, steps, learning rate) across three runs with the seed fixed. Record which moved validation loss and which only moved training loss. That table is your first hyperparameter intuition, earned cheaply.
+Exercise 17.4 (Level 4). Vary one setting at a time (model width, steps, learning rate) across three runs with the seed fixed. Record which moved validation loss and which only moved training loss. That table is your first hyperparameter intuition, earned cheaply.
 
-Exercise 16.5 (Level 5). Write the data card for your tiny corpus as if for publication: source, size, split discipline, known biases, what a model trained on it should never be trusted to do. One page, suitable for attaching to the notebook.
+Exercise 17.5 (Level 5). Write the data card for your tiny corpus as if for publication: source, size, split discipline, known biases, what a model trained on it should never be trusted to do. One page, suitable for attaching to the notebook.
 
 ## Chapter Summary
 
@@ -2176,9 +2302,9 @@ The build: a LoRA adapter over Qwen3-4B teaching one plain-English answering dia
 
 ## The Concept First
 
-Almost nobody retrains a capable model from scratch to specialise it, for the arithmetic reason Chapter 16 made vivid: full training touches every weight, with the memory and compute to match. Fine-tuning starts from a pretrained base and continues the same next-token training on a small, deliberate dataset: examples of the behaviour you want more of, formatted as the conversations the model should learn to continue. LoRA, low-rank adaptation, goes one step thriftier. The base weights are frozen, and a small set of extra weights wired alongside key layers is the only thing trained: in the notebook's configuration, well under one percent of the total parameter count. At serving time the adapter can be merged back into the base to produce one ordinary model file, which is what the notebook exports for Ollama.
+Almost nobody retrains a capable model from scratch to specialise it, for the arithmetic reason Chapter 17 made vivid: full training touches every weight, with the memory and compute to match. Fine-tuning starts from a pretrained base and continues the same next-token training on a small, deliberate dataset: examples of the behaviour you want more of, formatted as the conversations the model should learn to continue. LoRA, low-rank adaptation, goes one step thriftier. The base weights are frozen, and a small set of extra weights wired alongside key layers is the only thing trained: in the notebook's configuration, well under one percent of the total parameter count. At serving time the adapter can be merged back into the base to produce one ordinary model file, which is what the notebook exports for Ollama.
 
-The proportion governs what this technique can and cannot do. A fraction of a percent of movable weights, trained on dozens to hundreds of examples, is enough to shift voice, format discipline, refusal habits, and which of the base model's existing knowledge gets foregrounded in a domain. It is a poor place to store a policy manual. Facts planted by fine-tuning arrive with no citation, go stale silently, and compete with everything else in the base, while Chapter 6's retrieval supplies facts at question time with sources attached. The division of labour is therefore: retrieval for what is true, system prompts for what is cheap to state, and an adapter only for behaviour that examples teach better than instructions do.
+The proportion governs what this technique can and cannot do. A fraction of a percent of movable weights, trained on dozens to hundreds of examples, is enough to shift voice, format discipline, refusal habits, and which of the base model's existing knowledge gets foregrounded in a domain. It is a poor place to store a policy manual. Facts planted by fine-tuning arrive with no citation, go stale silently, and compete with everything else in the base, while Chapter 7's retrieval supplies facts at question time with sources attached. The division of labour is therefore: retrieval for what is true, system prompts for what is cheap to state, and an adapter only for behaviour that examples teach better than instructions do.
 
 ## Understanding Through Real Life
 
@@ -2190,25 +2316,25 @@ The measurement discipline matches too. You would not certify the coaching by re
 
 Open the companion notebook at Steps 3 and 4. The training format is JSONL, one conversation per line, user then assistant, and the notebook opens with a miniature built-in dataset teaching a single dialect, short plain-English answers, so the whole pipeline can be smoke-tested before your own data is at stake. Then come the checks: every line parses, turns alternate correctly, no assistant answer is empty, duplicate prompts are flagged, and training prompts are intersected with eval prompts to catch leakage by name. Read two examples by eye before any GPU wakes up, because the model will imitate the assistant column with total sincerity, typos, hedges, evasions, and all. In fine-tuning, the dataset's quality sets your ceiling.
 
-Two scaling notes separate the book build from the capstone it distils. The capstone demands at least 500 training examples and 50 sealed eval examples before a proposal is even approved, because its question is whether a domain adapter beats a 4B base in earnest. The notebook here builds 60 smoke-test records from four question-answer pairs repeated, which is enough to exercise every mechanism and nowhere near enough to claim a specialisation. Your real run sits between: 50 to 100 of your own examples with a sealed eval set you wrote before training, not after seeing results. Write the eval first. Chapter 11 required the same moderation before marks.
+Two scaling notes separate the book build from the capstone it distils. The capstone demands at least 500 training examples and 50 sealed eval examples before a proposal is even approved, because its question is whether a domain adapter beats a 4B base in earnest. The notebook here builds 60 smoke-test records from four question-answer pairs repeated, which is enough to exercise every mechanism and nowhere near enough to claim a specialisation. Your real run sits between: 50 to 100 of your own examples with a sealed eval set you wrote before training, not after seeing results. Write the eval first. Chapter 12 required the same moderation before marks.
 
 ## Train, Export, and Put It Back on the Bench
 
-The middle of the notebook is the LocoLabo machinery at book scale: Unsloth loads Qwen3-4B in 4-bit so a free GPU can hold it, `get_peft_model` attaches the LoRA layer to the attention projections, examples are rendered through the model's own chat template (worth reading once, to see the exact markers the model trains on), and an SFT trainer runs three epochs at the recorded settings. Watch the loss with Chapter 16's eyes: on a set this small it will head toward memorisation quickly, and the training loss is the rehearsal number, of interest mainly when it misbehaves. Then the merge: the notebook exports a quantised GGUF, roughly two and a half gigabytes, and the instructions walk it out of Colab before the session deletes it, a failure mode with its own graveyard of lost evenings.
+The middle of the notebook is the LocoLabo machinery at book scale: Unsloth loads Qwen3-4B in 4-bit so a free GPU can hold it, `get_peft_model` attaches the LoRA layer to the attention projections, examples are rendered through the model's own chat template (worth reading once, to see the exact markers the model trains on), and an SFT trainer runs three epochs at the recorded settings. Watch the loss with Chapter 17's eyes: on a set this small it will head toward memorisation quickly, and the training loss is the rehearsal number, of interest mainly when it misbehaves. Then the merge: the notebook exports a quantised GGUF, roughly two and a half gigabytes, and the instructions walk it out of Colab before the session deletes it, a failure mode with its own graveyard of lost evenings.
 
 Back on your machine the artefact rejoins the world of Part I. A one-line Ollama Modelfile (`FROM ./your-file.gguf`) registers it under a name, `HANDS_ON_AI_MODEL` points your earlier chapters' scripts at it, and the department has a new intern whose only difference from the old one is the dialect you drilled. Nothing else in your stack changes: fine-tuning, done this way, is a change of model file, evaluated like any other model change from Chapter 4.
 
 ## The Only Question That Matters: Did It Beat the Base?
 
-Ask every sealed question of both models, the untouched base and your adapter, ideally with the answers shuffled and their sources hidden from whoever marks. Mark them against the criteria your dialect claims: plainness, brevity, format, whatever the adapter was for, using Chapter 11's judge as the tireless marker and your own reading of a sample as the moderation. Report both scores and read some actual answers, not only the aggregate, because a point gained in style while losing a fact is visible only at reading distance.
+Ask every sealed question of both models, the untouched base and your adapter, ideally with the answers shuffled and their sources hidden from whoever marks. Mark them against the criteria your dialect claims: plainness, brevity, format, whatever the adapter was for, using Chapter 12's judge as the tireless marker and your own reading of a sample as the moderation. Report both scores and read some actual answers, not only the aggregate, because a point gained in style while losing a fact is visible only at reading distance.
 
 At this scale, unfashionable outcomes are common. The adapter may win on voice and lose on substance, which says your examples taught manner at the expense of content. It may match the base everywhere, which usually says a system prompt would have bought the same shift for almost nothing, and Chapter 2 should be tried first next time. Or it may lose, through too few examples, too many epochs, or a dialect the base already spoke. The capstone this notebook descends from states its position in its brief, and this chapter adopts it whole: a negative result with a rigorous explanation is a better piece of work than a flattering number nobody can defend. Publish the training log either way; the log template travels with the notebook materials for that reason.
 
 ## Extension: Learn from Preferences
 
-Supervised fine-tuning imitates examples. Preference learning goes one step further and adjusts weights from comparisons: for the same prompt, this answer over that one. The simplest teachable form is DPO, direct preference optimisation, which consumes triples of prompt, chosen answer, and rejected answer and nudges likelihood toward the chosen style without a separate reward model to babysit. Your supply chain for pairs already exists in this book: generate two candidate answers per sealed-style prompt with your SFT model, rank them against your criteria (your marks first, the judge's second, per Chapter 11's order of trust), and file the winners and losers. The companion notebook's closing section sketches the additional cells; treat them as a second sitting, not a first run.
+Supervised fine-tuning imitates examples. Preference learning goes one step further and adjusts weights from comparisons: for the same prompt, this answer over that one. The simplest teachable form is DPO, direct preference optimisation, which consumes triples of prompt, chosen answer, and rejected answer and nudges likelihood toward the chosen style without a separate reward model to babysit. Your supply chain for pairs already exists in this book: generate two candidate answers per sealed-style prompt with your SFT model, rank them against your criteria (your marks first, the judge's second, per Chapter 12's order of trust), and file the winners and losers. The companion notebook's closing section sketches the additional cells; treat them as a second sitting, not a first run.
 
-Beyond DPO sits online reinforcement learning proper, GRPO being the current teachable shape: sample several answers, score them with a reward, push weights toward the better-scoring behaviour, repeat. It earns its complexity only where the reward can be computed: arithmetic checked by Python, formats validated by a parser, code judged by its tests. At inference time, simple reward-guided search exists, and you built it in Chapter 10: the ratchet changes no weights. In weights, the simple on-ramp is preferences offline and verifiable rewards online; beyond that lies a research programme. Each step up this ladder is judged by the same sealed set, untouched by SFT, DPO, and every threshold conversation in between.
+Beyond DPO sits online reinforcement learning proper, GRPO being the current teachable shape: sample several answers, score them with a reward, push weights toward the better-scoring behaviour, repeat. It earns its complexity only where the reward can be computed: arithmetic checked by Python, formats validated by a parser, code judged by its tests. At inference time, simple reward-guided search exists, and you built it in Chapter 11: the ratchet changes no weights. In weights, the simple on-ramp is preferences offline and verifiable rewards online; beyond that lies a research programme. Each step up this ladder is judged by the same sealed set, untouched by SFT, DPO, and every threshold conversation in between.
 
 ## Where a Demo Can Mislead You
 
@@ -2216,15 +2342,15 @@ Beyond DPO sits online reinforcement learning proper, GRPO being the current tea
 
 ## Practice Exercises
 
-Exercise 17.1 (Level 1). Run the notebook's data cells only (no GPU work): build the miniature dataset, run the checks, and deliberately introduce one malformed record, one duplicate, and one leaked eval prompt. Confirm each is caught by name.
+Exercise 18.1 (Level 1). Run the notebook's data cells only (no GPU work): build the miniature dataset, run the checks, and deliberately introduce one malformed record, one duplicate, and one leaked eval prompt. Confirm each is caught by name.
 
-Exercise 17.2 (Level 2). Write your sealed eval set first: ten questions with the answers your dialect should produce, marked against criteria you state now. Date the file. Nothing in training may touch it.
+Exercise 18.2 (Level 2). Write your sealed eval set first: ten questions with the answers your dialect should produce, marked against criteria you state now. Date the file. Nothing in training may touch it.
 
-Exercise 17.3 (Level 3). Complete the smoke-test training run and export. Register the result in Ollama beside the base and ask both models three training questions and three sealed ones. Record where rehearsal and readiness diverge.
+Exercise 18.3 (Level 3). Complete the smoke-test training run and export. Register the result in Ollama beside the base and ask both models three training questions and three sealed ones. Record where rehearsal and readiness diverge.
 
-Exercise 17.4 (Level 4). Grow to your own 50-plus examples in a dialect you care about. Train, export, and run the blind comparison. Write the training log entry the capstone would expect, whichever way the result lands.
+Exercise 18.4 (Level 4). Grow to your own 50-plus examples in a dialect you care about. Train, export, and run the blind comparison. Write the training log entry the capstone would expect, whichever way the result lands.
 
-Exercise 17.5 (Level 5). Build preference pairs from your adapter's sealed-set answers, ranked by your marks with the judge as second reader. Spec the DPO run (pairs count, epochs, what would make you stop) and the exact result that would convince you it beat SFT alone. Run it if the spec survives your own reading.
+Exercise 18.5 (Level 5). Build preference pairs from your adapter's sealed-set answers, ranked by your marks with the judge as second reader. Spec the DPO run (pairs count, epochs, what would make you stop) and the exact result that would convince you it beat SFT alone. Run it if the spec survives your own reading.
 
 ## Chapter Summary
 
@@ -2259,7 +2385,7 @@ SOURCE: chapters/conclusion.qmd
 
 # The Shape Underneath 
 
-> You came for seventeen chapters of machinery and found one call, five things people wrap around it, and your own judgement at every seam.
+> You came for eighteen chapters of machinery and found one call, five things people wrap around it, and your own judgement at every seam.
 
 Package companion: all of `hands-on-ai` 0.6.0, which you have now read in the pieces that matter.
 
@@ -2296,15 +2422,15 @@ One graduation exercise is worth doing before you shelve the lab. Pick the modul
 
 ## Practice Exercises
 
-Exercise 18.1 (Level 1). Choose an AI product you used this week and sort its behaviour into the six drawers, one line per drawer, naming what you are inferring rather than observing.
+Exercise 19.1 (Level 1). Choose an AI product you used this week and sort its behaviour into the six drawers, one line per drawer, naming what you are inferring rather than observing.
 
-Exercise 18.2 (Level 2). Revisit your earliest learning journal entries. Find one belief about AI systems that a specific chapter's build, not its prose, changed for you. Name the listing.
+Exercise 19.2 (Level 2). Revisit your earliest learning journal entries. Find one belief about AI systems that a specific chapter's build, not its prose, changed for you. Name the listing.
 
-Exercise 18.3 (Level 3). Assemble two parts on one bench: a voice loop whose answers are grounded by your document index, or a judge watching your workflow's draft stage. Keep it small; the composition is the exercise.
+Exercise 19.3 (Level 3). Assemble two parts on one bench: a voice loop whose answers are grounded by your document index, or a judge watching your workflow's draft stage. Keep it small; the composition is the exercise.
 
-Exercise 18.4 (Level 4). Write the one-page version of this book for a colleague: the shape, the five questions, and the single exercise from any chapter that would teach the most in an hour. Defend your choice of exercise.
+Exercise 19.4 (Level 4). Write the one-page version of this book for a colleague: the shape, the five questions, and the single exercise from any chapter that would teach the most in an hour. Defend your choice of exercise.
 
-Exercise 18.5 (Level 5). Capstone. Build one small thing for real use, from  or your own backlog, under this book's disciplines: stated criteria, a checkable goal, sources shown, errors visible, a budget. Ship it to one other person and record what their use taught you that your testing did not.
+Exercise 19.5 (Level 5). Capstone. Build one small thing for real use, from  or your own backlog, under this book's disciplines: stated criteria, a checkable goal, sources shown, errors visible, a budget. Ship it to one other person and record what their use taught you that your testing did not.
 
 ## Chapter Summary
 
@@ -2322,7 +2448,7 @@ Before you close the book, ensure you:
 
 ## Your Learning Journal
 
-1. Which misconception, of the seventeen, were you most reluctant to give up?
+1. Which misconception, of the eighteen, were you most reluctant to give up?
 2. What will you now refuse to accept from a demo, including your own?
 3. What is the first production-shaped problem you intend to point these habits at?
 
@@ -2394,7 +2520,7 @@ text
 Name: Sam
 Sam used 53 tokens.
 
-Chapter 6 builds a prompt by assembling strings this way; `f"..."` there is an f-string like the one above.
+Chapter 7 builds a prompt by assembling strings this way; `f"..."` there is an f-string like the one above.
 
 First used in . F-strings first used in .
 
@@ -2483,7 +2609,7 @@ text
 - second chunk
 - third chunk
 
-The name `chunk` is a variable that takes each item's value in turn. The body can do more than print. Chapter 6 loops over retrieved chunks to build one long prompt string, adding a line per chunk:
+The name `chunk` is a variable that takes each item's value in turn. The body can do more than print. Chapter 7 loops over retrieved chunks to build one long prompt string, adding a line per chunk:
 
 text
 Context:
@@ -2561,11 +2687,11 @@ The package resolves its configuration in a fixed order, weakest first: built-in
 | `HANDS_ON_AI_SERVER` | Chat, embedding, and vision server address | `http://localhost:11434` |
 | `HANDS_ON_AI_API_KEY` | Key for every server above | unset (local servers ignore it) |
 | `HANDS_ON_AI_MODEL` | Chat model | `llama3` |
-| `HANDS_ON_AI_EMBEDDING_MODEL` | Retrieval embeddings, Chapter 6 | `nomic-embed-text` |
-| `HANDS_ON_AI_VISION_MODEL` | Vision model, Chapter 13 | `moondream` |
-| `HANDS_ON_AI_STT_SERVER` | Speech-to-text server, Chapter 14 | the main server |
+| `HANDS_ON_AI_EMBEDDING_MODEL` | Retrieval embeddings, Chapter 7 | `nomic-embed-text` |
+| `HANDS_ON_AI_VISION_MODEL` | Vision model, Chapter 14 | `moondream` |
+| `HANDS_ON_AI_STT_SERVER` | Speech-to-text server, Chapter 15 | the main server |
 | `HANDS_ON_AI_STT_MODEL` | Transcription model | `whisper-1` |
-| `HANDS_ON_AI_TTS_SERVER` | Text-to-speech server, Chapter 14 | the main server |
+| `HANDS_ON_AI_TTS_SERVER` | Text-to-speech server, Chapter 15 | the main server |
 | `HANDS_ON_AI_TTS_MODEL` | Speech model | `kokoro` |
 | `HANDS_ON_AI_CACHE` | Response cache directory | unset, caching off |
 | `HANDS_ON_AI_LOG` | Set to `debug` for verbose logging | unset |
@@ -2578,9 +2704,9 @@ Ollama covers chat, embeddings, and vision from one install at `http://localhost
 
 ```bash
 ollama pull llama3           # chat (Parts I to IV)
-ollama pull nomic-embed-text # retrieval (Chapter 6)
-ollama pull moondream        # vision (Chapter 13)
-Audio is the local exception. Transcription and speech typically come from a small separate server that speaks the same `/v1/audio/` dialect: speaches or whisper.cpp serving a Whisper model for speech-to-text, Kokoro or Piper for text-to-speech. Point `HANDS_ON_AI_STT_SERVER` and `HANDS_ON_AI_TTS_SERVER` at them and Chapter 14 works untouched. Local everything is the private, offline, per-call-free route; its costs are your hardware's limits on model size and patience, felt most in Parts III and V.
+ollama pull nomic-embed-text # retrieval (Chapter 7)
+ollama pull moondream        # vision (Chapter 14)
+Audio is the local exception. Transcription and speech typically come from a small separate server that speaks the same `/v1/audio/` dialect: speaches or whisper.cpp serving a Whisper model for speech-to-text, Kokoro or Piper for text-to-speech. Point `HANDS_ON_AI_STT_SERVER` and `HANDS_ON_AI_TTS_SERVER` at them and Chapter 15 works untouched. Local everything is the private, offline, per-call-free route; its costs are your hardware's limits on model size and patience, felt most in Parts III and V.
 
 ## Hosted Providers
 
@@ -2603,7 +2729,7 @@ Local calls cost time; hosted calls cost money per token. Either way, the shape 
 |---|---|
 | Part I scripts | 1 per line you run |
 | `Conversation` | 1 per turn, over a resent transcript that grows |
-| Indexing, Chapter 6 | 1 embedding call for all chunks, then 1 per question plus its embedding |
+| Indexing, Chapter 7 | 1 embedding call for all chunks, then 1 per question plus its embedding |
 | One agent run | 1 per iteration, up to `max_iterations` |
 | One judged loop iteration | 1 step call + 1 judge call |
 | One ratchet proposal | 1 step call + 1 scoring call, plus 1 to score the start |
@@ -2623,11 +2749,11 @@ Setting `HANDS_ON_AI_CACHE` to a directory turns on a plain-text reply cache for
 | `❌ Error: Connection error.` | Server off, wrong address, blocked network | `handsonai doctor`; read the resolved server aloud |
 | Error naming a model | Model never pulled, or name mismatch | `handsonai models`; compare with your settings exactly |
 | 401 or 403 from a hosted server | Missing or wrong key | `HANDS_ON_AI_API_KEY` present in this terminal |
-| Chat works, Chapter 6 fails | Embedding model missing | `ollama pull nomic-embed-text`, or the embedding setting |
-| Chapter 13 fails, chat fine | Vision model missing or not vision-capable | `vision_model` setting; pull `moondream` |
-| Chapter 14 fails, all else fine | Audio needs its own server | `STT`/`TTS` server variables actually set |
+| Chat works, Chapter 7 fails | Embedding model missing | `ollama pull nomic-embed-text`, or the embedding setting |
+| Chapter 14 fails, chat fine | Vision model missing or not vision-capable | `vision_model` setting; pull `moondream` |
+| Chapter 15 fails, all else fine | Audio needs its own server | `STT`/`TTS` server variables actually set |
 | Answers never change however you edit | The cache is serving stored replies | Unset `HANDS_ON_AI_CACHE` or delete the directory |
-| Agent replies look unstructured | Small model in the text format | Let `format="auto"` choose, as Chapter 8 discussed |
+| Agent replies look unstructured | Small model in the text format | Let `format="auto"` choose, as Chapter 9 discussed |
 | Everything worked yesterday | Settings were terminal-session exports | Put durable choices in `~/.hands-on-ai/config.json` |
 
 One habit resolves most rows: run the doctor, read what it resolved, and argue with settings before arguing with scripts. The scripts in this book are short and seldom the problem; when they are, the error strings Part I taught you to read will usually say which line to look at.
@@ -2648,11 +2774,11 @@ The book's companion builds were the five-line call, the personality bots, and t
 
 ## After Part II: Retrieval
 
-Four projects: My First RAG Bot, which Chapter 6 builds; PDF Question-Answering Chatbot, the same shape aimed at one document type; Build Your Own Q&A CLI, for readers who want the command-line tool rather than the library calls; and Hybrid Reasoning Bot, which starts mixing retrieval with the agent patterns of Part III. Do the first alongside the chapter and at least one more on documents you own.
+Four projects: My First RAG Bot, which Chapter 7 builds; PDF Question-Answering Chatbot, the same shape aimed at one document type; Build Your Own Q&A CLI, for readers who want the command-line tool rather than the library calls; and Hybrid Reasoning Bot, which starts mixing retrieval with the agent patterns of Part III. Do the first alongside the chapter and at least one more on documents you own.
 
 ## After Part III: Agents
 
-Twelve projects, from Simple Calculator Agent (Chapter 7's companion, with a longer treatment of safe expression evaluation) through Build Your Own Tool and Custom Tool Creator, to Multi-Tool Problem Solver and Agent Evaluation Framework at the deeper end. Heed Chapter 7's caution as you browse: the registry calls tools with one string, so read each guide's tool signatures before adopting them, and test tools directly before letting a model anywhere near them.
+Twelve projects, from Simple Calculator Agent (Chapter 8's companion, with a longer treatment of safe expression evaluation) through Build Your Own Tool and Custom Tool Creator, to Multi-Tool Problem Solver and Agent Evaluation Framework at the deeper end. Heed Chapter 8's caution as you browse: the registry calls tools with one string, so read each guide's tool signatures before adopting them, and test tools directly before letting a model anywhere near them.
 
 ## After Part IV: Workflow, Loop, Eval
 
@@ -2660,17 +2786,17 @@ Four projects across the three control modules, each named in its chapter: Build
 
 ## After Part V: Vision and Voice
 
-Two projects, one per sense: The Talking Picture, a beginner's version of Chapter 13's build, and Build the World's Smallest Pipecat, the advanced bridge from Chapter 14's three calls to the production voice framework in . Vision and voice age fastest in this book; treat both guides as starting points and expect model names to have moved.
+Two projects, one per sense: The Talking Picture, a beginner's version of Chapter 14's build, and Build the World's Smallest Pipecat, the advanced bridge from Chapter 15's three calls to the production voice framework in . Vision and voice age fastest in this book; treat both guides as starting points and expect model names to have moved.
 
 ## Three Capstones
 
 Pick by your reason for reading. Each composes at least three parts of the book.
 
-For a personal tool. A document assistant over your own notes: Chapter 6 retrieval over a folder you maintain, Chapter 3 conversation for follow-ups, Chapter 11 criteria checking that answers stayed inside the documents. Success looks like a tool you open weekly whose sources you can click through to.
+For a personal tool. A document assistant over your own notes: Chapter 7 retrieval over a folder you maintain, Chapter 3 conversation for follow-ups, Chapter 12 criteria checking that answers stayed inside the documents. Success looks like a tool you open weekly whose sources you can click through to.
 
-For a classroom demo. A judged improvement loop shown live: a rough student paragraph, Chapter 10's ratchet with its log projected where the class can argue with each keep and discard, and a Chapter 11 moderation table comparing the class's marks with the judge's. Success looks like students disputing criteria wording, unprompted.
+For a classroom demo. A judged improvement loop shown live: a rough student paragraph, Chapter 11's ratchet with its log projected where the class can argue with each keep and discard, and a Chapter 12 moderation table comparing the class's marks with the judge's. Success looks like students disputing criteria wording, unprompted.
 
-For a portfolio piece. A small staged workflow with traces kept: a Chapter 9 pipeline whose middle stage uses Chapter 7 tools and whose final stage is scored by Chapter 11's judge, all outputs filed for inspection. Success looks like a stranger being able to replay the run, find the stage you are least proud of, and hear you explain its job card.
+For a portfolio piece. A small staged workflow with traces kept: a Chapter 10 pipeline whose middle stage uses Chapter 8 tools and whose final stage is scored by Chapter 12's judge, all outputs filed for inspection. Success looks like a stranger being able to replay the run, find the stage you are least proud of, and hear you explain its job card.
 
 ============================================================
 SOURCE: appendices/going-deeper.qmd
@@ -2692,7 +2818,7 @@ Production retrieval adds vector stores, hybrid keyword-plus-vector search, meta
 
 ## Action (Part III)
 
-Agent frameworks such as Pydantic AI and the SDKs' native agent tooling replace text-format parsing with validated function calling, add dependency injection for tools, retries with policy, and tracing as a first-class output. Carry with you: the model still only proposes. Your registry, your allowlists, and your worst-input discipline from Chapter 7 are the safety case, whatever the framework calls its decorators. Read Ship Python, Orchestrate AI in this series for this transition taken at professional length.
+Agent frameworks such as Pydantic AI and the SDKs' native agent tooling replace text-format parsing with validated function calling, add dependency injection for tools, retries with policy, and tracing as a first-class output. Carry with you: the model still only proposes. Your registry, your allowlists, and your worst-input discipline from Chapter 8 are the safety case, whatever the framework calls its decorators. Read Ship Python, Orchestrate AI in this series for this transition taken at professional length.
 
 ## Control (Part IV)
 
