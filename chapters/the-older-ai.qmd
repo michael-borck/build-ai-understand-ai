@@ -26,13 +26,13 @@ Think of a botanist's field key, the printed kind that walks you through a plant
 
 Open `classical_ml.ipynb` and run it top to bottom; this section narrates what to look at. The dataset is the iris table that ships inside scikit-learn, so nothing downloads: 150 flowers, four measurements each, three species in equal numbers. Thirty percent of rows are sealed away stratified by species, leaving 105 training rows and 45 test rows. Fitting is one line, `DecisionTreeClassifier(...).fit(X_train, y_train)`, and it is over before you can look up. After five parts of server round trips, token budgets, and timeouts, a model that trains in milliseconds on your own CPU and needs no account, key, or network is a useful reminder that "AI" did not always imply a data centre.
 
-Then print the model. The learned key opens with the same observation a botanist would, that petal length alone separates setosa cleanly (`petal length (cm) <= 2.45`), and resolves the harder two species through a handful of further width thresholds, eight leaves deep at most. Every prediction the tree ever makes can be traced down those branches by a person with a ruler. Scored on the sealed rows, the run captured for this draft (seed fixed, so yours should match) reaches 0.933 accuracy: 42 of 45 correct, with all three mistakes calling borderline versicolor flowers virginica. Read the mistakes individually, as the notebook does. Their measurements sit where the two species genuinely overlap, which is a property of flowers rather than a scandal in the model, and deciding whether those three errors matter is a judgement no accuracy number makes for you, as Chapter 11's moderation sessions also show.
+Then print the model. The learned key opens with the same observation a botanist would, that petal length alone separates setosa cleanly (`petal length (cm) <= 2.45`), and resolves the harder two species through a handful of further width thresholds, eight leaves deep at most. Every prediction the tree ever makes can be traced down those branches by a person with a ruler. Scored on the sealed rows, the run captured for this draft (seed fixed, so yours should match) reaches 0.933 accuracy: 42 of 45 correct, with all three mistakes calling borderline versicolor flowers virginica. Read the mistakes individually, as the notebook does. Their measurements sit where the two species genuinely overlap, which is a property of flowers rather than a scandal in the model, and deciding whether those three errors matter is a judgement no accuracy number makes for you, as Chapter 12's moderation sessions also show.
 
 The second build deletes the answer key. K-means is asked for three clusters in the same measurement space, knowing nothing of species: pick three centres, assign each flower to the nearest, move each centre to the middle of its assignees, repeat until settled. Against the true species it scores an adjusted Rand index of 0.73 in the captured run, where 1.0 is perfect agreement and 0 is chance. The composition table explains the decimal: one cluster is purely setosa, all fifty, the geometry having found unaided what the tree's first threshold found with labels; the other two clusters split the versicolor and virginica ranges untidily between them, because those species really do blur into each other in these measurements. Unsupervised evaluation argues from structure and usefulness rather than from a withheld answer key, a softer standard that the next chapter's sealed losses will stiffen again.
 
 ## What Each Branch Is For
 
-The visit teaches a routing skill, of the same kind Chapter 12 fenced around typed judgments: given a problem, which branch of the family earns the first attempt?
+The visit teaches a routing skill, of the same kind Chapter 13 fenced around typed judgments: given a problem, which branch of the family earns the first attempt?
 
 | Your material looks like | Reach first for | Because |
 |---|---|---|
@@ -49,15 +49,15 @@ Two symmetrical cons run in this territory. The first relabels: a logistic regre
 
 ## Practice Exercises
 
-**Exercise 15.1 (Level 1).** Run the notebook untouched. From the printed tree alone, classify a made-up flower with petal length 5.0 and width 1.8, then check your hand-trace against `tree.predict`.
+**Exercise 16.1 (Level 1).** Run the notebook untouched. From the printed tree alone, classify a made-up flower with petal length 5.0 and width 1.8, then check your hand-trace against `tree.predict`.
 
-**Exercise 15.2 (Level 2).** Limit the tree to depth 2 and rerun the split. Record the accuracy and readability trade in one sentence each, in both directions.
+**Exercise 16.2 (Level 2).** Limit the tree to depth 2 and rerun the split. Record the accuracy and readability trade in one sentence each, in both directions.
 
-**Exercise 15.3 (Level 3).** Swap the classifier for `SVC` on identical splits. Compare held-out accuracy and the confusion pattern with the tree's. Which mistakes moved, and what does that say about the boundary's shape?
+**Exercise 16.3 (Level 3).** Swap the classifier for `SVC` on identical splits. Compare held-out accuracy and the confusion pattern with the tree's. Which mistakes moved, and what does that say about the boundary's shape?
 
-**Exercise 15.4 (Level 4).** Run k-means with two and with five clusters. Using the composition tables, argue which count the data itself prefers, and state what evidence would change your mind.
+**Exercise 16.4 (Level 4).** Run k-means with two and with five clusters. Using the composition tables, argue which count the data itself prefers, and state what evidence would change your mind.
 
-**Exercise 15.5 (Level 5).** Take a classification your workplace currently sends to an LLM (or does by hand). Spec the classical baseline: the table, the features, the label, the sealed split, the acceptance bar that would make the LLM unnecessary. Build it if the data is yours to touch.
+**Exercise 16.5 (Level 5).** Take a classification your workplace currently sends to an LLM (or does by hand). Spec the classical baseline: the table, the features, the label, the sealed split, the acceptance bar that would make the LLM unnecessary. Build it if the data is yours to touch.
 
 ## Chapter Summary
 

@@ -22,14 +22,14 @@ There is no scheduler, message queue, graph language, or agent hierarchy. The nu
 
 Think of a production line with inspection benches between stations. Work arrives at a station with its job card, gets transformed, and sits in the out-tray until an inspector passes it to the next station. The inspector can send a piece back, correct a small flaw by hand and pass it on, or stop the whole line when a station's job card turns out to be wrong. Nobody confuses the line with magic because you can walk it, bench by bench, and see the state of every piece at a glance.
 
-The folder workspace is that line. Stage folders are stations, `CONTEXT.md` files are job cards, `output.md` in the out-tray is the work so far, and `status()` is the glance down the line. The contrast with Chapter 8's loop is deliberate: the ReAct loop optimises for a machine deciding its own next step quickly; the pipeline optimises for a person deciding whether the last step deserves a next one. Most work worth doing with AI has a cheapest point of intervention, and it is usually between stages, before an error gets three stages of polish applied to it.
+The folder workspace is that line. Stage folders are stations, `CONTEXT.md` files are job cards, `output.md` in the out-tray is the work so far, and `status()` is the glance down the line. The contrast with Chapter 9's loop is deliberate: the ReAct loop optimises for a machine deciding its own next step quickly; the pipeline optimises for a person deciding whether the last step deserves a next one. Most work worth doing with AI has a cheapest point of intervention, and it is usually between stages, before an error gets three stages of polish applied to it.
 
 ## The Build: Three Stages, Two Pauses
 
 One function lays out the line:
 
 ```python
-# Listing 9.1 of 2: lay out the workspace (make_pipeline.py)
+# Listing 10.1 of 2: lay out the workspace (make_pipeline.py)
 from hands_on_ai.workflow import Pipeline, init_workspace
 
 init_workspace(
@@ -51,12 +51,12 @@ print(pipe.status())
 
 Open the workspace in your file browser and look at what was made. A top-level `CONTEXT.md` holds the shared instruction, which becomes the system prompt for every stage, as Chapter 2's card did for one call. Under `stages/`, each numbered folder holds its own `CONTEXT.md`, created as a stub asking you to describe the stage's job, and an empty `output` folder. A `references/` folder waits at the top level for stable rules, house style, a marking rubric, anything every stage should obey; the runner folds every markdown file in it into each stage's prompt under a references heading. The package calls that folder the factory, by which it means the part of the setup you tune once while the workpieces flow through.
 
-Your job before any model runs is to write the three job cards. In `01_research/CONTEXT.md`, describe the gathering job: the topic, what counts as a useful finding, and the shape to return, perhaps five findings each with a one-line implication. In `02_outline`, ask for an outline built only from the research output, with a named section per decision the board must make. In `03_draft`, ask for prose following the outline, at a stated length, introducing no fact the research stage did not supply. Writing those cards is Chapter 2's instruction craft and Chapter 5's grounding discipline, applied per stage. Vague cards produce vague stations, and no pipeline design rescues them. A `CONTEXT.md` job card is a skill in embryo: a reusable instruction file an agent loads when a task matches. When the same card survives a second run, it can become a reusable skill file. *Build Web, Guide AI*, "The Agent-Ready Repo and Handover", shows that progression.
+Your job before any model runs is to write the three job cards. In `01_research/CONTEXT.md`, describe the gathering job: the topic, what counts as a useful finding, and the shape to return, perhaps five findings each with a one-line implication. In `02_outline`, ask for an outline built only from the research output, with a named section per decision the board must make. In `03_draft`, ask for prose following the outline, at a stated length, introducing no fact the research stage did not supply. Writing those cards is Chapter 2's instruction craft and Chapter 6's grounding discipline, applied per stage. Vague cards produce vague stations, and no pipeline design rescues them. A `CONTEXT.md` job card is a skill in embryo: a reusable instruction file an agent loads when a task matches. When the same card survives a second run, it can become a reusable skill file. *Build Web, Guide AI*, "The Agent-Ready Repo and Handover", shows that progression.
 
 Then run the line, one station at a time:
 
 ```python
-# Listing 9.2 of 2: run, review, run (run_pipeline.py)
+# Listing 10.2 of 2: run, review, run (run_pipeline.py)
 from hands_on_ai.workflow import Pipeline
 
 pipe = Pipeline("report_workspace")
@@ -83,7 +83,7 @@ Two consequences follow. Stage boundaries are context boundaries: the drafting s
 The runner also offers `run_all`, which fires the remaining stages in sequence with no pause, bounded by a generous step limit. The package documentation is blunt that it is for pipelines you already trust. Treat your first run of any new line as untrusted by definition. Use `run_all` only after the cards have survived a few inspected runs. Even then, the saved files mean a bad run can be rewound stage by stage rather than rerun from a blank prompt.
 
 ::: {.callout-tip title="Contracts are the product"}
-When a pipeline disappoints, the fix almost never lives in the runner, which only assembles and files. It lives in a job card: the research card did not say what a finding looks like, the outline card did not forbid new facts, the draft card never named its reader. Iterate on `CONTEXT.md` files the way Chapter 7 taught you to iterate on tool descriptions, by feeding the stage exactly what its card requests and reading what the card, as written, actually asked for.
+When a pipeline disappoints, the fix almost never lives in the runner, which only assembles and files. It lives in a job card: the research card did not say what a finding looks like, the outline card did not forbid new facts, the draft card never named its reader. Iterate on `CONTEXT.md` files the way Chapter 8 taught you to iterate on tool descriptions, by feeding the stage exactly what its card requests and reading what the card, as written, actually asked for.
 :::
 
 ## Where a Demo Can Mislead You
@@ -92,15 +92,15 @@ When a pipeline disappoints, the fix almost never lives in the runner, which onl
 
 ## Practice Exercises
 
-**Exercise 9.1 (Level 1).** Build the three-stage workspace, write the cards for a topic you know well, and run the research stage only. Read `output.md` and mark every claim you could not verify from your own knowledge.
+**Exercise 10.1 (Level 1).** Build the three-stage workspace, write the cards for a topic you know well, and run the research stage only. Read `output.md` and mark every claim you could not verify from your own knowledge.
 
-**Exercise 9.2 (Level 2).** Edit the research output by hand: correct one claim, delete the weakest finding, add one finding of your own. Run the outline stage and trace which of your edits visibly shaped it.
+**Exercise 10.2 (Level 2).** Edit the research output by hand: correct one claim, delete the weakest finding, add one finding of your own. Run the outline stage and trace which of your edits visibly shaped it.
 
-**Exercise 9.3 (Level 3).** Add a `references/style.md` with three rules for the draft stage, reset the workspace, and rerun. Compare the two drafts. Which rule was obeyed most literally, and which needed rewording?
+**Exercise 10.3 (Level 3).** Add a `references/style.md` with three rules for the draft stage, reset the workspace, and rerun. Compare the two drafts. Which rule was obeyed most literally, and which needed rewording?
 
-**Exercise 9.4 (Level 4).** Sabotage the line: empty the middle stage's output file without deleting it, then call `run_next`. Then write an error sentence into it by hand and call `run_next` again. Record how the runner's definition of done handled each case, and what your review habit must therefore include.
+**Exercise 10.4 (Level 4).** Sabotage the line: empty the middle stage's output file without deleting it, then call `run_next`. Then write an error sentence into it by hand and call `run_next` again. Record how the runner's definition of done handled each case, and what your review habit must therefore include.
 
-**Exercise 9.5 (Level 5).** Design a four-stage pipeline for a real recurring job: meeting notes to decisions, lesson material to quiz, incident log to board brief. Write all four cards without running anything. For each boundary, state what the output must carry so the next stage needs nothing upstream.
+**Exercise 10.5 (Level 5).** Design a four-stage pipeline for a real recurring job: meeting notes to decisions, lesson material to quiz, incident log to board brief. Write all four cards without running anything. For each boundary, state what the output must carry so the next stage needs nothing upstream.
 
 ## Chapter Summary
 

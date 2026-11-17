@@ -16,7 +16,7 @@ Everything before this part needed a model you could call and the Python in Appe
 
 Strip a language model to its training loop and four moves remain. Represent text as numbers, because arithmetic needs numbers: here, one integer per distinct character, the smallest workable tokenisation. Guess the next token everywhere in a batch of examples, with the current weights. Measure how wrong the guesses were with a loss, a single number that falls as guesses improve, computed here as cross-entropy, which you can read as average surprise at the true next character. Then nudge every weight a small step in the direction that would have reduced that loss on this batch, which is all gradient descent means here: follow the slope downhill, in small steps, many thousands of times.
 
-Frontier training runs are those four moves at far larger scale, on trillions of tokens, with engineering beyond this book's scope. But scale changes the behaviour that emerges, not the identity of the moves. A model that has only ever done this, whose entire education is guessing the next character slightly less badly each step, is the same kind of object whose call you have been making since Chapter 1. When a large model answers from its training in Chapter 5's sense, this loop, on that text, is all the contact it ever had with the material.
+Frontier training runs are those four moves at far larger scale, on trillions of tokens, with engineering beyond this book's scope. But scale changes the behaviour that emerges, not the identity of the moves. A model that has only ever done this, whose entire education is guessing the next character slightly less badly each step, is the same kind of object whose call you have been making since Chapter 1. When a large model answers from its training in Chapter 6's sense, this loop, on that text, is all the contact it ever had with the material.
 
 ## Understanding Through Real Life
 
@@ -62,15 +62,15 @@ A one-layer, 38,874-parameter character model teaches the loop, not the capabili
 
 ## Practice Exercises
 
-**Exercise 16.1 (Level 1).** Run the notebook untouched. Save the before-training sample, the loss table, and both temperature samples. Explain the validation column to an imaginary colleague in three sentences.
+**Exercise 17.1 (Level 1).** Run the notebook untouched. Save the before-training sample, the loss table, and both temperature samples. Explain the validation column to an imaginary colleague in three sentences.
 
-**Exercise 16.2 (Level 2).** Repeat with the leakage split the notebook warns about (one repeated text, cut at a character offset). Compare validation behaviour and state, in writing, which split you would trust for a result you intended to publish.
+**Exercise 17.2 (Level 2).** Repeat with the leakage split the notebook warns about (one repeated text, cut at a character offset). Compare validation behaviour and state, in writing, which split you would trust for a result you intended to publish.
 
-**Exercise 16.3 (Level 3).** Swap in your own small text, commit messages, a poem, your meeting openings. Hold out a sensible sealed slice for that genre and defend the split. What does the trained model capture, and what does it plainly not?
+**Exercise 17.3 (Level 3).** Swap in your own small text, commit messages, a poem, your meeting openings. Hold out a sensible sealed slice for that genre and defend the split. What does the trained model capture, and what does it plainly not?
 
-**Exercise 16.4 (Level 4).** Vary one setting at a time (model width, steps, learning rate) across three runs with the seed fixed. Record which moved validation loss and which only moved training loss. That table is your first hyperparameter intuition, earned cheaply.
+**Exercise 17.4 (Level 4).** Vary one setting at a time (model width, steps, learning rate) across three runs with the seed fixed. Record which moved validation loss and which only moved training loss. That table is your first hyperparameter intuition, earned cheaply.
 
-**Exercise 16.5 (Level 5).** Write the data card for your tiny corpus as if for publication: source, size, split discipline, known biases, what a model trained on it should never be trusted to do. One page, suitable for attaching to the notebook.
+**Exercise 17.5 (Level 5).** Write the data card for your tiny corpus as if for publication: source, size, split discipline, known biases, what a model trained on it should never be trusted to do. One page, suitable for attaching to the notebook.
 
 ## Chapter Summary
 

@@ -28,6 +28,7 @@ book:
         - chapters/who-the-model-is.qmd
         - chapters/no-memory.qmd
         - chapters/any-provider.qmd
+        - chapters/where-your-words-go.qmd
     - part: "Grounding"
       chapters:
         - chapters/what-the-model-doesnt-know.qmd

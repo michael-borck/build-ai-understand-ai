@@ -1,0 +1,158 @@
+# Where Your Words Go {#sec-where-words-go}
+
+> The transmission is the event. Everything after it is policy.
+
+**Package companion:** nothing new. The doctor and the three settings from Chapter 4 do the work; this chapter reads the same machinery as a privacy decision. Listings checked against `hands-on-ai` 0.6.0.
+
+**Misconception this chapter kills:** "What happens to my prompts is decided by policies I cannot see."
+
+**The build:** a short script that names the kind of place your words are heading, the same walk up a four-rung ladder with `ask.py` unchanged, and one proof performed with the wifi off.
+
+**Python you need:** reading an environment variable and string matching on a web address. Nothing new.
+
+## The Concept First
+
+Every answer in this book starts with what you type. Chapter 4 showed that the destination of those words is a setting: `HANDS_ON_AI_SERVER` decided whether your call landed on your own machine or on somebody else's, and `ask.py` never noticed the difference. That setting deserves a second reading. Before it is a convenience, it is a privacy decision, and this chapter is about making it deliberately.
+
+The words can arrive at three kinds of place:
+
+| Kind of place | What happens | What governs it |
+|---|---|---|
+| Your machine | No transmission occurs | Nothing, because there is nothing to govern |
+| A server someone runs | Your words sit on their machine | The operator's rules, which you can ask about |
+| A cloud provider | Your words reach their systems | Their terms: retention, training use, jurisdiction |
+
+The rows differ at the moment of sending, and the difference is transmission. On your machine no transmission occurs, so there is no policy to have an opinion about. "We anonymise it" and "we do not store it" answer questions that only exist once words travel. A server someone runs gives your words a home with rules, and the person who set the rules can tell you what they are, which makes the useful question direct: what is your log policy, and who can read the logs? A cloud provider puts your words under a document you did not write, in a jurisdiction you may not share, with a retention period you did not choose. Read the terms, or assume the worst and act accordingly.
+
+That ordering of knowledge gives this chapter its rule of evidence: prove what can be proved, ask what can be asked, read what can be read, and assume the worst where none of the three is available. Proof outranks a promise. The build produces one.
+
+## Understanding Through Real Life
+
+Say a thing in your kitchen. Nobody receives it. There is no copy to keep, no handler to trust, and no rule to consult, because nothing moved. Say the same thing in someone's office. A person now holds your words, in a room with a door, under house rules you can ask about: does anyone take minutes, who reads them, how long are they kept. Write it on a postcard instead. The postcard travels through hands you did not choose, every one of them able to read it, kept or discarded by other people's habits, inside a postal system whose rules you inherited rather than wrote.
+
+Most people sense those three physics without naming them, and AI prompts carry the same three. A prompt typed at a local model is the kitchen: the words are assembled, used, and, if you save them, filed by you, under your roof. A prompt sent to a campus server is the office. A prompt sent to a cloud provider is the postcard, written at typing speed, one per question. Chapter 4's cache warning applies here too: replies can become files on your disk, so even the kitchen accumulates paper, and the paper is yours to keep or burn.
+
+## The Ladder, Four Rungs
+
+Cost and setup effort sort the places AI can live into four rungs, and the tooling of this book stands on all of them, because every rung speaks the same OpenAI-shaped dialect from Chapter 4:
+
+| Rung | Lives on | Your words | Your key | Worked example |
+|---|---|---|---|---|
+| 1 | Your laptop | Stay on the machine | None exists | mochila: Ollama + Pi |
+| 2 | Cloud, direct | Go to one provider | Held by that provider | Any hosted account |
+| 3 | Cloud, proxied | Go to free providers | Stay local, in your router | frugal: 9Router + free-best |
+| 4 | A shared server | Go to a machine your institution runs | Issued by the operator | puente: locopuente.org |
+
+Rung 1 is where this book has lived since Chapter 1. The Ollama server at `localhost:11434` answered every call without a network, a key, or an account. The mochila kit packages that rung for daily use: Ollama as the engine, Pi as a terminal agent that reads your files and follows your instructions, skills written as plain markdown folders, all of it running with the wifi off.
+
+Rung 2 is Chapter 4's hosted provider: one account, one key, one bill, and your words under one company's terms. The key is a password that spends money, as that chapter warned, and the terms deserve one careful read before you send anything you would not pin to a noticeboard.
+
+Rung 3 splits two ledgers that rungs 1 and 2 keep together. frugal configures a local router, 9Router, and hands it your provider keys; the keys stay on your machine. The words, though, travel on to whichever free provider answers, and the fallback strategy means different calls can land at different providers under different terms. Free tiers charge nothing in money and commonly take more in terms of service: broader retention, training on your inputs, fewer guarantees. The trade can be entirely right for classwork. It should be made with both ledgers read.
+
+Rung 4 returns to rung 1's physics and adds a stranger. A puente server runs the full local stack, chat, documents, images, speech, on hardware your institution owns, so your words may never reach the internet at all. They do land on a machine other people administer, and logs become possible there. The operator's rules replace the provider's terms, and they are askable in a hallway, which a page of legal text is not.
+
+One caution about the drawing itself. The ladder is ordered by cost and setup effort, and privacy does not climb with it. A campus box at rung 4 can be more private than a free cloud at rung 3: rung 4 is the kitchen with an operator in the room, rung 3 is the post office with the postage waived. Keep the two orderings apart, cost on the ladder and trust in the first table, and the drawing stops misleading anyone.
+
+## The Build: Name the Rung
+
+The classification needs fifteen lines. This script reads the same variable Chapter 4 set, takes an address from the command line when one is given, and names the kind of place the first hop lands:
+
+```python
+# Listing 5.1 of 3: name where the first hop lands (where.py)
+import os
+import sys
+from urllib.parse import urlparse
+
+address = sys.argv[1] if len(sys.argv) > 1 else os.environ.get(
+    "HANDS_ON_AI_SERVER", "http://localhost:11434"
+)
+host = urlparse(address).hostname or ""
+
+if host in ("localhost", "127.0.0.1", "::1"):
+    kind = "a machine you control"
+elif host.startswith("192.168.") or host.startswith("10.") or host.endswith(".local"):
+    kind = "a machine on a private network"
+else:
+    kind = "a machine across the internet"
+
+print(f"Calls will first arrive at: {host}")
+print(f"That makes the first hop: {kind}")
+```
+
+Run the doctor first, so you know which address your configuration resolves to. The doctor remains the authority on that question, because it reads the defaults, the config file, and the environment in the package's fixed order. where.py answers a different question, about meaning rather than resolution: what does the address make happen. At the book's defaults it reports a machine you control. Point it at a hosted provider, and the answer changes with one export, as Chapter 4 trained you to do.
+
+## Where the Script Stops
+
+Two blind spots are part of the build, and both teach something the script cannot.
+
+The first is the first hop itself. A frugal setup points your tools at the router, and the router's address is local, so where.py reports a machine you control, which is true of the first hop and says nothing about the journey. The words continue from the router to whichever free provider answers the call. An address names a door, and the ladder table is what tells you what stands behind it. When you classify a setup, classify the full route, past the door.
+
+The second is the operator. A campus address looks, to a string match, like any other public address. The difference that matters is who runs the machine behind it, and no substring test can see a person. The script marks the boundary of what automation can tell you; the rest arrives by asking or by reading, which is the next section's business.
+
+## The Proof at Rung 1
+
+Claims about privacy are usually policy, and policy is a promise. Rung 1 allows something better, a demonstration:
+
+```bash
+# Listing 5.2 of 3: demonstrate the absence of a transmission (terminal)
+# 1. Turn the wifi off, or unplug the network cable. Ollama does not need it.
+python ask.py
+# 2. Read the answer. Turn the network back on.
+```
+
+The answer arrives with every path out of the machine closed. No policy document can add anything to that demonstration, because the event the policies govern did not occur and could not have occurred. Run it once, and the rung's property stops being something you were told. A network monitor can show the same fact from the other side: the only connection `ask.py` opens is to `localhost`.
+
+Rungs above the first do not offer proof, which is why the evidence rule ranks demonstration first and reading last. What they offer instead is the ladder table, and questions.
+
+## The Questions Worth Asking
+
+At rung 1, one question remains, and it is about your own machine. Chapter 3's transcripts and Chapter 4's cache are plain-text copies on your disk. Your kitchen accumulates paper, and you are its operator: decide what you keep, where, and for how long, then apply the rule the way you would like an operator to.
+
+At rungs 2 and 3, read. Three terms decide most of the answer. Retention: how long the words are kept, and whether you can delete them. Use: whether what you type trains future models. Jurisdiction: which country's law applies when something goes wrong. @sec-model-access lists routes, including free tiers, and the same three questions apply at rung 3 to every provider the fallback chain can reach, because a week of classwork can touch several terms documents.
+
+At rung 4, ask. The questions are short, and a good operator enjoys them. What is the log policy? Who can read the logs? How long are they kept? Does anything leave this machine, and if so, under which terms? An operator who cannot answer is telling you something. So is one who answers before you finish asking.
+
+## Where a Demo Can Mislead You
+
+"Private and secure" on a chatbox's landing page is the demo to slow down. Apply Chapter 4's checklist to it: which server address does the product use, and is the address local? A polished app can present a local interface while sending every prompt to a hosted model, and "runs on your machine" marketing sometimes means the interface runs there while the thinking does not. where.py exists for this check, and the product's documentation or a network monitor will confirm what the address resolves to.
+
+The inverse is also a demo. An app that demands an account before it will start is announcing a transmission regardless of where the model lives, because an account is how someone other than you associates words with a person. And "we do not store your data" invites the Chapter 4 cache question in reverse: something, somewhere, was enough to answer you, so the useful follow-up is what was kept, where, for how long, and under whose rules.
+
+## Practice Exercises
+
+**Exercise 5.1 (Level 1).** Run `handsonai doctor`, then run where.py with no arguments. Name the kind of place your words are heading, who sets the rules there, and the one question you would want answered before typing something you would not pin to a noticeboard.
+
+**Exercise 5.2 (Level 2).** No network or key required. Perform Listing 5.2's demonstration, then inventory your kitchen: find the transcripts Chapter 3's scripts saved and the cache directory Chapter 4 created, and write one sentence per location naming who can read it and how long you intend to keep it. You have just written a retention policy.
+
+**Exercise 5.3 (Level 3).** No call needed. Choose a hosted provider from @sec-model-access, find its terms, and quote the sentences that answer the three reading questions: retention, use of your inputs, jurisdiction. Note anything the terms leave silent, and decide what you will assume about a silence.
+
+**Exercise 5.4 (Level 4).** With a hosted key, run Chapter 3's remembering script against the provider, unchanged. List every place your words now exist: your screen, your transcript file, the provider's systems under its retention rule, and anywhere its terms send copies. Compare the list with the same script run at rung 1, and identify what changed because of transmission alone. If you have no key, build both lists from terms documents instead of from runs.
+
+**Exercise 5.5 (Level 5).** Extend Exercise 4.5's school plan with a privacy table: for each of the four rungs, where the words go, where the keys go, what happens past the first hop, and the question you would ask or the document you would read before choosing that rung for two hundred students. End with the rung you would deploy, and the condition under which you would move one rung in either direction.
+
+## Chapter Summary
+
+- The words can arrive at three kinds of place: your machine, a server someone runs, a cloud provider. Transmission is the event; everything after it is policy.
+- Four rungs sort the options by cost and setup: local (mochila), cloud direct, cloud proxied (frugal, with keys local and words in free tiers), and a shared campus server (puente). The ladder measures cost, and trust is a separate axis.
+- where.py classifies the first hop from the address alone, and its two blind spots are lessons: a local router fronting the cloud, and an operator no substring test can see.
+- Rung 1 admits proof. The wifi-off demonstration outranks any promise about logs or retention.
+- Above rung 1, evidence comes from reading terms (retention, use, jurisdiction) or asking an operator (logs, readers, keeping, egress). Your own machine accumulates transcripts and cache, so you hold a retention policy too.
+
+## Reflection
+
+Before moving on, ensure you:
+
+- [ ] Ran the doctor and where.py, and can say what each one answers
+- [ ] Performed the wifi-off demonstration once, and can say what it proves
+- [ ] Know where your own copies live (transcripts, cache) and your rule for them
+- [ ] Can name the three terms to read at rungs 2 and 3, and the four questions to ask at rung 4
+
+## Your Learning Journal
+
+1. Which rung are you on for most of your AI use, and did you choose it or inherit it?
+2. What is the most private thing you would type at your current rung? What would have to be true of one rung lower before you sent it there?
+3. mochila's promise is that trust is not required, because there is nothing to trust. Name one situation where trusting an operator at rung 4 serves you better than proving a negative at rung 1.
+
+## Next Steps
+
+Part I is complete. You can make the call, instruct the model, keep the transcript, choose who answers, and say where the words went and under whose rules. Every reply so far came from whatever the model learned during training, and training stopped on a date. Part II begins with a question your model gets confidently wrong, and then builds the fix: putting evidence into the payload yourself.

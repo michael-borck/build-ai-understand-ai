@@ -102,7 +102,7 @@ python ask.py
 
 The first run calls the model and stores the reply in a plain text file inside that directory, named by a hash of the three things that define the call: model, system prompt, and question. The second run finds the file and prints the stored reply without contacting any server. You can prove it to yourself by running the second one with Ollama stopped. It still answers, instantly, in the exact words of the first run.
 
-In a classroom, a teacher can warm the cache once, then thirty students rerun the lesson offline and see identical output, and nobody's exercise breaks because a model felt whimsical that morning. Chapter 11's judge needs stable material to judge, and the cache is how this book gets it. The costs are the mirror image of the benefits. A cached answer never improves when you switch to a better model, because the model is part of the lookup only as a name in the hash, and a stale cache can confuse you into thinking your new settings changed nothing. Cached replies also arrive with `usage` set to `None`, as Chapter 1 warned, because no tokens were spent. And the cache is one more folder of plain-text transcripts on disk, subject to the same care as the saved chats in Chapter 3. Clearing it is deleting the directory.
+In a classroom, a teacher can warm the cache once, then thirty students rerun the lesson offline and see identical output, and nobody's exercise breaks because a model felt whimsical that morning. Chapter 12's judge needs stable material to judge, and the cache is how this book gets it. The costs are the mirror image of the benefits. A cached answer never improves when you switch to a better model, because the model is part of the lookup only as a name in the hash, and a stale cache can confuse you into thinking your new settings changed nothing. Cached replies also arrive with `usage` set to `None`, as Chapter 1 warned, because no tokens were spent. And the cache is one more folder of plain-text transcripts on disk, subject to the same care as the saved chats in Chapter 3. Clearing it is deleting the directory.
 
 ## Where a Demo Can Mislead You
 
@@ -145,4 +145,4 @@ Before moving on, ensure you:
 
 ## Next Steps
 
-Part I is complete. You can make the call, instruct the model, keep the transcript, and choose who answers. Every reply so far, though, came from whatever the model happened to learn during training, and training stopped on a date. Part II begins with a question your model gets confidently wrong, and then builds the fix: putting evidence into the payload yourself.
+Choosing who answers is now a settings decision, reversible in a minute. The last chapter of Part I reads that same setting a second time: when the words travel, who receives them, under whose rules, and how to prove it where proof is possible.

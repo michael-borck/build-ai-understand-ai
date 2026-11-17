@@ -12,7 +12,7 @@
 
 ## The Concept First
 
-Chapter 7 gave the model one move: request a function, receive the result. Most interesting tasks need the move repeated with judgement about what to do next. ReAct, short for reason and act, is the pattern that organises the repetition [@yao2023react]. The model writes its reasoning as text labelled `Thought:`, follows it with a requested `Action:` and `Action Input:`, your code appends the result as an `Observation:`, and the model reads the growing transcript and writes the next thought. When it judges the question answered, it writes `Final Answer:` instead. The transcript of an agent run is Chapter 3's message list wearing name tags.
+Chapter 8 gave the model one move: request a function, receive the result. Most interesting tasks need the move repeated with judgement about what to do next. ReAct, short for reason and act, is the pattern that organises the repetition [@yao2023react]. The model writes its reasoning as text labelled `Thought:`, follows it with a requested `Action:` and `Action Input:`, your code appends the result as an `Observation:`, and the model reads the growing transcript and writes the next thought. When it judges the question answered, it writes `Final Answer:` instead. The transcript of an agent run is Chapter 3's message list wearing name tags.
 
 The reasoning is ordinary model output, produced the same way as any paragraph in this book, which means you can read it, save it, argue with it, and catch it in an error before the error becomes an action. The loop that drives it is a short Python `for` loop in the package: call the model, scan the reply for an action or a final answer, run any requested tool, append the observation, go around again. An agent, at this size, is a loop and a labelling convention around the call from Chapter 1.
 
@@ -24,10 +24,10 @@ The notebook is doing quiet work in that scene. Because each step was written, y
 
 ## The Build: Two Tools, One Question Each Cannot Finish
 
-Register the calculator beside your word counter from Chapter 7, then ask a question that needs both, in sequence. To watch the steps in their readable form, this listing asks for the ReAct text format explicitly:
+Register the calculator beside your word counter from Chapter 8, then ask a question that needs both, in sequence. To watch the steps in their readable form, this listing asks for the ReAct text format explicitly:
 
 ```python
-# Listing 8.1 of 2: the loop, in legible format (two_tools.py)
+# Listing 9.1 of 2: the loop, in legible format (two_tools.py)
 from hands_on_ai.agent import register_calculator_tool, register_tool, run_agent
 
 
@@ -71,16 +71,16 @@ Thought: I have both numbers.
 Final Answer: The sentence has 7 words, and 7 squared is 49.
 ```
 
-Read the transcript as a work record. The first thought decomposes the question into an order of operations. The first action's input respects the description you wrote in Chapter 7: the text itself, no labels. The observation is your function's return value, word for word, entering the transcript where the model can use it. The second thought plans from a fact it did not have one turn earlier, supplied by your code rather than its training and carried by Chapter 3's resent list. Both numbers in the final answer came from tools whose work you can inspect.
+Read the transcript as a work record. The first thought decomposes the question into an order of operations. The first action's input respects the description you wrote in Chapter 8: the text itself, no labels. The observation is your function's return value, word for word, entering the transcript where the model can use it. The second thought plans from a fact it did not have one turn earlier, supplied by your code rather than its training and carried by Chapter 3's resent list. Both numbers in the final answer came from tools whose work you can inspect.
 
-The readable format is the demanding one. The model must keep the labels exact while reasoning, and small local models often drop a colon, rename a label, or answer inside a thought. That is why `run_agent` defaults to choosing the format for you, routing smaller models to the JSON format from Chapter 7 where a schema validates each reply before anything runs. Forcing `format="react"` on a small model is a fine experiment and a common first failure. Second, `verbose=True` routes the steps through the package's logging, which stays quiet at its default level. To see the steps live, run with the environment variable `HANDS_ON_AI_LOG=debug` set, the same debugging switch the configuration chapter prepared you for.
+The readable format is the demanding one. The model must keep the labels exact while reasoning, and small local models often drop a colon, rename a label, or answer inside a thought. That is why `run_agent` defaults to choosing the format for you, routing smaller models to the JSON format from Chapter 8 where a schema validates each reply before anything runs. Forcing `format="react"` on a small model is a fine experiment and a common first failure. Second, `verbose=True` routes the steps through the package's logging, which stays quiet at its default level. To see the steps live, run with the environment variable `HANDS_ON_AI_LOG=debug` set, the same debugging switch the configuration chapter prepared you for.
 
 ## Read the Loop
 
 The package's ReAct loop fits on a screen, and reading it in `agent/core.py` is this chapter's version of Chapter 1's payload print. In spirit, stripped of its logging and fallback handling, it does this:
 
 ```text
-# Listing 8.2 of 2: the loop's skeleton, simplified from agent/core.py
+# Listing 9.2 of 2: the loop's skeleton, simplified from agent/core.py
 messages = [system_message_with_tools, your_question]
 
 for i in range(max_iterations):
@@ -100,7 +100,7 @@ for i in range(max_iterations):
 return a_partial_answer_or_an_admission
 ```
 
-The system message is Chapter 2's instruction card, here carrying the format rules and the tool descriptions from Chapter 7. The transcript resent on every iteration is Chapter 3's list, which means each turn of the loop is a full model call at full token cost, a fact Part IV's budgets take seriously. The parser is unglamorous text matching: lines beginning `Action:` and `Action Input:` are paired up in order, which is as fragile as it sounds and explains the JSON alternative. Execution is Chapter 7's registry check, including the error-string behaviour for unknown names and failed tools, fed back as the next observation. If someone describes an agent framework to you in terms that cannot be mapped onto this skeleton plus better furniture, ask which line of the skeleton their feature replaces.
+The system message is Chapter 2's instruction card, here carrying the format rules and the tool descriptions from Chapter 8. The transcript resent on every iteration is Chapter 3's list, which means each turn of the loop is a full model call at full token cost, a fact Part IV's budgets take seriously. The parser is unglamorous text matching: lines beginning `Action:` and `Action Input:` are paired up in order, which is as fragile as it sounds and explains the JSON alternative. Execution is Chapter 8's registry check, including the error-string behaviour for unknown names and failed tools, fed back as the next observation. If someone describes an agent framework to you in terms that cannot be mapped onto this skeleton plus better furniture, ask which line of the skeleton their feature replaces.
 
 ## What Makes It Stop
 
@@ -108,10 +108,10 @@ A loop that can always take one more step will, on some question, take all of th
 
 The intended exit is the model's own verdict: a `Final Answer:` line, whose text `run_agent` extracts and returns. The second exit is quieter. If a reply contains no tool request and no final answer, the loop treats the reply itself as a direct answer and returns it. That covers questions needing no tools, and also covers a model that lost the format mid-run, which matters when you debug: a plausible-looking reply may be a formatting failure wearing an answer's clothes. The third exit is the budget: `max_iterations`, five by default. When the loop exhausts it, the package tries to salvage the last thought into a partial report, beginning along the lines of "I've been working on this but haven't reached a final answer", and otherwise admits it reached the maximum number of tool calls.
 
-Each exit has a misuse to watch. A model can declare a final answer early, from training, without calling the tools you stocked for exactly that question; the trace exposes it, which is one more reason to keep traces. A model can also circle: request the same tool with the same input, receive the same observation, and think the same thought again until the budget ends. And because every iteration resends the transcript, a looping agent's turns get dearer as they get less useful. Chapter 10 puts goals and ratchets around repetition. Before running any agent, including one in a product, ask what its three exits are and which one fired.
+Each exit has a misuse to watch. A model can declare a final answer early, from training, without calling the tools you stocked for exactly that question; the trace exposes it, which is one more reason to keep traces. A model can also circle: request the same tool with the same input, receive the same observation, and think the same thought again until the budget ends. And because every iteration resends the transcript, a looping agent's turns get dearer as they get less useful. Chapter 11 puts goals and ratchets around repetition. Before running any agent, including one in a product, ask what its three exits are and which one fired.
 
 ::: {.callout-tip title="Read one trace against the grain"}
-Take a run that produced a correct final answer and reread its thoughts critically. A right answer can travel through a wrong reason ("squaring counts the words twice") rescued by a tool computing correctly anyway. The answer grades well and the reasoning would fail the next question. Traces let you mark the reasoning, which is the part that generalises, and Chapter 11's judge automates a version of exactly that marking.
+Take a run that produced a correct final answer and reread its thoughts critically. A right answer can travel through a wrong reason ("squaring counts the words twice") rescued by a tool computing correctly anyway. The answer grades well and the reasoning would fail the next question. Traces let you mark the reasoning, which is the part that generalises, and Chapter 12's judge automates a version of exactly that marking.
 :::
 
 ## Where a Demo Can Mislead You
@@ -120,15 +120,15 @@ Agent demos are edited like cooking shows: a question goes in, a flurry of impre
 
 ## Practice Exercises
 
-**Exercise 8.1 (Level 1).** Run the two-tool build with debug logging on. Save the full trace. Mark each line with its author: model, tool, or loop.
+**Exercise 9.1 (Level 1).** Run the two-tool build with debug logging on. Save the full trace. Mark each line with its author: model, tool, or loop.
 
-**Exercise 8.2 (Level 2).** Ask the same agent a question needing only the second tool, then one needing neither. Identify which loop exit ended each run, from the trace.
+**Exercise 9.2 (Level 2).** Ask the same agent a question needing only the second tool, then one needing neither. Identify which loop exit ended each run, from the trace.
 
-**Exercise 8.3 (Level 3).** Set `max_iterations=1` and ask the two-step question again. Record exactly what comes back. Then raise the budget until the run completes, and note the smallest budget that suffices.
+**Exercise 9.3 (Level 3).** Set `max_iterations=1` and ask the two-step question again. Record exactly what comes back. Then raise the budget until the run completes, and note the smallest budget that suffices.
 
-**Exercise 8.4 (Level 4).** Induce a circle: describe one of your tools so vaguely that the model keeps calling it with unhelpful inputs. Capture the trace, find the first repeated action, and fix the description rather than raising the budget. Compare traces.
+**Exercise 9.4 (Level 4).** Induce a circle: describe one of your tools so vaguely that the model keeps calling it with unhelpful inputs. Capture the trace, find the first repeated action, and fix the description rather than raising the budget. Compare traces.
 
-**Exercise 8.5 (Level 5).** Write the trace policy for a fictional workplace agent: what is logged, who may read traces, how long they are kept, and what a weekly review of a sample of traces looks for. One page, ending with the failure your policy exists to catch.
+**Exercise 9.5 (Level 5).** Write the trace policy for a fictional workplace agent: what is logged, who may read traces, how long they are kept, and what a weekly review of a sample of traces looks for. One page, ending with the failure your policy exists to catch.
 
 ## Chapter Summary
 

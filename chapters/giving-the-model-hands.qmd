@@ -29,7 +29,7 @@ The voice on the phone can be brilliant and can also ask for the wrong tool, the
 The package ships a calculator tool, and registering it takes one call. Registration adds an entry to the registry table: a name, a description for the model to read, and the function itself.
 
 ```python
-# Listing 7.1 of 3: a model that may ask for a calculator (first_tool.py)
+# Listing 8.1 of 3: a model that may ask for a calculator (first_tool.py)
 from hands_on_ai.agent import list_tools, register_calculator_tool, run_agent
 
 register_calculator_tool()
@@ -39,16 +39,16 @@ answer = run_agent("What is 25 * 3?")
 print(answer)
 ```
 
-The `list_tools()` line prints the registry as the model will effectively meet it: a list of names with descriptions. Run the script and read that output before the answer arrives. Then watch what the run returns. Somewhere between your question and the printed answer, the model asked for the calculator with the input `25 * 3`, your side of the program evaluated it, and the result rode back into the conversation. Chapter 8 slows that exchange down until every hop is visible.
+The `list_tools()` line prints the registry as the model will effectively meet it: a list of names with descriptions. Run the script and read that output before the answer arrives. Then watch what the run returns. Somewhere between your question and the printed answer, the model asked for the calculator with the input `25 * 3`, your side of the program evaluated it, and the result rode back into the conversation. Chapter 9 slows that exchange down until every hop is visible.
 
-You will not see the request itself in this run. By default, `run_agent` chooses how the model should phrase its requests based on the model you configured. Capable models get a readable text format, the subject of Chapter 8. Small local models, including the default from Part I, get routed to a stricter JSON format, where the request arrives as structured data naming a thought, a tool, and an input, validated before anything runs. Either way, what reaches your registry is a name and a string.
+You will not see the request itself in this run. By default, `run_agent` chooses how the model should phrase its requests based on the model you configured. Capable models get a readable text format, the subject of Chapter 9. Small local models, including the default from Part I, get routed to a stricter JSON format, where the request arrives as structured data naming a thought, a tool, and an input, validated before anything runs. Either way, what reaches your registry is a name and a string.
 
 ## Call the Tool Yourself First
 
 Take the model out of the loop entirely to understand a tool. The calculator is a Python function, and you can call it the way you called every function in Appendix A:
 
 ```python
-# Listing 7.2 of 3: the tool, no model involved (tool_directly.py)
+# Listing 8.2 of 3: the tool, no model involved (tool_directly.py)
 from hands_on_ai.agent.tools.calculator import calculator
 
 print(calculator("2 + 2 * 10"))
@@ -60,7 +60,7 @@ Result: 22
 Error: Could not evaluate expression. Dict is not allowed
 ```
 
-The first line is the tool working as intended. The second line fails. Look back at the description `list_tools()` printed in Listing 7.1: its example input is written as `{'expression': '2 + 2 * 10'}`, dictionary-style. The function, however, receives one string and evaluates the expression inside it, so a model that follows the description's example literally will send the dictionary text and get an error in return. The failure sits in the interface between them: one sentence of description.
+The first line is the tool working as intended. The second line fails. Look back at the description `list_tools()` printed in Listing 8.1: its example input is written as `{'expression': '2 + 2 * 10'}`, dictionary-style. The function, however, receives one string and evaluates the expression inside it, so a model that follows the description's example literally will send the dictionary text and get an error in return. The failure sits in the interface between them: one sentence of description.
 
 When a tool fails inside an agent run, the failure does not stop the program. The error text becomes the observation sent back to the model, which gets a chance to read it and try again with a corrected input. The same happens when the model invents a tool name: the reply from your side reads `Error: Tool 'nonexistent' not found.` It is a forgiving design for learning, and a design whose risks the safety section below takes seriously, because a model that can retry can also be steered by whatever text a tool returns.
 
@@ -71,7 +71,7 @@ While you have the tool open in front of you, look at how it evaluates. Your fir
 A tool of yours needs three things the calculator already showed you: a function that takes one string and returns text, a name, and a description written for its reader, who is a model deciding from that sentence alone whether and how to call it.
 
 ```python
-# Listing 7.3 of 3: your own tool on the bench (my_tool.py)
+# Listing 8.3 of 3: your own tool on the bench (my_tool.py)
 from hands_on_ai.agent import list_tools, register_calculator_tool, register_tool, run_agent
 
 
@@ -94,7 +94,7 @@ print(run_agent("How many words are in this sentence: the model proposes and the
 
 One line in that listing does something new. The third argument to `register_tool` is `count_words` with no parentheses after it. That hands the function itself to the registry without calling it, so the registry can call it later when a request arrives. Parentheses would run it immediately, with no input, and register the resulting text instead, which fails in ways worth seeing once in the exercises.
 
-The description earns its keep by preventing the failure you just studied. It names the input's exact shape, including what not to add around it. When you write descriptions of your own, write the example input as the literal string the function should receive, then test the description the way Listing 7.2 tested the calculator's: feed the tool exactly what its description tells the model to send. If that string errors, the description is wrong, whatever the function does with well-formed input.
+The description earns its keep by preventing the failure you just studied. It names the input's exact shape, including what not to add around it. When you write descriptions of your own, write the example input as the literal string the function should receive, then test the description the way Listing 8.2 tested the calculator's: feed the tool exactly what its description tells the model to send. If that string errors, the description is wrong, whatever the function does with well-formed input.
 
 ## The Bench Rules: Safety Lives on Your Side
 
@@ -102,9 +102,9 @@ Everything in this section follows from one fact: text produced by a model, infl
 
 Stock the bench narrowly. A calculator that accepts arithmetic only, a word counter, a lookup that reads one file: each tool should do one small thing, take one plainly shaped input, and have no side effects you would mind explaining. The dangerous tool is the general one, a `run_command` or `evaluate_code` that turns model text into machine instructions. The package's own calculator shows the alternative pattern: parse the input, walk an allowlist, reject everything else wholesale.
 
-Check what each tool actually returns before you trust it in a chain. The package is honest about its teaching tools, and reading two of them is a useful exercise in professional suspicion. Its weather tool is labelled simulated and returns random conditions. Its search tool is also simulated, answering from a small set of canned passages. An agent using them will produce fluent answers grounded in theatre, and nothing in the final answer warns the reader. Tools are evidence sources like the chunks in Chapter 6, and they deserve the same question: where does this text actually come from?
+Check what each tool actually returns before you trust it in a chain. The package is honest about its teaching tools, and reading two of them is a useful exercise in professional suspicion. Its weather tool is labelled simulated and returns random conditions. Its search tool is also simulated, answering from a small set of canned passages. An agent using them will produce fluent answers grounded in theatre, and nothing in the final answer warns the reader. Tools are evidence sources like the chunks in Chapter 7, and they deserve the same question: where does this text actually come from?
 
-The model can ask, repeatedly and creatively, and the error-as-observation design means it gets feedback and retries. Your registry is the complete list of what asking can achieve. A function that is not registered cannot be called, whatever the prompt says, and a registered function should be safe when called with the worst string a model can produce, as well as the strings you imagined. Chapter 10 adds stopping rules and budgets around the asking.
+The model can ask, repeatedly and creatively, and the error-as-observation design means it gets feedback and retries. Your registry is the complete list of what asking can achieve. A function that is not registered cannot be called, whatever the prompt says, and a registered function should be safe when called with the worst string a model can produce, as well as the strings you imagined. Chapter 11 adds stopping rules and budgets around the asking.
 
 ::: {.callout-note title="Descriptions are prompts too"}
 The tool descriptions ride inside the system prompt the agent sends on every call, so they cost prompt tokens on every iteration, exactly as Chapter 2's standing instructions do. They also compete with each other: two tools with overlapping descriptions will be confused with each other, and the fix is usually in the wording, not the model. When an agent picks the wrong tool, read the bench card before blaming the voice on the phone.
@@ -116,15 +116,15 @@ Agent demos love the moment the system "does something" in the real world: sends
 
 ## Practice Exercises
 
-**Exercise 7.1 (Level 1).** Run `first_tool.py`. Then change the question to one needing no tool at all, and one the calculator cannot help with. Record what the agent does in each case.
+**Exercise 8.1 (Level 1).** Run `first_tool.py`. Then change the question to one needing no tool at all, and one the calculator cannot help with. Record what the agent does in each case.
 
-**Exercise 7.2 (Level 2).** Using Listing 7.2, test the calculator with five inputs: a valid expression, the dictionary-style example, a word, an empty string, and an attempt to reach beyond arithmetic. Tabulate which returned results and which returned errors.
+**Exercise 8.2 (Level 2).** Using Listing 8.2, test the calculator with five inputs: a valid expression, the dictionary-style example, a word, an empty string, and an attempt to reach beyond arithmetic. Tabulate which returned results and which returned errors.
 
-**Exercise 7.3 (Level 3).** Write and register a tool of your own that does one verifiable thing: count sentences, look up a word in a small dictionary you define, or convert a temperature. Test it directly first, including with the exact example string from your own description.
+**Exercise 8.3 (Level 3).** Write and register a tool of your own that does one verifiable thing: count sentences, look up a word in a small dictionary you define, or convert a temperature. Test it directly first, including with the exact example string from your own description.
 
-**Exercise 7.4 (Level 4).** Deliberately register your Exercise 7.3 tool with a misleading description, then ask the agent a question that needs it. Record the failure. Rewrite only the description and ask again. What does the comparison teach you about where agent bugs live?
+**Exercise 8.4 (Level 4).** Deliberately register your Exercise 8.3 tool with a misleading description, then ask the agent a question that needs it. Record the failure. Rewrite only the description and ask again. What does the comparison teach you about where agent bugs live?
 
-**Exercise 7.5 (Level 5).** Audit a bench. List every tool the package's `agent ask` command registers (read its command source), classify each as reads-the-world or changes-something and as real or simulated, and write the one-sentence bench rule you would impose before connecting it to a system that mattered.
+**Exercise 8.5 (Level 5).** Audit a bench. List every tool the package's `agent ask` command registers (read its command source), classify each as reads-the-world or changes-something and as real or simulated, and write the one-sentence bench rule you would impose before connecting it to a system that mattered.
 
 ## Chapter Summary
 

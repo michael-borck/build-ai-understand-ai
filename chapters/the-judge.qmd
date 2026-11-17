@@ -2,7 +2,7 @@
 
 > When output is cheap and plentiful, the scarce skill is telling good from fluent, at a scale your eyes cannot cover alone.
 
-**Package companion:** `hands_on_ai.eval`, the `judge` function behind Chapter 10's goals. Listings checked against `hands-on-ai` 0.6.0.
+**Package companion:** `hands_on_ai.eval`, the `judge` function behind Chapter 11's goals. Listings checked against `hands-on-ai` 0.6.0.
 
 **Misconception this chapter kills:** "I can eyeball quality." At scale you cannot, the demo is not a test, and a score is a signal to calibrate rather than a verdict to obey.
 
@@ -12,7 +12,7 @@
 
 ## The Concept First
 
-Every chapter since Chapter 5 has widened the gap this one addresses. Production is now the cheap direction: a call produces an answer, a pipeline produces a draft, a loop produces five drafts and a log. Evaluation is where the cost now sits: somebody, or something, has to read all of that output and separate the sound from the merely fluent, and a human reader does not scale past a few dozen items a day with their attention intact. The industry's working answer is the pattern this chapter takes apart: LLM-as-judge, in which a model is asked to score an output against criteria you state, returning a number and a reason your code can act on, as Chapter 10's goals already did.
+Every chapter since Chapter 6 has widened the gap this one addresses. Production is now the cheap direction: a call produces an answer, a pipeline produces a draft, a loop produces five drafts and a log. Evaluation is where the cost now sits: somebody, or something, has to read all of that output and separate the sound from the merely fluent, and a human reader does not scale past a few dozen items a day with their attention intact. The industry's working answer is the pattern this chapter takes apart: LLM-as-judge, in which a model is asked to score an output against criteria you state, returning a number and a reason your code can act on, as Chapter 11's goals already did.
 
 The judge is the smallest build in the book. It is one call, with a system prompt casting the model as a strict but fair evaluator and demanding exactly two lines back, a score and a reasoning, followed by a small parser that extracts the number and clamps it into the scale. There is no special evaluation engine, which is why calibration matters more than the mechanism: a judge is a model producing text about text, with a model's failure modes, and the craft is in knowing how far its numbers track your own judgement on work you have actually read.
 
@@ -29,7 +29,7 @@ An LLM judge joins your marking team as an indefatigable new marker who reads at
 Start with a single verdict, printed in full, so every part of the return value is visible:
 
 ```python
-# Listing 11.1 of 2: one verdict, all its parts (one_verdict.py)
+# Listing 12.1 of 2: one verdict, all its parts (one_verdict.py)
 from hands_on_ai.eval import judge
 
 verdict = judge(
@@ -49,10 +49,10 @@ Run the listing a few times on the same answer, and treat the wobble as data. Sc
 
 ## The Moderation Meeting: Judge Your Bot
 
-Now the project the package names `judge-your-bot`. Take a small set of answers from a bot you have built, a personality bot from Chapter 2 or your RAG bot from Chapter 6 answering questions you chose, and mark them twice: once yourself, once with the judge, against the same written criteria.
+Now the project the package names `judge-your-bot`. Take a small set of answers from a bot you have built, a personality bot from Chapter 2 or your RAG bot from Chapter 7 answering questions you chose, and mark them twice: once yourself, once with the judge, against the same written criteria.
 
 ```python
-# Listing 11.2 of 2: your marks beside the judge's (judge_your_bot.py)
+# Listing 12.2 of 2: your marks beside the judge's (judge_your_bot.py)
 from hands_on_ai.eval import judge
 
 CRITERIA = "accurate, based only on the provided documents, and concise"
@@ -72,12 +72,12 @@ Write your scores into the listing before you run it, from your own reading, as 
 
 ## Writing Criteria a Judge Can Use
 
-Rubric writing for a model follows the instruction rules from earlier chapters. Criteria should name checkable properties rather than vibes: "states the borrowing limit as a number" can be marked against a document; "high quality" cannot be marked against anything. Where correctness matters, give the judge something to be correct against: the question, the source chunk, the expected fact. A judge asked to score accuracy from its own training is a second opinion from the same well the first answer was drawn from, and Chapter 5 already told you what that well contains. Keep the scale honest about the discrimination you verified in moderation: if your judge reliably separates poor, adequate, and strong, a 1-to-3 scale collects the information without pretending to five points of it. And separate criteria that pull against each other into separate judgements when the trade-off matters, because a single score for "accurate and entertaining" hides which one failed, as Chapter 2's contradictory system prompts hid which instruction the model disobeyed.
+Rubric writing for a model follows the instruction rules from earlier chapters. Criteria should name checkable properties rather than vibes: "states the borrowing limit as a number" can be marked against a document; "high quality" cannot be marked against anything. Where correctness matters, give the judge something to be correct against: the question, the source chunk, the expected fact. A judge asked to score accuracy from its own training is a second opinion from the same well the first answer was drawn from, and Chapter 6 already told you what that well contains. Keep the scale honest about the discrimination you verified in moderation: if your judge reliably separates poor, adequate, and strong, a 1-to-3 scale collects the information without pretending to five points of it. And separate criteria that pull against each other into separate judgements when the trade-off matters, because a single score for "accurate and entertaining" hides which one failed, as Chapter 2's contradictory system prompts hid which instruction the model disobeyed.
 
-The parser clamps and fails visibly, by design. A judge that replies with a score off the scale has it clamped to the nearest end. A judge whose reply contains no `SCORE:` line yields `None`, which Chapter 10's goal treats as not good enough and the ratchet treats as never an improvement. Neither behaviour fixes a confused judge, but both keep one from silently passing work.
+The parser clamps and fails visibly, by design. A judge that replies with a score off the scale has it clamped to the nearest end. A judge whose reply contains no `SCORE:` line yields `None`, which Chapter 11's goal treats as not good enough and the ratchet treats as never an improvement. Neither behaviour fixes a confused judge, but both keep one from silently passing work.
 
 ::: {.callout-warning title="The judge can be captured by its input"}
-A judge reads the output it is marking, and that output is model-generated text, which can contain sentences addressed to the marker: flattery, instructions, a forged `SCORE: 5` line of its own. The parser takes the first score it finds in the judge's reply, and a small model quoted its input often enough for this to matter in adversarial settings. In your classroom builds the risk is mostly accidental, but the bench rule from Chapter 7 applies with roles reversed: treat the marked text as untrusted input to the marking process, and be suspicious of perfect scores on work you have not sampled.
+A judge reads the output it is marking, and that output is model-generated text, which can contain sentences addressed to the marker: flattery, instructions, a forged `SCORE: 5` line of its own. The parser takes the first score it finds in the judge's reply, and a small model quoted its input often enough for this to matter in adversarial settings. In your classroom builds the risk is mostly accidental, but the bench rule from Chapter 8 applies with roles reversed: treat the marked text as untrusted input to the marking process, and be suspicious of perfect scores on work you have not sampled.
 :::
 
 ## Where a Demo Can Mislead You
@@ -86,15 +86,15 @@ Ask the moderation questions of any evaluation claim, however scientific its per
 
 ## Practice Exercises
 
-**Exercise 11.1 (Level 1).** Run one verdict five times on the same answer and record the scores and reasonings. Report the range, and state what decisions you would and would not base on this judge at this stability.
+**Exercise 12.1 (Level 1).** Run one verdict five times on the same answer and record the scores and reasonings. Report the range, and state what decisions you would and would not base on this judge at this stability.
 
-**Exercise 11.2 (Level 2).** Build a case list of eight answers from your own earlier chapters, at least two of which are fluent and wrong. Mark them yourself, run the judge, and sort every disagreement into rubric, my mark, or judge error.
+**Exercise 12.2 (Level 2).** Build a case list of eight answers from your own earlier chapters, at least two of which are fluent and wrong. Mark them yourself, run the judge, and sort every disagreement into rubric, my mark, or judge error.
 
-**Exercise 11.3 (Level 3).** Rewrite your criteria to repair the largest rubric-caused disagreement, rerun the same cases, and report what moved and what stubbornly did not.
+**Exercise 12.3 (Level 3).** Rewrite your criteria to repair the largest rubric-caused disagreement, rerun the same cases, and report what moved and what stubbornly did not.
 
-**Exercise 11.4 (Level 4).** Probe the judge's soft spots with paired answers: same content at two lengths, same content in confident and hedged tones, a correct refusal against a fluent invention. Which dimension moved the score most, and was it one your criteria mentioned?
+**Exercise 12.4 (Level 4).** Probe the judge's soft spots with paired answers: same content at two lengths, same content in confident and hedged tones, a correct refusal against a fluent invention. Which dimension moved the score most, and was it one your criteria mentioned?
 
-**Exercise 11.5 (Level 5).** Write the moderation protocol for a course team adopting this judge for feedback drafts: sampling rate, who marks the sample, what disagreement rate suspends the judge, and when recalibration is mandatory. One page, ending with the decision this judge is never allowed to make alone.
+**Exercise 12.5 (Level 5).** Write the moderation protocol for a course team adopting this judge for feedback drafts: sampling rate, who marks the sample, what disagreement rate suspends the judge, and when recalibration is mandatory. One page, ending with the decision this judge is never allowed to make alone.
 
 ## Chapter Summary
 

@@ -14,7 +14,7 @@ Production retrieval adds vector stores, hybrid keyword-plus-vector search, meta
 
 ## Action (Part III)
 
-Agent frameworks such as Pydantic AI and the SDKs' native agent tooling replace text-format parsing with validated function calling, add dependency injection for tools, retries with policy, and tracing as a first-class output. Carry with you: the model still only proposes. Your registry, your allowlists, and your worst-input discipline from Chapter 7 are the safety case, whatever the framework calls its decorators. Read *Ship Python, Orchestrate AI* in this series for this transition taken at professional length.
+Agent frameworks such as Pydantic AI and the SDKs' native agent tooling replace text-format parsing with validated function calling, add dependency injection for tools, retries with policy, and tracing as a first-class output. Carry with you: the model still only proposes. Your registry, your allowlists, and your worst-input discipline from Chapter 8 are the safety case, whatever the framework calls its decorators. Read *Ship Python, Orchestrate AI* in this series for this transition taken at professional length.
 
 ## Control (Part IV)
 

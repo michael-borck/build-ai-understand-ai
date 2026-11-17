@@ -10,11 +10,11 @@ The book's companion builds were the five-line call, the personality bots, and t
 
 ## After Part II: Retrieval
 
-Four projects: *My First RAG Bot*, which Chapter 6 builds; *PDF Question-Answering Chatbot*, the same shape aimed at one document type; *Build Your Own Q&A CLI*, for readers who want the command-line tool rather than the library calls; and *Hybrid Reasoning Bot*, which starts mixing retrieval with the agent patterns of Part III. Do the first alongside the chapter and at least one more on documents you own.
+Four projects: *My First RAG Bot*, which Chapter 7 builds; *PDF Question-Answering Chatbot*, the same shape aimed at one document type; *Build Your Own Q&A CLI*, for readers who want the command-line tool rather than the library calls; and *Hybrid Reasoning Bot*, which starts mixing retrieval with the agent patterns of Part III. Do the first alongside the chapter and at least one more on documents you own.
 
 ## After Part III: Agents
 
-Twelve projects, from *Simple Calculator Agent* (Chapter 7's companion, with a longer treatment of safe expression evaluation) through *Build Your Own Tool* and *Custom Tool Creator*, to *Multi-Tool Problem Solver* and *Agent Evaluation Framework* at the deeper end. Heed Chapter 7's caution as you browse: the registry calls tools with one string, so read each guide's tool signatures before adopting them, and test tools directly before letting a model anywhere near them.
+Twelve projects, from *Simple Calculator Agent* (Chapter 8's companion, with a longer treatment of safe expression evaluation) through *Build Your Own Tool* and *Custom Tool Creator*, to *Multi-Tool Problem Solver* and *Agent Evaluation Framework* at the deeper end. Heed Chapter 8's caution as you browse: the registry calls tools with one string, so read each guide's tool signatures before adopting them, and test tools directly before letting a model anywhere near them.
 
 ## After Part IV: Workflow, Loop, Eval
 
@@ -22,14 +22,14 @@ Four projects across the three control modules, each named in its chapter: *Buil
 
 ## After Part V: Vision and Voice
 
-Two projects, one per sense: *The Talking Picture*, a beginner's version of Chapter 13's build, and *Build the World's Smallest Pipecat*, the advanced bridge from Chapter 14's three calls to the production voice framework in @sec-going-deeper. Vision and voice age fastest in this book; treat both guides as starting points and expect model names to have moved.
+Two projects, one per sense: *The Talking Picture*, a beginner's version of Chapter 14's build, and *Build the World's Smallest Pipecat*, the advanced bridge from Chapter 15's three calls to the production voice framework in @sec-going-deeper. Vision and voice age fastest in this book; treat both guides as starting points and expect model names to have moved.
 
 ## Three Capstones
 
 Pick by your reason for reading. Each composes at least three parts of the book.
 
-**For a personal tool.** A document assistant over your own notes: Chapter 6 retrieval over a folder you maintain, Chapter 3 conversation for follow-ups, Chapter 11 criteria checking that answers stayed inside the documents. Success looks like a tool you open weekly whose sources you can click through to.
+**For a personal tool.** A document assistant over your own notes: Chapter 7 retrieval over a folder you maintain, Chapter 3 conversation for follow-ups, Chapter 12 criteria checking that answers stayed inside the documents. Success looks like a tool you open weekly whose sources you can click through to.
 
-**For a classroom demo.** A judged improvement loop shown live: a rough student paragraph, Chapter 10's ratchet with its log projected where the class can argue with each keep and discard, and a Chapter 11 moderation table comparing the class's marks with the judge's. Success looks like students disputing criteria wording, unprompted.
+**For a classroom demo.** A judged improvement loop shown live: a rough student paragraph, Chapter 11's ratchet with its log projected where the class can argue with each keep and discard, and a Chapter 12 moderation table comparing the class's marks with the judge's. Success looks like students disputing criteria wording, unprompted.
 
-**For a portfolio piece.** A small staged workflow with traces kept: a Chapter 9 pipeline whose middle stage uses Chapter 7 tools and whose final stage is scored by Chapter 11's judge, all outputs filed for inspection. Success looks like a stranger being able to replay the run, find the stage you are least proud of, and hear you explain its job card.
+**For a portfolio piece.** A small staged workflow with traces kept: a Chapter 10 pipeline whose middle stage uses Chapter 8 tools and whose final stage is scored by Chapter 12's judge, all outputs filed for inspection. Success looks like a stranger being able to replay the run, find the stage you are least proud of, and hear you explain its job card.

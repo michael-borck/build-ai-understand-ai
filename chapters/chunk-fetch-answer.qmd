@@ -1,6 +1,6 @@
 # Chunk, Fetch, Answer {#sec-chunk-fetch-answer}
 
-> Retrieval-augmented generation is the paste you did by hand in Chapter 5, with code doing the searching and the pasting.
+> Retrieval-augmented generation is the paste you did by hand in Chapter 6, with code doing the searching and the pasting.
 
 **Package companion:** `hands_on_ai.rag`, plus the `rag` command-line tool. Listings checked against `hands-on-ai` 0.6.0.
 
@@ -12,7 +12,7 @@
 
 ## The Concept First
 
-Chapter 5 ended with a shape: select relevant text, paste it into the prompt ahead of the question, instruct the model to answer from the text. The technique has a name in the research literature, retrieval-augmented generation, from the paper that popularised it [@lewis2020rag], and the industry shortens it to RAG. The name sounds like a product category, but nothing has changed about the call. The model still receives one payload and returns text. What changed is who does the selecting and the pasting: code, in the seconds before the call.
+Chapter 6 ended with a shape: select relevant text, paste it into the prompt ahead of the question, instruct the model to answer from the text. The technique has a name in the research literature, retrieval-augmented generation, from the paper that popularised it [@lewis2020rag], and the industry shortens it to RAG. The name sounds like a product category, but nothing has changed about the call. The model still receives one payload and returns text. What changed is who does the selecting and the pasting: code, in the seconds before the call.
 
 The work splits into two phases that happen at different times. Indexing happens once, before any question is asked: load the documents, cut them into chunks, turn each chunk into numbers a search can compare, and save the lot to a file. Answering happens per question: turn the question into numbers the same way, fetch the chunks whose numbers sit closest, assemble them into a prompt of exactly the shape you built by hand, and make the familiar call. Every concept in this chapter lives in one of those two phases, and keeping them apart in your head prevents most confusion about RAG systems, including expensive commercial ones.
 
@@ -36,7 +36,7 @@ The doctor prints the embedding model alongside the chat model. From this chapte
 You also need documents. The package ships sample texts about networking, and one function copies them into a folder of your own:
 
 ```python
-# Listing 6.1 of 4: get the sample documents (get_docs.py)
+# Listing 7.1 of 4: get the sample documents (get_docs.py)
 from hands_on_ai.rag import copy_sample_docs, list_sample_docs
 
 print(list_sample_docs())
@@ -50,7 +50,7 @@ The folder contains a handful of files in the formats the package can load: `.tx
 Indexing begins with cutting. `load_text_file` reads a file into one long string, and `chunk_text` splits the string into chunks of a set number of words. The configured default is 500 words per chunk. That number is far too large to see anything at a glance, so this listing uses five:
 
 ```python
-# Listing 6.2 of 4: chunking, at a size you can see (chunks.py)
+# Listing 7.2 of 4: chunking, at a size you can see (chunks.py)
 from hands_on_ai.rag import chunk_text
 
 text = (
@@ -83,10 +83,10 @@ Similarity search has two limits. Closeness is about topic, not about truth or i
 
 ## Answer: Assemble the Prompt You Already Know
 
-The package's own `rag ask` command builds the prompt by listing the fetched chunks under a "Context:" heading, appends an instruction to answer from the context and to say so when the context lacks the answer, sets a system prompt demanding answers based only on the provided context, and calls `get_response`. It is Listing 5.2 with the paste automated. This listing does the same job in your own code, printing the sources so you can check them:
+The package's own `rag ask` command builds the prompt by listing the fetched chunks under a "Context:" heading, appends an instruction to answer from the context and to say so when the context lacks the answer, sets a system prompt demanding answers based only on the provided context, and calls `get_response`. It is Listing 6.2 with the paste automated. This listing does the same job in your own code, printing the sources so you can check them:
 
 ```python
-# Listing 6.3 of 4: fetch, assemble, answer (ask_docs.py)
+# Listing 7.3 of 4: fetch, assemble, answer (ask_docs.py)
 from hands_on_ai.chat import get_response
 from hands_on_ai.rag import get_top_k
 
@@ -117,14 +117,14 @@ for chunk, source in results:
 Before this can run, an index must exist. The command-line tool builds one from a folder in a single step, which is how the package's `first-rag-bot` project starts:
 
 ```bash
-# Listing 6.4 of 4: index once, ask with receipts (terminal)
+# Listing 7.4 of 4: index once, ask with receipts (terminal)
 rag index sample_docs --force
 rag ask "What does TCP do?" --context --scores
 ```
 
 By default the index lands at `~/.hands-on-ai/index.npz`, where `rag ask` looks for it, and `--force` permits rebuilding over an older index. The two flags on the question are the chapter's debugging instruments. `--context` shows the chunks the fetch chose, and `--scores` shows how close each one scored. When an answer disappoints, look there before you touch the prompt. Most bad RAG answers are faithful summaries of the wrong chunks, and no instruction to the model can repair evidence that was never fetched.
 
-Run both routes on the networking samples. Ask what TCP does, how HTTP works, and what distinguishes TCP from UDP, the starter questions from the project guide. Then ask something the documents cannot answer, about book club fines, say, and watch the escape instruction do the job you wrote it for in Chapter 5. Finally, repeat the grounded exercise with documents of your own: a course outline, a policy, a manual.
+Run both routes on the networking samples. Ask what TCP does, how HTTP works, and what distinguishes TCP from UDP, the starter questions from the project guide. Then ask something the documents cannot answer, about book club fines, say, and watch the escape instruction do the job you wrote it for in Chapter 6. Finally, repeat the grounded exercise with documents of your own: a course outline, a policy, a manual.
 
 ::: {.callout-warning title="The index is a snapshot"}
 Indexing reads the documents as they were at indexing time. Edit a document afterwards and the bot keeps answering from the old text, confidently and with citations, until somebody rebuilds the index. Stale indexes are the quietest failure in RAG systems because nothing errors: the fetch works, the answer is fluent, the source file exists. Only the content moved. Any team running RAG in earnest needs a rebuild habit tied to how its documents change, and now you know why that sentence belongs in their design rather than their apologies.
@@ -136,19 +136,19 @@ Indexing reads the documents as they were at indexing time. Edit a document afte
 
 ## Practice Exercises
 
-**Exercise 6.1 (Level 1).** Copy the sample documents, build the index, and ask the three starter questions with `--context`. For one answer, open the named source file and find the sentence the answer rests on.
+**Exercise 7.1 (Level 1).** Copy the sample documents, build the index, and ask the three starter questions with `--context`. For one answer, open the named source file and find the sentence the answer rests on.
 
-**Exercise 6.2 (Level 2).** Rebuild the index at a chunk size of 50 words, then at 500. Ask the same five questions against each and keep score: answered well, answered from the wrong chunk, or declined. Which size served your questions better, and what did it cost?
+**Exercise 7.2 (Level 2).** Rebuild the index at a chunk size of 50 words, then at 500. Ask the same five questions against each and keep score: answered well, answered from the wrong chunk, or declined. Which size served your questions better, and what did it cost?
 
-**Exercise 6.3 (Level 3).** Index a document of your own choosing, at least a few pages. Write three questions it answers and two it does not. Run all five with `--scores` and record whether the unanswerable ones declined gracefully.
+**Exercise 7.3 (Level 3).** Index a document of your own choosing, at least a few pages. Write three questions it answers and two it does not. Run all five with `--scores` and record whether the unanswerable ones declined gracefully.
 
-**Exercise 6.4 (Level 4).** Engineer a severed fact. Write a two-sentence document where a small chunk size must cut between a rule and its number, index it at that size, and ask for the number. Then fix the failure twice: once with chunk size, once with question wording. Which fix generalises?
+**Exercise 7.4 (Level 4).** Engineer a severed fact. Write a two-sentence document where a small chunk size must cut between a rule and its number, index it at that size, and ask for the number. Then fix the failure twice: once with chunk size, once with question wording. Which fix generalises?
 
-**Exercise 6.5 (Level 5).** Take a RAG product or pitch you can access, demo pages included. Write the four questions from "Where a Demo Can Mislead You" against it, answer each from public material where you can, and mark the ones the vendor leaves unanswerable. Conclude with what you would pilot before paying.
+**Exercise 7.5 (Level 5).** Take a RAG product or pitch you can access, demo pages included. Write the four questions from "Where a Demo Can Mislead You" against it, answer each from public material where you can, and mark the ones the vendor leaves unanswerable. Conclude with what you would pilot before paying.
 
 ## Chapter Summary
 
-- RAG automates Chapter 5's manual paste: index once, then per question, fetch relevant chunks, assemble a context prompt, and make the ordinary call.
+- RAG automates Chapter 6's manual paste: index once, then per question, fetch relevant chunks, assemble a context prompt, and make the ordinary call.
 - Indexing loads files (`.txt`, `.md`, `.docx`, `.pdf`), cuts text into word-count chunks with no overlap, embeds each chunk, and saves vectors, chunks, and source paths in one `index.npz` file.
 - An embedding model turns text into numbers whose direction encodes topic. `get_top_k` embeds the question, scores every chunk by cosine similarity, and returns the best few with their sources.
 - Chunk size trades precision against intact context and token cost. Retrieval closeness measures topic, not truth, and question wording steers the fetch.

@@ -97,7 +97,7 @@ Name: Sam
 Sam used 53 tokens.
 ```
 
-Chapter 6 builds a prompt by assembling strings this way; `f"..."` there is an f-string like the one above.
+Chapter 7 builds a prompt by assembling strings this way; `f"..."` there is an f-string like the one above.
 
 *First used in @sec-one-call. F-strings first used in @sec-chunk-fetch-answer.*
 
@@ -248,7 +248,7 @@ for chunk in chunks:
 - third chunk
 ```
 
-The name `chunk` is a variable that takes each item's value in turn. The body can do more than print. Chapter 6 loops over retrieved chunks to build one long prompt string, adding a line per chunk:
+The name `chunk` is a variable that takes each item's value in turn. The body can do more than print. Chapter 7 loops over retrieved chunks to build one long prompt string, adding a line per chunk:
 
 ```python
 prompt = "Context:\n"

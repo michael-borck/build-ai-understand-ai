@@ -11,11 +11,11 @@ The package resolves its configuration in a fixed order, weakest first: built-in
 | `HANDS_ON_AI_SERVER` | Chat, embedding, and vision server address | `http://localhost:11434` |
 | `HANDS_ON_AI_API_KEY` | Key for every server above | unset (local servers ignore it) |
 | `HANDS_ON_AI_MODEL` | Chat model | `llama3` |
-| `HANDS_ON_AI_EMBEDDING_MODEL` | Retrieval embeddings, Chapter 6 | `nomic-embed-text` |
-| `HANDS_ON_AI_VISION_MODEL` | Vision model, Chapter 13 | `moondream` |
-| `HANDS_ON_AI_STT_SERVER` | Speech-to-text server, Chapter 14 | the main server |
+| `HANDS_ON_AI_EMBEDDING_MODEL` | Retrieval embeddings, Chapter 7 | `nomic-embed-text` |
+| `HANDS_ON_AI_VISION_MODEL` | Vision model, Chapter 14 | `moondream` |
+| `HANDS_ON_AI_STT_SERVER` | Speech-to-text server, Chapter 15 | the main server |
 | `HANDS_ON_AI_STT_MODEL` | Transcription model | `whisper-1` |
-| `HANDS_ON_AI_TTS_SERVER` | Text-to-speech server, Chapter 14 | the main server |
+| `HANDS_ON_AI_TTS_SERVER` | Text-to-speech server, Chapter 15 | the main server |
 | `HANDS_ON_AI_TTS_MODEL` | Speech model | `kokoro` |
 | `HANDS_ON_AI_CACHE` | Response cache directory | unset, caching off |
 | `HANDS_ON_AI_LOG` | Set to `debug` for verbose logging | unset |
@@ -28,11 +28,11 @@ Ollama covers chat, embeddings, and vision from one install at `http://localhost
 
 ```bash
 ollama pull llama3           # chat (Parts I to IV)
-ollama pull nomic-embed-text # retrieval (Chapter 6)
-ollama pull moondream        # vision (Chapter 13)
+ollama pull nomic-embed-text # retrieval (Chapter 7)
+ollama pull moondream        # vision (Chapter 14)
 ```
 
-Audio is the local exception. Transcription and speech typically come from a small separate server that speaks the same `/v1/audio/` dialect: speaches or whisper.cpp serving a Whisper model for speech-to-text, Kokoro or Piper for text-to-speech. Point `HANDS_ON_AI_STT_SERVER` and `HANDS_ON_AI_TTS_SERVER` at them and Chapter 14 works untouched. Local everything is the private, offline, per-call-free route; its costs are your hardware's limits on model size and patience, felt most in Parts III and V.
+Audio is the local exception. Transcription and speech typically come from a small separate server that speaks the same `/v1/audio/` dialect: speaches or whisper.cpp serving a Whisper model for speech-to-text, Kokoro or Piper for text-to-speech. Point `HANDS_ON_AI_STT_SERVER` and `HANDS_ON_AI_TTS_SERVER` at them and Chapter 15 works untouched. Local everything is the private, offline, per-call-free route; its costs are your hardware's limits on model size and patience, felt most in Parts III and V.
 
 ## Hosted Providers
 
@@ -56,7 +56,7 @@ Local calls cost time; hosted calls cost money per token. Either way, the shape 
 |---|---|
 | Part I scripts | 1 per line you run |
 | `Conversation` | 1 per turn, over a resent transcript that grows |
-| Indexing, Chapter 6 | 1 embedding call for all chunks, then 1 per question plus its embedding |
+| Indexing, Chapter 7 | 1 embedding call for all chunks, then 1 per question plus its embedding |
 | One agent run | 1 per iteration, up to `max_iterations` |
 | One judged loop iteration | 1 step call + 1 judge call |
 | One ratchet proposal | 1 step call + 1 scoring call, plus 1 to score the start |
@@ -76,11 +76,11 @@ Setting `HANDS_ON_AI_CACHE` to a directory turns on a plain-text reply cache for
 | `❌ Error: Connection error.` | Server off, wrong address, blocked network | `handsonai doctor`; read the resolved server aloud |
 | Error naming a model | Model never pulled, or name mismatch | `handsonai models`; compare with your settings exactly |
 | 401 or 403 from a hosted server | Missing or wrong key | `HANDS_ON_AI_API_KEY` present in *this* terminal |
-| Chat works, Chapter 6 fails | Embedding model missing | `ollama pull nomic-embed-text`, or the embedding setting |
-| Chapter 13 fails, chat fine | Vision model missing or not vision-capable | `vision_model` setting; pull `moondream` |
-| Chapter 14 fails, all else fine | Audio needs its own server | `STT`/`TTS` server variables actually set |
+| Chat works, Chapter 7 fails | Embedding model missing | `ollama pull nomic-embed-text`, or the embedding setting |
+| Chapter 14 fails, chat fine | Vision model missing or not vision-capable | `vision_model` setting; pull `moondream` |
+| Chapter 15 fails, all else fine | Audio needs its own server | `STT`/`TTS` server variables actually set |
 | Answers never change however you edit | The cache is serving stored replies | Unset `HANDS_ON_AI_CACHE` or delete the directory |
-| Agent replies look unstructured | Small model in the text format | Let `format="auto"` choose, as Chapter 8 discussed |
+| Agent replies look unstructured | Small model in the text format | Let `format="auto"` choose, as Chapter 9 discussed |
 | Everything worked yesterday | Settings were terminal-session exports | Put durable choices in `~/.hands-on-ai/config.json` |
 
 One habit resolves most rows: run the doctor, read what it resolved, and argue with settings before arguing with scripts. The scripts in this book are short and seldom the problem; when they are, the error strings Part I taught you to read will usually say which line to look at.

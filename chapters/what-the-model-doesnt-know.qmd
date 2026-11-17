@@ -29,7 +29,7 @@ The failure sits with the request: somebody asked for an internal fact without h
 You need a fact the model cannot have from training. The surest supply is a small organisation of your own invention. This listing asks about one.
 
 ```python
-# Listing 5.1 of 2: a question with no source (cannot_know.py)
+# Listing 6.1 of 2: a question with no source (cannot_know.py)
 from hands_on_ai.chat import get_response
 
 question = (
@@ -52,7 +52,7 @@ Try a second family of unknowable questions while you are here: the very recent 
 Now write the rules yourself, put them in the prompt, and ask again.
 
 ```python
-# Listing 5.2 of 2: grounding by hand (grounded_by_hand.py)
+# Listing 6.2 of 2: grounding by hand (grounded_by_hand.py)
 from hands_on_ai.chat import get_response
 
 rules = """
@@ -80,9 +80,9 @@ print(get_response(
 
 The reply now has somewhere true to stand, and you can check it against the four lines you wrote. Three changes did the work. The evidence is inside the payload, as part of the prompt string. The question tells the model to base its answer on that text. And the system prompt, the standing instruction from Chapter 2, gives it a permitted way to decline: if the text does not say, say so. A model with no graceful exit will usually improvise one, and giving it the exact sentence to use when the evidence runs out is a small, repeatable defence.
 
-Test the exit. Add a second question your rules never address, about guest passes or meeting nights, and watch whether the reply uses your escape sentence or quietly invents a policy anyway. Models differ in obedience here, and instruction alone is a soft guardrail: it lowers invention, it does not abolish it. Chapter 11 returns to measuring how often such instructions hold. Record what yours did.
+Test the exit. Add a second question your rules never address, about guest passes or meeting nights, and watch whether the reply uses your escape sentence or quietly invents a policy anyway. Models differ in obedience here, and instruction alone is a soft guardrail: it lowers invention, it does not abolish it. Chapter 12 returns to measuring how often such instructions hold. Record what yours did.
 
-You selected relevant text. You pasted it into the prompt ahead of the question. You instructed the model to answer from the text and to say when the text runs out. The only part you did personally, by hand, with copy and paste, is the part Chapter 6 hands to code.
+You selected relevant text. You pasted it into the prompt ahead of the question. You instructed the model to answer from the text and to say when the text runs out. The only part you did personally, by hand, with copy and paste, is the part Chapter 7 hands to code.
 
 ## What Asking Bare Questions Costs
 
@@ -100,15 +100,15 @@ A demo question is chosen by the demonstrator, and demonstrators instinctively c
 
 ## Practice Exercises
 
-**Exercise 5.1 (Level 1).** Run `cannot_know.py` three times. Note whether the invented numbers stay the same across runs. What does their stability, or lack of it, tell you?
+**Exercise 6.1 (Level 1).** Run `cannot_know.py` three times. Note whether the invented numbers stay the same across runs. What does their stability, or lack of it, tell you?
 
-**Exercise 5.2 (Level 2).** Ask your bare model about an event from the last seven days and one from five years ago, both of which you can check. Record accuracy and tone for each. Which answer sounded more confident, and was it the right one?
+**Exercise 6.2 (Level 2).** Ask your bare model about an event from the last seven days and one from five years ago, both of which you can check. Record accuracy and tone for each. Which answer sounded more confident, and was it the right one?
 
-**Exercise 5.3 (Level 3).** Replace the book club rules with a short real document of yours: a timetable, a price list, a policy page. Ask two questions the document answers and one it does not. Check all three replies against the document, line by line.
+**Exercise 6.3 (Level 3).** Replace the book club rules with a short real document of yours: a timetable, a price list, a policy page. Ask two questions the document answers and one it does not. Check all three replies against the document, line by line.
 
-**Exercise 5.4 (Level 4).** Weaken Listing 5.2 in stages: remove the system prompt's escape sentence, then remove "based only on the rules above" from the question. Re-ask the unanswerable question at each stage. Which removal cost you more honesty?
+**Exercise 6.4 (Level 4).** Weaken Listing 6.2 in stages: remove the system prompt's escape sentence, then remove "based only on the rules above" from the question. Re-ask the unanswerable question at each stage. Which removal cost you more honesty?
 
-**Exercise 5.5 (Level 5).** Write a five-question trap set for a bare model: one internal fact, one recent event, one stable public fact, one question about a document only you have, one trick with a false premise. Predict the outcome of each in writing before you run them. Score your predictions as well as the model.
+**Exercise 6.5 (Level 5).** Write a five-question trap set for a bare model: one internal fact, one recent event, one stable public fact, one question about a document only you have, one trick with a false premise. Predict the outcome of each in writing before you run them. Score your predictions as well as the model.
 
 ## Chapter Summary
 
